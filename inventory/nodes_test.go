@@ -11,21 +11,11 @@ import (
 	_ "github.com/Percona-Lab/pmm-api-tests" // init default client
 )
 
-func removeNodes(t *testing.T, nodeList ...string) {
-	t.Helper()
-	for _, node := range nodeList {
-		params := &nodes.RemoveNodeParams{
-			Body:    nodes.RemoveNodeBody{NodeID: node},
-			Context: context.TODO(),
-		}
-		res, err := client.Default.Nodes.RemoveNode(params)
-		require.NoError(t, err)
-		require.NotNil(t, res)
-	}
-}
-
 func TestNodes(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
+		remoteNodeID := addRemoteNode(t, "Test Remote Node for List")
+		defer removeNodes(t, remoteNodeID)
+
 		res, err := client.Default.Nodes.ListNodes(nil)
 		require.NoError(t, err)
 		require.NotZerof(t, len(res.Payload.Generic), "There should be at least one node")
@@ -36,7 +26,16 @@ func TestNodes(t *testing.T) {
 				}
 			}
 			return false
-		}, "There should be node with id `pmm-server`")
+		}, "There should be generic node with id `pmm-server`")
+		require.NotZerof(t, len(res.Payload.Remote), "There should be at least one node")
+		require.Conditionf(t, func() (success bool) {
+			for _, v := range res.Payload.Remote {
+				if v.NodeID == remoteNodeID {
+					return true
+				}
+			}
+			return false
+		}, "There should be remote node with id `%s`", remoteNodeID)
 	})
 }
 
@@ -244,6 +243,8 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 		params := &nodes.AddRemoteAmazonRDSNodeParams{
 			Body: nodes.AddRemoteAmazonRDSNodeBody{
 				NodeName: "Test RemoteAmazonRDS Node",
+				Instance: "some-instance",
+				Region:   "us-east-1",
 			},
 			Context: context.TODO(),
 		}
@@ -253,7 +254,7 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 		nodeID := res.Payload.RemoteAmazonRDS.NodeID
 		defer removeNodes(t, nodeID)
 
-		// Check node exists in DB.
+		// Check if the node saved in PMM-Managed.
 		getNodeRes, err := client.Default.Nodes.GetNode(&nodes.GetNodeParams{
 			Body:    nodes.GetNodeBody{NodeID: nodeID},
 			Context: context.TODO(),
@@ -282,7 +283,39 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
 		params := &nodes.AddRemoteAmazonRDSNodeParams{
-			Body:    nodes.AddRemoteAmazonRDSNodeBody{NodeName: ""},
+			Body: nodes.AddRemoteAmazonRDSNodeBody{
+				NodeName: "",
+				Instance: "some-instance-without-name",
+				Region:   "us-east-1",
+			},
+			Context: context.TODO(),
+		}
+		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
+		require.Error(t, err) // Can't use EqualError because it returns different references each time.
+		require.Contains(t, err.Error(), "unknown error (status 400)")
+		require.Nil(t, res)
+	})
+
+	t.Run("AddInstanceEmpty", func(t *testing.T) {
+		params := &nodes.AddRemoteAmazonRDSNodeParams{
+			Body: nodes.AddRemoteAmazonRDSNodeBody{
+				NodeName: "Remote AmazonRDSNode without instance",
+				Region:   "us-west-1",
+			},
+			Context: context.TODO(),
+		}
+		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
+		require.Error(t, err) // Can't use EqualError because it returns different references each time.
+		require.Contains(t, err.Error(), "unknown error (status 400)")
+		require.Nil(t, res)
+	})
+
+	t.Run("AddRegionEmpty", func(t *testing.T) {
+		params := &nodes.AddRemoteAmazonRDSNodeParams{
+			Body: nodes.AddRemoteAmazonRDSNodeBody{
+				NodeName: "Remote AmazonRDSNode without instance",
+				Instance: "instance-without-region",
+			},
 			Context: context.TODO(),
 		}
 		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
