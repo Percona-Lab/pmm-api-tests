@@ -13,9 +13,9 @@ import (
 	_ "github.com/Percona-Lab/pmm-api-tests" // init default client
 )
 
-func removeNodes(t *testing.T, nodeList ...string) {
+func removeNodes(t *testing.T, nodeIDs ...string) {
 	t.Helper()
-	for _, nodeID := range nodeList {
+	for _, nodeID := range nodeIDs {
 		params := &nodes.RemoveNodeParams{
 			Body:    nodes.RemoveNodeBody{NodeID: nodeID},
 			Context: context.TODO(),
@@ -41,9 +41,9 @@ func addRemoteNode(t *testing.T, nodeName string) string {
 	return nodeID
 }
 
-func removeServices(t *testing.T, serviceList ...string) {
+func removeServices(t *testing.T, serviceIDs ...string) {
 	t.Helper()
-	for _, serviceID := range serviceList {
+	for _, serviceID := range serviceIDs {
 		params := &services.RemoveServiceParams{
 			Body:    services.RemoveServiceBody{ServiceID: serviceID},
 			Context: context.TODO(),
@@ -68,7 +68,35 @@ func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) string {
 	return res.Payload.Mysql.ServiceID
 }
 
+func removeAgents(t *testing.T, agentIDs ...string) {
+	t.Helper()
+	for _, agentID := range agentIDs {
+		params := &agents.RemoveAgentParams{
+			Body:    agents.RemoveAgentBody{AgentID: agentID},
+			Context: context.TODO(),
+		}
+		res, err := client.Default.Agents.RemoveAgent(params)
+		require.NoError(t, err)
+		require.NotNil(t, res)
+	}
+}
+
+func addPMMAgent(t *testing.T, node string) (*agents.AddPMMAgentOK, error) {
+	t.Helper()
+	res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
+		Body:    agents.AddPMMAgentBody{NodeID: node},
+		Context: context.TODO(),
+	})
+	require.NoError(t, err)
+	require.NotNil(t, res)
+	require.NotNil(t, res.Payload)
+	require.NotNil(t, res.Payload.PMMAgent)
+	require.NotNil(t, res.Payload.PMMAgent.AgentID)
+	return res, err
+}
+
 func addMySqldExporter(t *testing.T, body agents.AddMySqldExporterBody) *agents.AddMySqldExporterOKBody {
+	t.Helper()
 	agentRes, err := client.Default.Agents.AddMySqldExporter(&agents.AddMySqldExporterParams{
 		Body:    body,
 		Context: context.TODO(),

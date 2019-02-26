@@ -14,18 +14,28 @@ import (
 func TestServices(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
 		t.Parallel()
-		body := services.AddMySQLServiceBody{
+		remoteNodeID := addRemoteNode(t, "Remote node for services test")
+		defer removeNodes(t, remoteNodeID)
+
+		serviceID := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      "pmm-server",
 			Address:     "localhost",
 			Port:        3306,
 			ServiceName: "Some MySQL Service",
-		}
-		serviceID := addMySQLService(t, body)
+		})
 		defer removeServices(t, serviceID)
+
+		remoteServiceID := addMySQLService(t, services.AddMySQLServiceBody{
+			NodeID:      remoteNodeID,
+			Address:     "localhost",
+			Port:        3306,
+			ServiceName: "Some MySQL Service on remote Node",
+		})
+		defer removeServices(t, remoteServiceID)
+
 		res, err := client.Default.Services.ListServices(&services.ListServicesParams{Context: context.TODO()})
 		require.NoError(t, err)
 		require.NotNil(t, res)
-
 		require.NotZerof(t, len(res.Payload.Mysql), "There should be at least one node")
 		require.Conditionf(t, func() (success bool) {
 			for _, v := range res.Payload.Mysql {
@@ -35,6 +45,85 @@ func TestServices(t *testing.T) {
 			}
 			return false
 		}, "There should be MySQL service with id `%s`", serviceID)
+		require.Conditionf(t, func() (success bool) {
+			for _, v := range res.Payload.Mysql {
+				if v.ServiceID == remoteServiceID {
+					return true
+				}
+			}
+			return false
+		}, "There should be MySQL service with id `%s`", remoteServiceID)
+	})
+
+	t.Run("FilterList", func(t *testing.T) {
+		t.Skip("Have not implemented yet.")
+		t.Parallel()
+		remoteNodeID := addRemoteNode(t, "Remote node to check services filter")
+		defer removeNodes(t, remoteNodeID)
+
+		serviceID := addMySQLService(t, services.AddMySQLServiceBody{
+			NodeID:      "pmm-server",
+			Address:     "localhost",
+			Port:        3306,
+			ServiceName: "Some MySQL Service for filters test",
+		})
+		defer removeServices(t, serviceID)
+
+		remoteServiceID := addMySQLService(t, services.AddMySQLServiceBody{
+			NodeID:      remoteNodeID,
+			Address:     "localhost",
+			Port:        3306,
+			ServiceName: "Some MySQL Service on remote Node for filters test",
+		})
+		defer removeServices(t, remoteServiceID)
+
+		res, err := client.Default.Services.ListServices(&services.ListServicesParams{
+			Body:    services.ListServicesBody{NodeID: remoteNodeID},
+			Context: context.TODO(),
+		})
+		require.NoError(t, err)
+		require.NotNil(t, res)
+		require.NotZerof(t, len(res.Payload.Mysql), "There should be at least one node")
+		require.Conditionf(t, func() (success bool) {
+			for _, v := range res.Payload.Mysql {
+				if v.ServiceID == serviceID {
+					return false
+				}
+			}
+			return true
+		}, "There should not be MySQL service with id `%s`", serviceID)
+		require.Conditionf(t, func() (success bool) {
+			for _, v := range res.Payload.Mysql {
+				if v.ServiceID == remoteServiceID {
+					return true
+				}
+			}
+			return false
+		}, "There should be MySQL service with id `%s`", remoteServiceID)
+	})
+}
+
+func TestGetService(t *testing.T) {
+	t.Run("NotFound", func(t *testing.T) {
+		params := &services.GetServiceParams{
+			Body:    services.GetServiceBody{ServiceID: "pmm-not-found"},
+			Context: context.TODO(),
+		}
+		res, err := client.Default.Services.GetService(params)
+		require.Error(t, err) // Can't use EqualError because it returns different references each time.
+		require.Contains(t, err.Error(), "unknown error (status 404)")
+		require.Nil(t, res)
+	})
+
+	t.Run("EmptyServiceID", func(t *testing.T) {
+		params := &services.GetServiceParams{
+			Body:    services.GetServiceBody{ServiceID: ""},
+			Context: context.TODO(),
+		}
+		res, err := client.Default.Services.GetService(params)
+		require.Error(t, err) // Can't use EqualError because it returns different references each time.
+		require.Contains(t, err.Error(), "unknown error (status 400)")
+		require.Nil(t, res)
 	})
 }
 
@@ -108,6 +197,7 @@ func TestMySQLService(t *testing.T) {
 			Body:    services.GetServiceBody{ServiceID: serviceID},
 			Context: context.TODO(),
 		})
+		require.NoError(t, err)
 
 		// Change MySQL service name.
 		changeRes, err := client.Default.Services.ChangeMySQLService(&services.ChangeMySQLServiceParams{
@@ -127,6 +217,7 @@ func TestMySQLService(t *testing.T) {
 			Body:    services.GetServiceBody{ServiceID: serviceID},
 			Context: context.TODO(),
 		})
+		require.NoError(t, err)
 		require.Equal(t, "Changed MySQL Service", changedService.Payload.Mysql.ServiceName)
 		// Check that other fields isn't changed.
 		require.Equal(t, service.Payload.Mysql.Port, changedService.Payload.Mysql.Port)
@@ -149,6 +240,7 @@ func TestMySQLService(t *testing.T) {
 			Body:    services.GetServiceBody{ServiceID: serviceID},
 			Context: context.TODO(),
 		})
+		require.NoError(t, err)
 
 		// Change MySQL service name.
 		newPort := int64(3337)
@@ -169,11 +261,29 @@ func TestMySQLService(t *testing.T) {
 			Body:    services.GetServiceBody{ServiceID: serviceID},
 			Context: context.TODO(),
 		})
+		require.NoError(t, err)
 		require.Equal(t, newPort, changedService.Payload.Mysql.Port)
 		// Check that other fields isn't changed.
 		require.Equal(t, service.Payload.Mysql.ServiceName, changedService.Payload.Mysql.ServiceName)
 		require.Equal(t, service.Payload.Mysql.Address, changedService.Payload.Mysql.Address)
 		require.Equal(t, service.Payload.Mysql.NodeID, changedService.Payload.Mysql.NodeID)
+	})
+
+	t.Run("AddNodeIDEmpty", func(t *testing.T) {
+		t.Parallel()
+		params := &services.AddMySQLServiceParams{
+			Body: services.AddMySQLServiceBody{
+				NodeID:      "",
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: "MySQL Service with empty node id",
+			},
+			Context: context.TODO(),
+		}
+		res, err := client.Default.Services.AddMySQLService(params)
+		require.Error(t, err) // Can't use EqualError because it returns different references each time.
+		require.Contains(t, err.Error(), "unknown error (status 400)")
+		require.Nil(t, res)
 	})
 }
 
