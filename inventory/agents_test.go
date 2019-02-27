@@ -233,6 +233,11 @@ func TestNodeExporter(t *testing.T) {
 			},
 			Context: context.TODO(),
 		})
+		require.NoError(t, err)
+		require.NotNil(t, res)
+		require.NotNil(t, res.Payload)
+		require.NotNil(t, res.Payload.NodeExporter)
+		require.NotNil(t, res.Payload.NodeExporter.AgentID)
 		require.Equal(t, nodeID, res.Payload.NodeExporter.NodeID)
 		agentID := res.Payload.NodeExporter.AgentID
 		defer removeAgents(t, agentID)
