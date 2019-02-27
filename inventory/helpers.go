@@ -81,7 +81,7 @@ func removeAgents(t *testing.T, agentIDs ...string) {
 	}
 }
 
-func addPMMAgent(t *testing.T, node string) (*agents.AddPMMAgentOK, error) {
+func addPMMAgent(t *testing.T, node string) *agents.AddPMMAgentOK {
 	t.Helper()
 	res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
 		Body:    agents.AddPMMAgentBody{NodeID: node},
@@ -92,7 +92,7 @@ func addPMMAgent(t *testing.T, node string) (*agents.AddPMMAgentOK, error) {
 	require.NotNil(t, res.Payload)
 	require.NotNil(t, res.Payload.PMMAgent)
 	require.NotNil(t, res.Payload.PMMAgent.AgentID)
-	return res, err
+	return res
 }
 
 func addMySqldExporter(t *testing.T, body agents.AddMySqldExporterBody) *agents.AddMySqldExporterOKBody {

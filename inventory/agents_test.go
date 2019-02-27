@@ -36,7 +36,7 @@ func TestAgents(t *testing.T) {
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer removeAgents(t, mySqldExporterID)
 
-		pmmAgent, err := addPMMAgent(t, nodeID)
+		pmmAgent := addPMMAgent(t, nodeID)
 		pmmAgentID := pmmAgent.Payload.PMMAgent.AgentID
 		defer removeAgents(t, pmmAgentID)
 
@@ -86,7 +86,7 @@ func TestAgents(t *testing.T) {
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer removeAgents(t, mySqldExporterID)
 
-		pmmAgent, err := addPMMAgent(t, nodeID)
+		pmmAgent := addPMMAgent(t, nodeID)
 		pmmAgentID := pmmAgent.Payload.PMMAgent.AgentID
 		defer removeAgents(t, pmmAgentID)
 
@@ -190,7 +190,7 @@ func TestPMMAgent(t *testing.T) {
 		nodeID := addRemoteNode(t, "Remote node for PMM-agent")
 		defer removeNodes(t, nodeID)
 
-		res, err := addPMMAgent(t, nodeID)
+		res := addPMMAgent(t, nodeID)
 		require.Equal(t, nodeID, res.Payload.PMMAgent.NodeID)
 		agentID := res.Payload.PMMAgent.AgentID
 		defer removeAgents(t, agentID)
