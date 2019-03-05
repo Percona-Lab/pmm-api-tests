@@ -137,6 +137,14 @@
   version = "v0.18.0"
 
 [[projects]]
+  digest = "1:ad92aa49f34cbc3546063c7eb2cabb55ee2278b72842eda80e2a20a8a06a8d73"
+  name = "github.com/google/uuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "0cd6bf5da1e1c83f8b45653022c74f71af0538a4"
+  version = "v1.1.1"
+
+[[projects]]
   digest = "1:0f51cee70b0d254dbc93c22666ea2abf211af81c1701a96d04e2284b408621db"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
@@ -166,7 +174,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:81dbdd46d8009aff370862ea24d8d94bd33f5900dfd634d82f4d1bee52a6c7d1"
+  digest = "1:1b22b6fefe64144b89cc6158aa9e319bef208cd794b3b2ce5796be89b3f4d801"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventory/json/client",
@@ -175,7 +183,7 @@
     "api/inventory/json/client/services",
   ]
   pruneopts = ""
-  revision = "9f85e7531e17aa05a3df8e07b66029b94d78a3d1"
+  revision = "cf426f3be5a47b8161ef5592b6dc0d70d3b3fe31"
 
 [[projects]]
   digest = "1:256484dbbcd271f9ecebc6795b2df8cad4c458dd0f5fd82a8c2fa0c29f233411"
@@ -268,12 +276,14 @@
   analyzer-version = 1
   input-imports = [
     "github.com/go-openapi/runtime/client",
+    "github.com/google/uuid",
     "github.com/percona/pmm/api/inventory/json/client",
     "github.com/percona/pmm/api/inventory/json/client/agents",
     "github.com/percona/pmm/api/inventory/json/client/nodes",
     "github.com/percona/pmm/api/inventory/json/client/services",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/require",
+    "golang.org/x/sys/unix",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

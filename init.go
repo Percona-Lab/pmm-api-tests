@@ -1,18 +1,25 @@
 package pmmapitests
 
 import (
+	"context"
 	"crypto/tls"
 	"flag"
 	"net/http"
 	"net/url"
+	"os"
+	"os/signal"
+	"syscall"
 
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/unix"
 )
 
+var Context context.Context
+var ServerURLF = flag.String("pmm.server-url", "https://127.0.0.1:8443/", "PMM Server URL.")
+
 func init() {
-	serverURLF := flag.String("pmm.server-url", "https://127.0.0.1:8443/", "PMM Server URL.")
 	debugF := flag.Bool("pmm.debug", false, "Enable debug output.")
 	flag.Parse()
 
@@ -21,7 +28,20 @@ func init() {
 		logrus.Debug("Debug logging enabled.")
 	}
 
-	u, err := url.Parse(*serverURLF)
+	var cancel func()
+	Context, cancel = context.WithCancel(context.TODO())
+
+	// handle termination signals
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
+	go func() {
+		s := <-signals
+		signal.Stop(signals)
+		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(syscall.Signal)))
+		cancel()
+	}()
+
+	u, err := url.Parse(*ServerURLF)
 	if err != nil {
 		logrus.Fatalf("Failed to parse PMM Server URL: %s.", err)
 	}

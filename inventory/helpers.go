@@ -2,8 +2,11 @@ package inventory
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/api/inventory/json/client/agents"
 	"github.com/percona/pmm/api/inventory/json/client/nodes"
@@ -12,6 +15,15 @@ import (
 
 	_ "github.com/Percona-Lab/pmm-api-tests" // init default client
 )
+
+func withUUID(t *testing.T, name string) string {
+	hostname, err := os.Hostname()
+	require.NoError(t, err)
+	random, err := uuid.NewRandom()
+	require.NoError(t, err)
+
+	return fmt.Sprintf("test-for-%s-%s-%s", hostname, name, random.String())
+}
 
 func removeNodes(t *testing.T, nodeIDs ...string) {
 	t.Helper()
@@ -26,7 +38,21 @@ func removeNodes(t *testing.T, nodeIDs ...string) {
 	}
 }
 
-func addRemoteNode(t *testing.T, nodeName string) string {
+func addGenericNode(t *testing.T, nodeName string) *nodes.AddGenericNodeOKBody {
+	t.Helper()
+	params := &nodes.AddGenericNodeParams{
+		Body: nodes.AddGenericNodeBody{
+			NodeName: nodeName,
+		},
+		Context: context.TODO(),
+	}
+	res, err := client.Default.Nodes.AddGenericNode(params)
+	require.NoError(t, err)
+	require.NotNil(t, res.Payload.Generic)
+	return res.Payload
+}
+
+func addRemoteNode(t *testing.T, nodeName string) *nodes.AddRemoteNodeOKBody {
 	t.Helper()
 	params := &nodes.AddRemoteNodeParams{
 		Body: nodes.AddRemoteNodeBody{
@@ -36,9 +62,10 @@ func addRemoteNode(t *testing.T, nodeName string) string {
 	}
 	res, err := client.Default.Nodes.AddRemoteNode(params)
 	require.NoError(t, err)
+	require.NotNil(t, res)
+	require.NotNil(t, res.Payload)
 	require.NotNil(t, res.Payload.Remote)
-	nodeID := res.Payload.Remote.NodeID
-	return nodeID
+	return res.Payload
 }
 
 func removeServices(t *testing.T, serviceIDs ...string) {
@@ -54,7 +81,7 @@ func removeServices(t *testing.T, serviceIDs ...string) {
 	}
 }
 
-func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) string {
+func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.AddMySQLServiceOKBody {
 	t.Helper()
 	params := &services.AddMySQLServiceParams{
 		Body:    body,
@@ -65,7 +92,7 @@ func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) string {
 	require.NotNil(t, res)
 	require.NotNil(t, res.Payload.Mysql)
 	require.NotEmpty(t, res.Payload.Mysql.ServiceID)
-	return res.Payload.Mysql.ServiceID
+	return res.Payload
 }
 
 func removeAgents(t *testing.T, agentIDs ...string) {
@@ -81,7 +108,7 @@ func removeAgents(t *testing.T, agentIDs ...string) {
 	}
 }
 
-func addPMMAgent(t *testing.T, node string) *agents.AddPMMAgentOK {
+func addPMMAgent(t *testing.T, node string) *agents.AddPMMAgentOKBody {
 	t.Helper()
 	res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
 		Body:    agents.AddPMMAgentBody{NodeID: node},
@@ -92,7 +119,7 @@ func addPMMAgent(t *testing.T, node string) *agents.AddPMMAgentOK {
 	require.NotNil(t, res.Payload)
 	require.NotNil(t, res.Payload.PMMAgent)
 	require.NotNil(t, res.Payload.PMMAgent.AgentID)
-	return res
+	return res.Payload
 }
 
 func addMySqldExporter(t *testing.T, body agents.AddMySqldExporterBody) *agents.AddMySqldExporterOKBody {

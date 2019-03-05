@@ -1,27 +1,30 @@
 package inventory
 
 import (
-	"context"
 	"testing"
 
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/api/inventory/json/client/nodes"
 	"github.com/stretchr/testify/require"
 
-	_ "github.com/Percona-Lab/pmm-api-tests" // init default client
+	"github.com/Percona-Lab/pmm-api-tests"
 )
 
 func TestNodes(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
-		remoteNodeID := addRemoteNode(t, "Test Remote Node for List")
+		remoteNode := addRemoteNode(t, withUUID(t, "Test Remote Node for List"))
+		remoteNodeID := remoteNode.Remote.NodeID
 		defer removeNodes(t, remoteNodeID)
+		genericNode := addGenericNode(t, withUUID(t, "Test Remote Node for List"))
+		genericNodeID := genericNode.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
 
 		res, err := client.Default.Nodes.ListNodes(nil)
 		require.NoError(t, err)
 		require.NotZerof(t, len(res.Payload.Generic), "There should be at least one node")
 		require.Condition(t, func() (success bool) {
 			for _, v := range res.Payload.Generic {
-				if v.NodeID == "pmm-server" {
+				if v.NodeID == genericNodeID {
 					return true
 				}
 			}
@@ -43,7 +46,7 @@ func TestGetNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		params := &nodes.GetNodeParams{
 			Body:    nodes.GetNodeBody{NodeID: "pmm-server"},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.GetNode(params)
 		require.NoError(t, err)
@@ -58,7 +61,7 @@ func TestGetNode(t *testing.T) {
 	t.Run("NotFound", func(t *testing.T) {
 		params := &nodes.GetNodeParams{
 			Body:    nodes.GetNodeBody{NodeID: "pmm-not-found"},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.GetNode(params)
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
@@ -69,7 +72,7 @@ func TestGetNode(t *testing.T) {
 	t.Run("EmptyNodeID", func(t *testing.T) {
 		params := &nodes.GetNodeParams{
 			Body:    nodes.GetNodeBody{},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.GetNode(params)
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
@@ -81,8 +84,8 @@ func TestGetNode(t *testing.T) {
 func TestGenericNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		params := &nodes.AddGenericNodeParams{
-			Body:    nodes.AddGenericNodeBody{NodeName: "Test Generic Node"},
-			Context: context.TODO(),
+			Body:    nodes.AddGenericNodeBody{NodeName: withUUID(t, "Test Generic Node")},
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddGenericNode(params)
 		nodeID := res.Payload.Generic.NodeID
@@ -93,7 +96,7 @@ func TestGenericNode(t *testing.T) {
 		// Check node exists in DB.
 		getNodeRes, err := client.Default.Nodes.GetNode(&nodes.GetNodeParams{
 			Body:    nodes.GetNodeBody{NodeID: nodeID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, getNodeRes.Payload.Generic)
@@ -107,20 +110,21 @@ func TestGenericNode(t *testing.T) {
 		require.Nil(t, res)
 
 		// Change node.
+		changedNodeName := withUUID(t, "Changed Generic Node")
 		changeRes, err := client.Default.Nodes.ChangeGenericNode(&nodes.ChangeGenericNodeParams{
-			Body:    nodes.ChangeGenericNodeBody{NodeID: nodeID, NodeName: "Changed Generic Node"},
-			Context: context.TODO(),
+			Body:    nodes.ChangeGenericNodeBody{NodeID: nodeID, NodeName: changedNodeName},
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, changeRes.Payload.Generic)
 		require.Equal(t, nodeID, changeRes.Payload.Generic.NodeID)
-		require.Equal(t, "Changed Generic Node", changeRes.Payload.Generic.NodeName)
+		require.Equal(t, changedNodeName, changeRes.Payload.Generic.NodeName)
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
 		params := &nodes.AddGenericNodeParams{
 			Body:    nodes.AddGenericNodeBody{NodeName: ""},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddGenericNode(params)
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
@@ -134,12 +138,12 @@ func TestContainerNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		params := &nodes.AddContainerNodeParams{
 			Body: nodes.AddContainerNodeBody{
-				NodeName:            "Test Container Node",
+				NodeName:            withUUID(t, "Test Container Node"),
 				DockerContainerID:   "docker-id",
 				DockerContainerName: "docker-name",
 				MachineID:           "machine-id",
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddContainerNode(params)
 		require.NoError(t, err)
@@ -149,7 +153,7 @@ func TestContainerNode(t *testing.T) {
 		// Check node exists in DB.
 		getNodeRes, err := client.Default.Nodes.GetNode(&nodes.GetNodeParams{
 			Body:    nodes.GetNodeBody{NodeID: res.Payload.Container.NodeID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, getNodeRes.Payload.Container)
@@ -163,20 +167,21 @@ func TestContainerNode(t *testing.T) {
 		require.Nil(t, res)
 
 		// Change node.
+		changedNodeName := withUUID(t, "Changed Container Node")
 		changeRes, err := client.Default.Nodes.ChangeContainerNode(&nodes.ChangeContainerNodeParams{
-			Body:    nodes.ChangeContainerNodeBody{NodeID: res.Payload.Container.NodeID, NodeName: "Changed Container Node"},
-			Context: context.TODO(),
+			Body:    nodes.ChangeContainerNodeBody{NodeID: res.Payload.Container.NodeID, NodeName: changedNodeName},
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, changeRes.Payload.Container)
 		require.Equal(t, getNodeRes.Payload.Container.NodeID, res.Payload.Container.NodeID)
-		require.Equal(t, getNodeRes.Payload.Container.NodeName, "Changed Container Node")
+		require.Equal(t, getNodeRes.Payload.Container.NodeName, changedNodeName)
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
 		params := &nodes.AddContainerNodeParams{
 			Body:    nodes.AddContainerNodeBody{NodeName: ""},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddContainerNode(params)
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
@@ -189,9 +194,9 @@ func TestRemoteNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		params := &nodes.AddRemoteNodeParams{
 			Body: nodes.AddRemoteNodeBody{
-				NodeName: "Test Remote Node",
+				NodeName: withUUID(t, "Test Remote Node"),
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteNode(params)
 		require.NoError(t, err)
@@ -202,7 +207,7 @@ func TestRemoteNode(t *testing.T) {
 		// Check node exists in DB.
 		getNodeRes, err := client.Default.Nodes.GetNode(&nodes.GetNodeParams{
 			Body:    nodes.GetNodeBody{NodeID: nodeID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, getNodeRes.Payload.Remote)
@@ -216,20 +221,21 @@ func TestRemoteNode(t *testing.T) {
 		require.Nil(t, res)
 
 		// Change node.
+		changedNodeName := withUUID(t, "Changed Remote Node")
 		changeRes, err := client.Default.Nodes.ChangeRemoteNode(&nodes.ChangeRemoteNodeParams{
-			Body:    nodes.ChangeRemoteNodeBody{NodeID: nodeID, NodeName: "Changed Remote Node"},
-			Context: context.TODO(),
+			Body:    nodes.ChangeRemoteNodeBody{NodeID: nodeID, NodeName: changedNodeName},
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, changeRes.Payload.Remote)
 		require.Equal(t, changeRes.Payload.Remote.NodeID, nodeID)
-		require.Equal(t, changeRes.Payload.Remote.NodeName, "Changed Remote Node")
+		require.Equal(t, changeRes.Payload.Remote.NodeName, changedNodeName)
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
 		params := &nodes.AddRemoteNodeParams{
 			Body:    nodes.AddRemoteNodeBody{NodeName: ""},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteNode(params)
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
@@ -242,11 +248,11 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		params := &nodes.AddRemoteAmazonRDSNodeParams{
 			Body: nodes.AddRemoteAmazonRDSNodeBody{
-				NodeName: "Test RemoteAmazonRDS Node",
-				Instance: "some-instance",
+				NodeName: withUUID(t, "Test RemoteAmazonRDS Node"),
+				Instance: withUUID(t, "some-instance"),
 				Region:   "us-east-1",
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
 		require.NoError(t, err)
@@ -257,7 +263,7 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 		// Check if the node saved in PMM-Managed.
 		getNodeRes, err := client.Default.Nodes.GetNode(&nodes.GetNodeParams{
 			Body:    nodes.GetNodeBody{NodeID: nodeID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, getNodeRes.Payload.RemoteAmazonRDS)
@@ -271,14 +277,15 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 		require.Nil(t, res)
 
 		// Change node.
+		changedNodeName := withUUID(t, "Changed RemoteAmazonRDS Node")
 		changeRes, err := client.Default.Nodes.ChangeRemoteAmazonRDSNode(&nodes.ChangeRemoteAmazonRDSNodeParams{
-			Body:    nodes.ChangeRemoteAmazonRDSNodeBody{NodeID: nodeID, NodeName: "Changed RemoteAmazonRDS Node"},
-			Context: context.TODO(),
+			Body:    nodes.ChangeRemoteAmazonRDSNodeBody{NodeID: nodeID, NodeName: changedNodeName},
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, changeRes.Payload.RemoteAmazonRDS)
 		require.Equal(t, changeRes.Payload.RemoteAmazonRDS.NodeID, nodeID)
-		require.Equal(t, changeRes.Payload.RemoteAmazonRDS.NodeName, "Changed RemoteAmazonRDS Node")
+		require.Equal(t, changeRes.Payload.RemoteAmazonRDS.NodeName, changedNodeName)
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
@@ -288,7 +295,7 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 				Instance: "some-instance-without-name",
 				Region:   "us-east-1",
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
@@ -299,10 +306,10 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 	t.Run("AddInstanceEmpty", func(t *testing.T) {
 		params := &nodes.AddRemoteAmazonRDSNodeParams{
 			Body: nodes.AddRemoteAmazonRDSNodeBody{
-				NodeName: "Remote AmazonRDSNode without instance",
+				NodeName: withUUID(t, "Remote AmazonRDSNode without instance"),
 				Region:   "us-west-1",
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
@@ -313,10 +320,10 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 	t.Run("AddRegionEmpty", func(t *testing.T) {
 		params := &nodes.AddRemoteAmazonRDSNodeParams{
 			Body: nodes.AddRemoteAmazonRDSNodeBody{
-				NodeName: "Remote AmazonRDSNode without instance",
+				NodeName: withUUID(t, "Remote AmazonRDSNode without instance"),
 				Instance: "instance-without-region",
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.

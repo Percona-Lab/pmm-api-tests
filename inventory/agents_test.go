@@ -1,7 +1,6 @@
 package inventory
 
 import (
-	"context"
 	"testing"
 
 	"github.com/percona/pmm/api/inventory/json/client"
@@ -9,22 +8,24 @@ import (
 	"github.com/percona/pmm/api/inventory/json/client/services"
 	"github.com/stretchr/testify/require"
 
-	_ "github.com/Percona-Lab/pmm-api-tests" // init default client
+	"github.com/Percona-Lab/pmm-api-tests"
 )
 
 func TestAgents(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
 		t.Parallel()
 
-		nodeID := addRemoteNode(t, "Remote node for agents list")
+		node := addRemoteNode(t, withUUID(t, "Remote node for agents list"))
+		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		serviceID := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      "pmm-server",
 			Address:     "localhost",
 			Port:        3306,
 			ServiceName: "MySQL Service for agent",
 		})
+		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
 
 		mySqldExporter := addMySqldExporter(t, agents.AddMySqldExporterBody{
@@ -37,10 +38,10 @@ func TestAgents(t *testing.T) {
 		defer removeAgents(t, mySqldExporterID)
 
 		pmmAgent := addPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.Payload.PMMAgent.AgentID
+		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer removeAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{Context: context.TODO()})
+		res, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotZerof(t, len(res.Payload.MysqldExporter), "There should be at least one service")
@@ -66,15 +67,17 @@ func TestAgents(t *testing.T) {
 	t.Run("FilterList", func(t *testing.T) {
 		t.Parallel()
 
-		nodeID := addRemoteNode(t, "Remote node for agents filters")
+		node := addRemoteNode(t, withUUID(t, "Remote node for agents filters"))
+		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		serviceID := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      "pmm-server",
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: "MySQL Service for filter test",
+			ServiceName: withUUID(t, "MySQL Service for filter test"),
 		})
+		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
 
 		mySqldExporter := addMySqldExporter(t, agents.AddMySqldExporterBody{
@@ -87,13 +90,13 @@ func TestAgents(t *testing.T) {
 		defer removeAgents(t, mySqldExporterID)
 
 		pmmAgent := addPMMAgent(t, nodeID)
-		pmmAgentID := pmmAgent.Payload.PMMAgent.AgentID
+		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer removeAgents(t, pmmAgentID)
 
 		// Filter by runs on node ID.
 		res, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
 			Body:    agents.ListAgentsBody{RunsOnNodeID: "pmm-server"},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, res)
@@ -118,7 +121,7 @@ func TestAgents(t *testing.T) {
 		// Filter by node ID.
 		res, err = client.Default.Agents.ListAgents(&agents.ListAgentsParams{
 			Body:    agents.ListAgentsBody{NodeID: nodeID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, res)
@@ -143,7 +146,7 @@ func TestAgents(t *testing.T) {
 		// Filter by service ID.
 		res, err = client.Default.Agents.ListAgents(&agents.ListAgentsParams{
 			Body:    agents.ListAgentsBody{ServiceID: serviceID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, res)
@@ -176,7 +179,7 @@ func TestAgents(t *testing.T) {
 				NodeID:       "pmm-server",
 				ServiceID:    "some-service-id",
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.Error(t, err)
 		require.Nil(t, res)
@@ -187,17 +190,18 @@ func TestPMMAgent(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		nodeID := addRemoteNode(t, "Remote node for PMM-agent")
+		node := addRemoteNode(t, withUUID(t, "Remote node for PMM-agent"))
+		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
 		res := addPMMAgent(t, nodeID)
-		require.Equal(t, nodeID, res.Payload.PMMAgent.NodeID)
-		agentID := res.Payload.PMMAgent.AgentID
+		require.Equal(t, nodeID, res.PMMAgent.NodeID)
+		agentID := res.PMMAgent.AgentID
 		defer removeAgents(t, agentID)
 
 		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, getAgentRes)
@@ -212,7 +216,7 @@ func TestPMMAgent(t *testing.T) {
 
 		res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
 			Body:    agents.AddPMMAgentBody{NodeID: ""},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
 		require.Contains(t, err.Error(), "unknown error (status 400)")
@@ -224,14 +228,15 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		nodeID := addRemoteNode(t, "Remote node for Node exporter")
+		node := addRemoteNode(t, withUUID(t, "Remote node for Node exporter"))
+		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
 		res, err := client.Default.Agents.AddNodeExporter(&agents.AddNodeExporterParams{
 			Body: agents.AddNodeExporterBody{
 				NodeID: nodeID,
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, res)
@@ -244,7 +249,7 @@ func TestNodeExporter(t *testing.T) {
 
 		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, getAgentRes)
@@ -259,7 +264,7 @@ func TestNodeExporter(t *testing.T) {
 
 		res, err := client.Default.Agents.AddNodeExporter(&agents.AddNodeExporterParams{
 			Body:    agents.AddNodeExporterBody{NodeID: ""},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
 		require.Contains(t, err.Error(), "unknown error (status 400)")
@@ -271,7 +276,7 @@ func TestNodeExporter(t *testing.T) {
 
 		res, err := client.Default.Agents.AddNodeExporter(&agents.AddNodeExporterParams{
 			Body:    agents.AddNodeExporterBody{NodeID: "pmm-node-exporter-node"},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
 		require.Contains(t, err.Error(), "unknown error (status 404)")
@@ -283,15 +288,17 @@ func TestMySQLdExporter(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		nodeID := addRemoteNode(t, "Remote node for Node exporter")
+		node := addRemoteNode(t, withUUID(t, "Remote node for Node exporter"))
+		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		serviceID := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      "pmm-server",
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: "MySQL Service for MySQLdExporter test",
+			ServiceName: withUUID(t, "MySQL Service for MySQLdExporter test"),
 		})
+		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
 
 		mySqldExporter := addMySqldExporter(t, agents.AddMySqldExporterBody{
@@ -305,7 +312,7 @@ func TestMySQLdExporter(t *testing.T) {
 
 		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, getAgentRes)
@@ -324,7 +331,7 @@ func TestMySQLdExporter(t *testing.T) {
 				ServiceID:    "",
 				RunsOnNodeID: "pmm-server",
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
 		require.Contains(t, err.Error(), "unknown error (status 400)")
@@ -339,7 +346,7 @@ func TestMySQLdExporter(t *testing.T) {
 				ServiceID:    "pmm-service-id",
 				RunsOnNodeID: "",
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
 		require.Contains(t, err.Error(), "unknown error (status 400)")
@@ -354,7 +361,7 @@ func TestMySQLdExporter(t *testing.T) {
 				ServiceID:    "pmm-service-id",
 				RunsOnNodeID: "pmm-server",
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
 		require.Contains(t, err.Error(), "unknown error (status 404)")
@@ -364,12 +371,13 @@ func TestMySQLdExporter(t *testing.T) {
 	t.Run("NotExistNodeID", func(t *testing.T) {
 		t.Parallel()
 
-		serviceID := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      "pmm-server",
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: "MySQL Service for not exists node ID",
+			ServiceName: withUUID(t, "MySQL Service for not exists node ID"),
 		})
+		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
 
 		res, err := client.Default.Agents.AddMySqldExporter(&agents.AddMySqldExporterParams{
@@ -377,7 +385,7 @@ func TestMySQLdExporter(t *testing.T) {
 				ServiceID:    serviceID,
 				RunsOnNodeID: "pmm-not-exist-server",
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.Error(t, err) // Can't use EqualError because it returns different references each time.
 		require.Contains(t, err.Error(), "unknown error (status 404)")
@@ -390,15 +398,17 @@ func TestRDSExporter(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		nodeID := addRemoteNode(t, "Remote node for Node exporter")
+		node := addRemoteNode(t, withUUID(t, "Remote node for Node exporter"))
+		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		serviceID := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      "pmm-server",
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: "MySQL Service for RDSExporter test",
+			ServiceName: withUUID(t, "MySQL Service for RDSExporter test"),
 		})
+		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
 
 		res, err := client.Default.Agents.AddRDSExporter(&agents.AddRDSExporterParams{
@@ -406,7 +416,7 @@ func TestRDSExporter(t *testing.T) {
 				RunsOnNodeID: nodeID,
 				ServiceIds:   []string{serviceID},
 			},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, res)
@@ -416,7 +426,7 @@ func TestRDSExporter(t *testing.T) {
 
 		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, getAgentRes)
