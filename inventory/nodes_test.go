@@ -45,18 +45,24 @@ func TestNodes(t *testing.T) {
 
 func TestGetNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
+		nodeName := withUUID(t, "TestGenericNode")
+		node := addGenericNode(t, nodeName)
+		expectedResponse := &nodes.GetNodeOK{
+			Payload: &nodes.GetNodeOKBody{
+				Generic: &nodes.GetNodeOKBodyGeneric{
+					NodeID:   node.Generic.NodeID,
+					NodeName: nodeName,
+				},
+			},
+		}
+
 		params := &nodes.GetNodeParams{
-			Body:    nodes.GetNodeBody{NodeID: "pmm-server"},
+			Body:    nodes.GetNodeBody{NodeID: node.Generic.NodeID},
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.GetNode(params)
 		require.NoError(t, err)
-		require.NotNil(t, res.Payload.Generic)
-		require.Equal(t, res.Payload.Generic.NodeID, "pmm-server")
-		require.Equal(t, res.Payload.Generic.NodeName, "PMM Server")
-		require.Nil(t, res.Payload.Container)
-		require.Nil(t, res.Payload.Remote)
-		require.Nil(t, res.Payload.RemoteAmazonRDS)
+		require.Equal(t, res, expectedResponse)
 	})
 
 	t.Run("NotFound", func(t *testing.T) {
@@ -82,15 +88,16 @@ func TestGetNode(t *testing.T) {
 
 func TestGenericNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
+		nodeName := withUUID(t, "Test Generic Node")
 		params := &nodes.AddGenericNodeParams{
-			Body:    nodes.AddGenericNodeBody{NodeName: withUUID(t, "Test Generic Node")},
+			Body:    nodes.AddGenericNodeBody{NodeName: nodeName},
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddGenericNode(params)
-		nodeID := res.Payload.Generic.NodeID
-		defer removeNodes(t, nodeID)
 		require.NoError(t, err)
 		require.NotNil(t, res.Payload.Generic)
+		nodeID := res.Payload.Generic.NodeID
+		defer removeNodes(t, nodeID)
 
 		// Check node exists in DB.
 		getNodeRes, err := client.Default.Nodes.GetNode(&nodes.GetNodeParams{
@@ -98,9 +105,15 @@ func TestGenericNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, getNodeRes.Payload.Generic)
-		require.Equal(t, nodeID, getNodeRes.Payload.Generic.NodeID)
-		require.Equal(t, params.Body.NodeName, getNodeRes.Payload.Generic.NodeName)
+		expectedResponse := &nodes.GetNodeOK{
+			Payload: &nodes.GetNodeOKBody{
+				Generic: &nodes.GetNodeOKBodyGeneric{
+					NodeID:   res.Payload.Generic.NodeID,
+					NodeName: nodeName,
+				},
+			},
+		}
+		require.Equal(t, expectedResponse, getNodeRes)
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddGenericNode(params)
@@ -114,9 +127,15 @@ func TestGenericNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, changeRes.Payload.Generic)
-		require.Equal(t, nodeID, changeRes.Payload.Generic.NodeID)
-		require.Equal(t, changedNodeName, changeRes.Payload.Generic.NodeName)
+		expectedChangeResponse := &nodes.ChangeGenericNodeOK{
+			Payload: &nodes.ChangeGenericNodeOKBody{
+				Generic: &nodes.ChangeGenericNodeOKBodyGeneric{
+					NodeID:   nodeID,
+					NodeName: changedNodeName,
+				},
+			},
+		}
+		require.Equal(t, expectedChangeResponse, changeRes)
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
@@ -133,9 +152,10 @@ func TestGenericNode(t *testing.T) {
 func TestContainerNode(t *testing.T) {
 	t.Skip("Haven't implemented yet.")
 	t.Run("Basic", func(t *testing.T) {
+		nodeName := withUUID(t, "Test Container Node")
 		params := &nodes.AddContainerNodeParams{
 			Body: nodes.AddContainerNodeBody{
-				NodeName:            withUUID(t, "Test Container Node"),
+				NodeName:            nodeName,
 				DockerContainerID:   "docker-id",
 				DockerContainerName: "docker-name",
 				MachineID:           "machine-id",
@@ -145,17 +165,24 @@ func TestContainerNode(t *testing.T) {
 		res, err := client.Default.Nodes.AddContainerNode(params)
 		require.NoError(t, err)
 		require.NotNil(t, res.Payload.Container)
-		defer removeNodes(t, res.Payload.Container.NodeID)
+		nodeID := res.Payload.Container.NodeID
+		defer removeNodes(t, nodeID)
 
 		// Check node exists in DB.
 		getNodeRes, err := client.Default.Nodes.GetNode(&nodes.GetNodeParams{
-			Body:    nodes.GetNodeBody{NodeID: res.Payload.Container.NodeID},
+			Body:    nodes.GetNodeBody{NodeID: nodeID},
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, getNodeRes.Payload.Container)
-		require.Equal(t, getNodeRes.Payload.Container.NodeID, res.Payload.Container.NodeID)
-		require.Equal(t, getNodeRes.Payload.Container.NodeName, params.Body.NodeName)
+		expectedResponse := &nodes.GetNodeOK{
+			Payload: &nodes.GetNodeOKBody{
+				Container: &nodes.GetNodeOKBodyContainer{
+					NodeID:   res.Payload.Container.NodeID,
+					NodeName: nodeName,
+				},
+			},
+		}
+		require.Equal(t, expectedResponse, getNodeRes)
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddContainerNode(params)
@@ -165,13 +192,19 @@ func TestContainerNode(t *testing.T) {
 		// Change node.
 		changedNodeName := withUUID(t, "Changed Container Node")
 		changeRes, err := client.Default.Nodes.ChangeContainerNode(&nodes.ChangeContainerNodeParams{
-			Body:    nodes.ChangeContainerNodeBody{NodeID: res.Payload.Container.NodeID, NodeName: changedNodeName},
+			Body:    nodes.ChangeContainerNodeBody{NodeID: nodeID, NodeName: changedNodeName},
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, changeRes.Payload.Container)
-		require.Equal(t, getNodeRes.Payload.Container.NodeID, res.Payload.Container.NodeID)
-		require.Equal(t, getNodeRes.Payload.Container.NodeName, changedNodeName)
+		expectedChangeResponse := &nodes.ChangeContainerNodeOK{
+			Payload: &nodes.ChangeContainerNodeOKBody{
+				Container: &nodes.ChangeContainerNodeOKBodyContainer{
+					NodeID:   nodeID,
+					NodeName: changedNodeName,
+				},
+			},
+		}
+		require.Equal(t, expectedChangeResponse, changeRes)
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
@@ -187,9 +220,10 @@ func TestContainerNode(t *testing.T) {
 
 func TestRemoteNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
+		nodeName := withUUID(t, "Test Remote Node")
 		params := &nodes.AddRemoteNodeParams{
 			Body: nodes.AddRemoteNodeBody{
-				NodeName: withUUID(t, "Test Remote Node"),
+				NodeName: nodeName,
 			},
 			Context: pmmapitests.Context,
 		}
@@ -205,9 +239,15 @@ func TestRemoteNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, getNodeRes.Payload.Remote)
-		require.Equal(t, getNodeRes.Payload.Remote.NodeID, nodeID)
-		require.Equal(t, getNodeRes.Payload.Remote.NodeName, params.Body.NodeName)
+		expectedResponse := &nodes.GetNodeOK{
+			Payload: &nodes.GetNodeOKBody{
+				Remote: &nodes.GetNodeOKBodyRemote{
+					NodeID:   res.Payload.Remote.NodeID,
+					NodeName: nodeName,
+				},
+			},
+		}
+		require.Equal(t, expectedResponse, getNodeRes)
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddRemoteNode(params)
@@ -221,9 +261,15 @@ func TestRemoteNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, changeRes.Payload.Remote)
-		require.Equal(t, changeRes.Payload.Remote.NodeID, nodeID)
-		require.Equal(t, changeRes.Payload.Remote.NodeName, changedNodeName)
+		expectedChangeResponse := &nodes.ChangeRemoteNodeOK{
+			Payload: &nodes.ChangeRemoteNodeOKBody{
+				Remote: &nodes.ChangeRemoteNodeOKBodyRemote{
+					NodeID:   nodeID,
+					NodeName: changedNodeName,
+				},
+			},
+		}
+		require.Equal(t, expectedChangeResponse, changeRes)
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {
@@ -239,9 +285,10 @@ func TestRemoteNode(t *testing.T) {
 
 func TestRemoteAmazonRDSNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
+		nodeName := withUUID(t, "Test RemoteAmazonRDS Node")
 		params := &nodes.AddRemoteAmazonRDSNodeParams{
 			Body: nodes.AddRemoteAmazonRDSNodeBody{
-				NodeName: withUUID(t, "Test RemoteAmazonRDS Node"),
+				NodeName: nodeName,
 				Instance: withUUID(t, "some-instance"),
 				Region:   "us-east-1",
 			},
@@ -259,9 +306,15 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, getNodeRes.Payload.RemoteAmazonRDS)
-		require.Equal(t, getNodeRes.Payload.RemoteAmazonRDS.NodeID, nodeID)
-		require.Equal(t, getNodeRes.Payload.RemoteAmazonRDS.NodeName, params.Body.NodeName)
+		expectedResponse := &nodes.GetNodeOK{
+			Payload: &nodes.GetNodeOKBody{
+				RemoteAmazonRDS: &nodes.GetNodeOKBodyRemoteAmazonRDS{
+					NodeID:   res.Payload.RemoteAmazonRDS.NodeID,
+					NodeName: nodeName,
+				},
+			},
+		}
+		require.Equal(t, expectedResponse, getNodeRes)
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddRemoteAmazonRDSNode(params)
@@ -275,9 +328,15 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, changeRes.Payload.RemoteAmazonRDS)
-		require.Equal(t, changeRes.Payload.RemoteAmazonRDS.NodeID, nodeID)
-		require.Equal(t, changeRes.Payload.RemoteAmazonRDS.NodeName, changedNodeName)
+		expectedChangeResponse := &nodes.ChangeRemoteAmazonRDSNodeOK{
+			Payload: &nodes.ChangeRemoteAmazonRDSNodeOKBody{
+				RemoteAmazonRDS: &nodes.ChangeRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS{
+					NodeID:   nodeID,
+					NodeName: changedNodeName,
+				},
+			},
+		}
+		require.Equal(t, expectedChangeResponse, changeRes)
 	})
 
 	t.Run("AddNameEmpty", func(t *testing.T) {

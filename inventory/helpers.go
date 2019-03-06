@@ -19,6 +19,7 @@ import (
 )
 
 func withUUID(t *testing.T, name string) string {
+	t.Helper()
 	hostname, err := os.Hostname()
 	require.NoError(t, err)
 	random, err := uuid.NewRandom()
@@ -35,8 +36,8 @@ func removeNodes(t *testing.T, nodeIDs ...string) {
 			Context: context.TODO(),
 		}
 		res, err := client.Default.Nodes.RemoveNode(params)
-		require.NoError(t, err)
-		require.NotNil(t, res)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
 	}
 }
 
@@ -49,8 +50,8 @@ func addGenericNode(t *testing.T, nodeName string) *nodes.AddGenericNodeOKBody {
 		Context: context.TODO(),
 	}
 	res, err := client.Default.Nodes.AddGenericNode(params)
-	require.NoError(t, err)
-	require.NotNil(t, res.Payload.Generic)
+	assert.NoError(t, err)
+	require.NotNil(t, res)
 	return res.Payload
 }
 
@@ -63,10 +64,8 @@ func addRemoteNode(t *testing.T, nodeName string) *nodes.AddRemoteNodeOKBody {
 		Context: context.TODO(),
 	}
 	res, err := client.Default.Nodes.AddRemoteNode(params)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	require.NotNil(t, res)
-	require.NotNil(t, res.Payload)
-	require.NotNil(t, res.Payload.Remote)
 	return res.Payload
 }
 
@@ -78,8 +77,8 @@ func removeServices(t *testing.T, serviceIDs ...string) {
 			Context: context.TODO(),
 		}
 		res, err := client.Default.Services.RemoveService(params)
-		require.NoError(t, err)
-		require.NotNil(t, res)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
 	}
 }
 
@@ -90,10 +89,8 @@ func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.
 		Context: context.TODO(),
 	}
 	res, err := client.Default.Services.AddMySQLService(params)
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	require.NotNil(t, res)
-	require.NotNil(t, res.Payload.Mysql)
-	require.NotEmpty(t, res.Payload.Mysql.ServiceID)
 	return res.Payload
 }
 
@@ -105,8 +102,8 @@ func removeAgents(t *testing.T, agentIDs ...string) {
 			Context: context.TODO(),
 		}
 		res, err := client.Default.Agents.RemoveAgent(params)
-		require.NoError(t, err)
-		require.NotNil(t, res)
+		assert.NoError(t, err)
+		assert.NotNil(t, res)
 	}
 }
 
@@ -116,27 +113,23 @@ func addPMMAgent(t *testing.T, node string) *agents.AddPMMAgentOKBody {
 		Body:    agents.AddPMMAgentBody{NodeID: node},
 		Context: context.TODO(),
 	})
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	require.NotNil(t, res)
-	require.NotNil(t, res.Payload)
-	require.NotNil(t, res.Payload.PMMAgent)
-	require.NotNil(t, res.Payload.PMMAgent.AgentID)
 	return res.Payload
 }
 
 func addMySqldExporter(t *testing.T, body agents.AddMySqldExporterBody) *agents.AddMySqldExporterOKBody {
 	t.Helper()
-	agentRes, err := client.Default.Agents.AddMySqldExporter(&agents.AddMySqldExporterParams{
+	res, err := client.Default.Agents.AddMySqldExporter(&agents.AddMySqldExporterParams{
 		Body:    body,
 		Context: context.TODO(),
 	})
 	require.NoError(t, err)
-	require.NotNil(t, agentRes)
-	require.NotNil(t, agentRes.Payload.MysqldExporter)
-	return agentRes.Payload
+	require.NotNil(t, res)
+	return res.Payload
 }
 
-func assertEqualAPIError(t *testing.T, err error, expectedCode int) {
+func assertEqualAPIError(t *testing.T, err error, expectedCode int) bool {
 	t.Helper()
 	expectedError := &runtime.APIError{
 		OperationName: "unknown error",
@@ -144,5 +137,29 @@ func assertEqualAPIError(t *testing.T, err error, expectedCode int) {
 	}
 	assert.Error(t, err)
 	err.(*runtime.APIError).Response = nil
-	assert.Equal(t, expectedError, err)
+	return assert.Equal(t, expectedError, err)
+}
+
+func assertMySQLServiceIsExists(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
+	t.Helper()
+	return assert.Conditionf(t, func() (success bool) {
+		for _, v := range res.Payload.Mysql {
+			if v.ServiceID == serviceID {
+				return true
+			}
+		}
+		return false
+	}, "There should be MySQL service with id `%s`", serviceID)
+}
+
+func assertMySQLServiceIsNotExists(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
+	t.Helper()
+	return assert.Conditionf(t, func() (success bool) {
+		for _, v := range res.Payload.Mysql {
+			if v.ServiceID == serviceID {
+				return false
+			}
+		}
+		return true
+	}, "There should not be MySQL service with id `%s`", serviceID)
 }
