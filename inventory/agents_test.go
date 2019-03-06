@@ -16,15 +16,19 @@ func TestAgents(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
 		t.Parallel()
 
+		genericNode := addGenericNode(t, withUUID(t, "Test Remote Node for List"))
+		genericNodeID := genericNode.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
+
 		node := addRemoteNode(t, withUUID(t, "Remote node for agents list"))
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
 		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      "pmm-server",
+			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: "MySQL Service for agent",
+			ServiceName: withUUID(t, "MySQL Service for agent"),
 		})
 		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
@@ -33,7 +37,7 @@ func TestAgents(t *testing.T) {
 			ServiceID:    serviceID,
 			Username:     "username",
 			Password:     "password",
-			RunsOnNodeID: "pmm-server",
+			RunsOnNodeID: genericNodeID,
 		})
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer removeAgents(t, mySqldExporterID)
@@ -47,22 +51,8 @@ func TestAgents(t *testing.T) {
 		require.NotNil(t, res)
 		require.NotZerof(t, len(res.Payload.MysqldExporter), "There should be at least one service")
 
-		require.Conditionf(t, func() (success bool) {
-			for _, v := range res.Payload.MysqldExporter {
-				if v.AgentID == mySqldExporterID {
-					return true
-				}
-			}
-			return false
-		}, "There should be MySQL agent with id `%s`", mySqldExporterID)
-		require.Conditionf(t, func() (success bool) {
-			for _, v := range res.Payload.PMMAgent {
-				if v.AgentID == pmmAgentID {
-					return true
-				}
-			}
-			return false
-		}, "There should be PMM-agent with id `%s`", pmmAgentID)
+		assertMySQLExporterExists(t, res, mySqldExporterID)
+		assertPMMAgentExists(t, res, pmmAgentID)
 	})
 
 	t.Run("FilterList", func(t *testing.T) {
@@ -102,22 +92,8 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotZerof(t, len(res.Payload.MysqldExporter), "There should be at least one service")
-		require.Conditionf(t, func() (success bool) {
-			for _, v := range res.Payload.MysqldExporter {
-				if v.AgentID == mySqldExporterID {
-					return true
-				}
-			}
-			return false
-		}, "There should be MySQL agent with id `%s`", mySqldExporterID)
-		require.Conditionf(t, func() (success bool) {
-			for _, v := range res.Payload.PMMAgent {
-				if v.AgentID == pmmAgentID {
-					return false
-				}
-			}
-			return true
-		}, "There should not be PMM-agent with id `%s`", pmmAgentID)
+		assertMySQLExporterExists(t, res, mySqldExporterID)
+		assertPMMAgentNotExists(t, res, pmmAgentID)
 
 		// Filter by node ID.
 		res, err = client.Default.Agents.ListAgents(&agents.ListAgentsParams{
@@ -127,22 +103,8 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotZerof(t, len(res.Payload.PMMAgent), "There should be at least one service")
-		require.Conditionf(t, func() (success bool) {
-			for _, v := range res.Payload.MysqldExporter {
-				if v.AgentID == mySqldExporterID {
-					return false
-				}
-			}
-			return true
-		}, "There should not be MySQL agent with id `%s`", mySqldExporterID)
-		require.Conditionf(t, func() (success bool) {
-			for _, v := range res.Payload.PMMAgent {
-				if v.AgentID == pmmAgentID {
-					return true
-				}
-			}
-			return false
-		}, "There should be PMM-agent with id `%s`", pmmAgentID)
+		assertMySQLExporterNotExists(t, res, mySqldExporterID)
+		assertPMMAgentExists(t, res, pmmAgentID)
 
 		// Filter by service ID.
 		res, err = client.Default.Agents.ListAgents(&agents.ListAgentsParams{
@@ -152,22 +114,8 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotZerof(t, len(res.Payload.MysqldExporter), "There should be at least one service")
-		require.Conditionf(t, func() (success bool) {
-			for _, v := range res.Payload.MysqldExporter {
-				if v.AgentID == mySqldExporterID {
-					return true
-				}
-			}
-			return false
-		}, "There should be MySQL agent with id `%s`", mySqldExporterID)
-		require.Conditionf(t, func() (success bool) {
-			for _, v := range res.Payload.PMMAgent {
-				if v.AgentID == pmmAgentID {
-					return false
-				}
-			}
-			return true
-		}, "There should not be PMM-agent with id `%s`", pmmAgentID)
+		assertMySQLExporterExists(t, res, mySqldExporterID)
+		assertPMMAgentNotExists(t, res, pmmAgentID)
 	})
 
 	t.Run("TwoOrMoreFilters", func(t *testing.T) {
@@ -204,12 +152,15 @@ func TestPMMAgent(t *testing.T) {
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		require.NotNil(t, getAgentRes)
-		require.NotNil(t, getAgentRes.Payload)
-		require.NotNil(t, getAgentRes.Payload.PMMAgent)
-		require.Equal(t, agentID, getAgentRes.Payload.PMMAgent.AgentID)
-		require.Equal(t, nodeID, getAgentRes.Payload.PMMAgent.NodeID)
+		assert.NoError(t, err)
+		assert.Equal(t, &agents.GetAgentOK{
+			Payload: &agents.GetAgentOKBody{
+				PMMAgent: &agents.GetAgentOKBodyPMMAgent{
+					AgentID: agentID,
+					NodeID:  nodeID,
+				},
+			},
+		}, getAgentRes)
 	})
 
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
@@ -238,11 +189,9 @@ func TestNodeExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
+		assert.NoError(t, err)
 		require.NotNil(t, res)
-		require.NotNil(t, res.Payload)
 		require.NotNil(t, res.Payload.NodeExporter)
-		require.NotNil(t, res.Payload.NodeExporter.AgentID)
 		require.Equal(t, nodeID, res.Payload.NodeExporter.NodeID)
 		agentID := res.Payload.NodeExporter.AgentID
 		defer removeAgents(t, agentID)
@@ -252,11 +201,14 @@ func TestNodeExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, getAgentRes)
-		require.NotNil(t, getAgentRes.Payload)
-		require.NotNil(t, getAgentRes.Payload.NodeExporter)
-		require.Equal(t, agentID, getAgentRes.Payload.NodeExporter.AgentID)
-		require.Equal(t, nodeID, getAgentRes.Payload.NodeExporter.NodeID)
+		assert.Equal(t, &agents.GetAgentOK{
+			Payload: &agents.GetAgentOKBody{
+				NodeExporter: &agents.GetAgentOKBodyNodeExporter{
+					AgentID: agentID,
+					NodeID:  nodeID,
+				},
+			},
+		}, getAgentRes)
 	})
 
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
@@ -286,12 +238,16 @@ func TestMySQLdExporter(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
+		genericNode := addGenericNode(t, withUUID(t, "Test Remote Node for List"))
+		genericNodeID := genericNode.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
+
 		node := addRemoteNode(t, withUUID(t, "Remote node for Node exporter"))
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
 		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      "pmm-server",
+			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
 			ServiceName: withUUID(t, "MySQL Service for MySQLdExporter test"),
@@ -313,21 +269,30 @@ func TestMySQLdExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, getAgentRes)
-		require.NotNil(t, getAgentRes.Payload)
-		require.NotNil(t, getAgentRes.Payload.MysqldExporter)
-		require.Equal(t, agentID, getAgentRes.Payload.MysqldExporter.AgentID)
-		require.Equal(t, serviceID, getAgentRes.Payload.MysqldExporter.ServiceID)
-		require.Equal(t, nodeID, getAgentRes.Payload.MysqldExporter.RunsOnNodeID)
+		assert.Equal(t, &agents.GetAgentOK{
+			Payload: &agents.GetAgentOKBody{
+				MysqldExporter: &agents.GetAgentOKBodyMysqldExporter{
+					AgentID:      agentID,
+					ServiceID:    serviceID,
+					Username:     "username",
+					Password:     "password",
+					RunsOnNodeID: nodeID,
+				},
+			},
+		}, getAgentRes)
 	})
 
 	t.Run("AddServiceIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
+		genericNode := addGenericNode(t, withUUID(t, "Test Remote Node for List"))
+		genericNodeID := genericNode.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
+
 		res, err := client.Default.Agents.AddMySqldExporter(&agents.AddMySqldExporterParams{
 			Body: agents.AddMySqldExporterBody{
 				ServiceID:    "",
-				RunsOnNodeID: "pmm-server",
+				RunsOnNodeID: genericNodeID,
 			},
 			Context: pmmapitests.Context,
 		})
@@ -335,7 +300,7 @@ func TestMySQLdExporter(t *testing.T) {
 		assert.Nil(t, res)
 	})
 
-	t.Run("AddServiceIDEmpty", func(t *testing.T) {
+	t.Run("AddRunsOnNodeIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
 		res, err := client.Default.Agents.AddMySqldExporter(&agents.AddMySqldExporterParams{
@@ -352,10 +317,14 @@ func TestMySQLdExporter(t *testing.T) {
 	t.Run("NotExistServiceID", func(t *testing.T) {
 		t.Parallel()
 
+		genericNode := addGenericNode(t, withUUID(t, "Test Remote Node for List"))
+		genericNodeID := genericNode.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
+
 		res, err := client.Default.Agents.AddMySqldExporter(&agents.AddMySqldExporterParams{
 			Body: agents.AddMySqldExporterBody{
 				ServiceID:    "pmm-service-id",
-				RunsOnNodeID: "pmm-server",
+				RunsOnNodeID: genericNodeID,
 			},
 			Context: pmmapitests.Context,
 		})
@@ -366,8 +335,12 @@ func TestMySQLdExporter(t *testing.T) {
 	t.Run("NotExistNodeID", func(t *testing.T) {
 		t.Parallel()
 
+		genericNode := addGenericNode(t, withUUID(t, "Test Remote Node for List"))
+		genericNodeID := genericNode.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
+
 		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      "pmm-server",
+			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
 			ServiceName: withUUID(t, "MySQL Service for not exists node ID"),
@@ -397,7 +370,7 @@ func TestRDSExporter(t *testing.T) {
 		defer removeNodes(t, nodeID)
 
 		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      "pmm-server",
+			NodeID:      nodeID,
 			Address:     "localhost",
 			Port:        3306,
 			ServiceName: withUUID(t, "MySQL Service for RDSExporter test"),
@@ -423,11 +396,14 @@ func TestRDSExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, getAgentRes)
-		require.NotNil(t, getAgentRes.Payload)
-		require.NotNil(t, getAgentRes.Payload.RDSExporter)
-		require.Equal(t, agentID, getAgentRes.Payload.RDSExporter.AgentID)
-		require.Contains(t, getAgentRes.Payload.RDSExporter.ServiceIds, serviceID)
-		require.Equal(t, nodeID, getAgentRes.Payload.RDSExporter.RunsOnNodeID)
+		assert.Equal(t, &agents.GetAgentOK{
+			Payload: &agents.GetAgentOKBody{
+				RDSExporter: &agents.GetAgentOKBodyRDSExporter{
+					AgentID:      agentID,
+					RunsOnNodeID: nodeID,
+					ServiceIds:   []string{serviceID},
+				},
+			},
+		}, getAgentRes)
 	})
 }

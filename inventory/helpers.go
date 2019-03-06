@@ -124,7 +124,7 @@ func addMySqldExporter(t *testing.T, body agents.AddMySqldExporterBody) *agents.
 		Body:    body,
 		Context: context.TODO(),
 	})
-	require.NoError(t, err)
+	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }
@@ -140,7 +140,7 @@ func assertEqualAPIError(t *testing.T, err error, expectedCode int) bool {
 	return assert.Equal(t, expectedError, err)
 }
 
-func assertMySQLServiceIsExists(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
+func assertMySQLServiceExists(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
 	t.Helper()
 	return assert.Conditionf(t, func() (success bool) {
 		for _, v := range res.Payload.Mysql {
@@ -152,7 +152,7 @@ func assertMySQLServiceIsExists(t *testing.T, res *services.ListServicesOK, serv
 	}, "There should be MySQL service with id `%s`", serviceID)
 }
 
-func assertMySQLServiceIsNotExists(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
+func assertMySQLServiceNotExist(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
 	t.Helper()
 	return assert.Conditionf(t, func() (success bool) {
 		for _, v := range res.Payload.Mysql {
@@ -162,4 +162,48 @@ func assertMySQLServiceIsNotExists(t *testing.T, res *services.ListServicesOK, s
 		}
 		return true
 	}, "There should not be MySQL service with id `%s`", serviceID)
+}
+
+func assertMySQLExporterExists(t *testing.T, res *agents.ListAgentsOK, mySqldExporterID string) bool {
+	return assert.Conditionf(t, func() (success bool) {
+		for _, v := range res.Payload.MysqldExporter {
+			if v.AgentID == mySqldExporterID {
+				return true
+			}
+		}
+		return false
+	}, "There should be MySQL agent with id `%s`", mySqldExporterID)
+}
+
+func assertMySQLExporterNotExists(t *testing.T, res *agents.ListAgentsOK, mySqldExporterID string) bool {
+	return assert.Conditionf(t, func() (success bool) {
+		for _, v := range res.Payload.MysqldExporter {
+			if v.AgentID == mySqldExporterID {
+				return false
+			}
+		}
+		return true
+	}, "There should be MySQL agent with id `%s`", mySqldExporterID)
+}
+
+func assertPMMAgentExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID string) bool {
+	return assert.Conditionf(t, func() (success bool) {
+		for _, v := range res.Payload.PMMAgent {
+			if v.AgentID == pmmAgentID {
+				return true
+			}
+		}
+		return false
+	}, "There should be PMM-agent with id `%s`", pmmAgentID)
+}
+
+func assertPMMAgentNotExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID string) bool {
+	return assert.Conditionf(t, func() (success bool) {
+		for _, v := range res.Payload.PMMAgent {
+			if v.AgentID == pmmAgentID {
+				return false
+			}
+		}
+		return true
+	}, "There should be PMM-agent with id `%s`", pmmAgentID)
 }

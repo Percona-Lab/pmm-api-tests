@@ -43,8 +43,8 @@ func TestServices(t *testing.T) {
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		assert.NotZerof(t, len(res.Payload.Mysql), "There should be at least one node")
-		assertMySQLServiceIsExists(t, res, serviceID)
-		assertMySQLServiceIsExists(t, res, remoteServiceID)
+		assertMySQLServiceExists(t, res, serviceID)
+		assertMySQLServiceExists(t, res, remoteServiceID)
 	})
 
 	t.Run("FilterList", func(t *testing.T) {
@@ -82,8 +82,8 @@ func TestServices(t *testing.T) {
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		assert.NotZerof(t, len(res.Payload.Mysql), "There should be at least one node")
-		assertMySQLServiceIsNotExists(t, res, serviceID)
-		assertMySQLServiceIsExists(t, res, remoteServiceID)
+		assertMySQLServiceNotExist(t, res, serviceID)
+		assertMySQLServiceExists(t, res, remoteServiceID)
 	})
 }
 
@@ -183,11 +183,12 @@ func TestMySQLService(t *testing.T) {
 		genericNodeID := genericNodeOKBody.Generic.NodeID
 		defer removeNodes(t, genericNodeID)
 
+		serviceName := withUUID(t, "MySQL Service to change name")
 		body := services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: withUUID(t, "MySQL Service to change name"),
+			ServiceName: serviceName,
 		}
 		service := addMySQLService(t, body)
 		serviceID := service.Mysql.ServiceID
@@ -198,6 +199,17 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
+		assert.Equal(t, &services.GetServiceOK{
+			Payload: &services.GetServiceOKBody{
+				Mysql: &services.GetServiceOKBodyMysql{
+					ServiceID:   serviceID,
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        3306,
+					ServiceName: serviceName,
+				},
+			},
+		}, serviceRes)
 
 		// Change MySQL service name.
 		changedServiceName := withUUID(t, "Changed MySQL Service")
@@ -209,9 +221,17 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotNil(t, changeRes.Payload.Mysql)
-		require.Equal(t, serviceID, changeRes.Payload.Mysql.ServiceID)
-		require.Equal(t, changedServiceName, changeRes.Payload.Mysql.ServiceName)
+		assert.Equal(t, &services.ChangeMySQLServiceOK{
+			Payload: &services.ChangeMySQLServiceOKBody{
+				Mysql: &services.ChangeMySQLServiceOKBodyMysql{
+					ServiceID:   serviceID,
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        3306,
+					ServiceName: changedServiceName,
+				},
+			},
+		}, changeRes)
 
 		// Check changes in backend.
 		changedService, err := client.Default.Services.GetService(&services.GetServiceParams{
@@ -219,20 +239,32 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.Equal(t, changedServiceName, changedService.Payload.Mysql.ServiceName)
-		// Check that other fields isn't changed.
-		require.Equal(t, serviceRes.Payload.Mysql.Port, changedService.Payload.Mysql.Port)
-		require.Equal(t, serviceRes.Payload.Mysql.Address, changedService.Payload.Mysql.Address)
-		require.Equal(t, serviceRes.Payload.Mysql.NodeID, changedService.Payload.Mysql.NodeID)
+		assert.Equal(t, &services.GetServiceOK{
+			Payload: &services.GetServiceOKBody{
+				Mysql: &services.GetServiceOKBodyMysql{
+					ServiceID:   serviceID,
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        3306,
+					ServiceName: changedServiceName,
+				},
+			},
+		}, changedService)
 	})
 
 	t.Run("ChangeMySQLServicePort", func(t *testing.T) { //TODO: will we implement this?
 		t.Skip("Not implemented yet.")
+
+		genericNode := addGenericNode(t, withUUID(t, "Test Remote Node for List"))
+		genericNodeID := genericNode.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
+
+		serviceName := withUUID(t, "MySQL Service to change port")
 		body := services.AddMySQLServiceBody{
-			NodeID:      "pmm-server",
+			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: withUUID(t, "MySQL Service to change port"),
+			ServiceName: serviceName,
 		}
 		service := addMySQLService(t, body)
 		serviceID := service.Mysql.ServiceID
@@ -243,6 +275,17 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
+		assert.Equal(t, &services.GetServiceOK{
+			Payload: &services.GetServiceOKBody{
+				Mysql: &services.GetServiceOKBodyMysql{
+					ServiceID:   serviceID,
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        3306,
+					ServiceName: serviceName,
+				},
+			},
+		}, serviceRes)
 
 		// Change MySQL service name.
 		newPort := int64(3337)
@@ -253,10 +296,17 @@ func TestMySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		require.NotNil(t, changeRes.Payload.Mysql)
-		require.Equal(t, serviceID, changeRes.Payload.Mysql.ServiceID)
-		require.Equal(t, newPort, changeRes.Payload.Mysql.Port)
+		assert.Equal(t, &services.ChangeMySQLServiceOK{
+			Payload: &services.ChangeMySQLServiceOKBody{
+				Mysql: &services.ChangeMySQLServiceOKBodyMysql{
+					ServiceID:   serviceID,
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        newPort,
+					ServiceName: serviceName,
+				},
+			},
+		}, changeRes)
 
 		// Check changes in backend.
 		changedService, err := client.Default.Services.GetService(&services.GetServiceParams{
@@ -264,11 +314,17 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.Equal(t, newPort, changedService.Payload.Mysql.Port)
-		// Check that other fields isn't changed.
-		require.Equal(t, serviceRes.Payload.Mysql.ServiceName, changedService.Payload.Mysql.ServiceName)
-		require.Equal(t, serviceRes.Payload.Mysql.Address, changedService.Payload.Mysql.Address)
-		require.Equal(t, serviceRes.Payload.Mysql.NodeID, changedService.Payload.Mysql.NodeID)
+		assert.Equal(t, &services.GetServiceOK{
+			Payload: &services.GetServiceOKBody{
+				Mysql: &services.GetServiceOKBodyMysql{
+					ServiceID:   serviceID,
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        newPort,
+					ServiceName: serviceName,
+				},
+			},
+		}, changedService)
 	})
 
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
@@ -291,10 +347,14 @@ func TestMySQLService(t *testing.T) {
 func TestAmazonRDSMySQLService(t *testing.T) {
 	t.Skip("Not implemented yet.")
 	t.Run("Basic", func(t *testing.T) {
+		remoteNodeOKBody := addRemoteNode(t, withUUID(t, "Remote node to check services filter"))
+		remoteNodeID := remoteNodeOKBody.Remote.NodeID
+		defer removeNodes(t, remoteNodeID)
+
 		serviceName := withUUID(t, "Basic AmazonRDSMySQL Service")
 		params := &services.AddAmazonRDSMySQLServiceParams{
 			Body: services.AddAmazonRDSMySQLServiceBody{
-				NodeID:      "pmm-server",
+				NodeID:      remoteNodeID,
 				Address:     "localhost",
 				Port:        3306,
 				ServiceName: serviceName,
@@ -302,16 +362,21 @@ func TestAmazonRDSMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddAmazonRDSMySQLService(params)
-		require.NoError(t, err)
+		assert.NoError(t, err)
 		require.NotNil(t, res)
-		require.NotNil(t, res.Payload.AmazonRDSMysql)
-		require.NotEmpty(t, res.Payload.AmazonRDSMysql.ServiceID)
 		serviceID := res.Payload.AmazonRDSMysql.ServiceID
 		defer removeServices(t, serviceID)
-		require.Equal(t, "pmm-server", res.Payload.AmazonRDSMysql.NodeID)
-		require.Equal(t, "localhost", res.Payload.AmazonRDSMysql.Address)
-		require.Equal(t, int64(3306), res.Payload.AmazonRDSMysql.Port)
-		require.Equal(t, serviceName, res.Payload.AmazonRDSMysql.ServiceName)
+		assert.Equal(t, &services.AddAmazonRDSMySQLServiceOK{
+			Payload: &services.AddAmazonRDSMySQLServiceOKBody{
+				AmazonRDSMysql: &services.AddAmazonRDSMySQLServiceOKBodyAmazonRDSMysql{
+					ServiceID:   serviceID,
+					NodeID:      remoteNodeID,
+					Address:     "localhost",
+					Port:        3306,
+					ServiceName: serviceName,
+				},
+			},
+		}, res)
 
 		// Check if the service saved in PMM-Managed.
 		serviceRes, err := client.Default.Services.GetService(&services.GetServiceParams{
@@ -320,18 +385,22 @@ func TestAmazonRDSMySQLService(t *testing.T) {
 		})
 		require.NoError(t, err)
 		require.NotNil(t, serviceRes)
-		require.NotNil(t, serviceRes.Payload.AmazonRDSMysql)
-		require.Nil(t, serviceRes.Payload.Mysql)
-		require.NotEmpty(t, serviceRes.Payload.AmazonRDSMysql.ServiceID)
-		require.Equal(t, "pmm-server", serviceRes.Payload.AmazonRDSMysql.NodeID)
-		require.Equal(t, "localhost", serviceRes.Payload.AmazonRDSMysql.Address)
-		require.Equal(t, int64(3306), serviceRes.Payload.AmazonRDSMysql.Port)
-		require.Equal(t, serviceName, serviceRes.Payload.AmazonRDSMysql.ServiceName)
+		assert.Equal(t, &services.GetServiceOK{
+			Payload: &services.GetServiceOKBody{
+				AmazonRDSMysql: &services.GetServiceOKBodyAmazonRDSMysql{
+					ServiceID:   serviceID,
+					NodeID:      remoteNodeID,
+					Address:     "localhost",
+					Port:        3306,
+					ServiceName: serviceName,
+				},
+			},
+		}, serviceRes)
 
 		// Check duplicates.
 		params = &services.AddAmazonRDSMySQLServiceParams{
 			Body: services.AddAmazonRDSMySQLServiceBody{
-				NodeID:      "pmm-server",
+				NodeID:      remoteNodeID,
 				Address:     "127.0.0.1",
 				Port:        3336,
 				ServiceName: serviceName,

@@ -16,21 +16,21 @@ func TestNodes(t *testing.T) {
 		remoteNode := addRemoteNode(t, withUUID(t, "Test Remote Node for List"))
 		remoteNodeID := remoteNode.Remote.NodeID
 		defer removeNodes(t, remoteNodeID)
-		genericNode := addGenericNode(t, withUUID(t, "Test Remote Node for List"))
+		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
 		genericNodeID := genericNode.Generic.NodeID
 		defer removeNodes(t, genericNodeID)
 
 		res, err := client.Default.Nodes.ListNodes(nil)
 		require.NoError(t, err)
 		require.NotZerof(t, len(res.Payload.Generic), "There should be at least one node")
-		require.Condition(t, func() (success bool) {
+		require.Conditionf(t, func() (success bool) {
 			for _, v := range res.Payload.Generic {
 				if v.NodeID == genericNodeID {
 					return true
 				}
 			}
 			return false
-		}, "There should be generic node with id `pmm-server`")
+		}, "There should be generic node with id `%s`", genericNodeID)
 		require.NotZerof(t, len(res.Payload.Remote), "There should be at least one node")
 		require.Conditionf(t, func() (success bool) {
 			for _, v := range res.Payload.Remote {
@@ -286,10 +286,11 @@ func TestRemoteNode(t *testing.T) {
 func TestRemoteAmazonRDSNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		nodeName := withUUID(t, "Test RemoteAmazonRDS Node")
+		instanceName := withUUID(t, "some-instance")
 		params := &nodes.AddRemoteAmazonRDSNodeParams{
 			Body: nodes.AddRemoteAmazonRDSNodeBody{
 				NodeName: nodeName,
-				Instance: withUUID(t, "some-instance"),
+				Instance: instanceName,
 				Region:   "us-east-1",
 			},
 			Context: pmmapitests.Context,
@@ -309,12 +310,14 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 		expectedResponse := &nodes.GetNodeOK{
 			Payload: &nodes.GetNodeOKBody{
 				RemoteAmazonRDS: &nodes.GetNodeOKBodyRemoteAmazonRDS{
-					NodeID:   res.Payload.RemoteAmazonRDS.NodeID,
+					NodeID:   nodeID,
 					NodeName: nodeName,
+					Region:   "us-east-1",
+					Instance: instanceName,
 				},
 			},
 		}
-		require.Equal(t, expectedResponse, getNodeRes)
+		assert.Equal(t, expectedResponse, getNodeRes)
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddRemoteAmazonRDSNode(params)
@@ -333,6 +336,8 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 				RemoteAmazonRDS: &nodes.ChangeRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS{
 					NodeID:   nodeID,
 					NodeName: changedNodeName,
+					Region:   "us-east-1",
+					Instance: instanceName,
 				},
 			},
 		}
