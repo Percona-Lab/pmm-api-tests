@@ -6,11 +6,13 @@ import (
 	"os"
 	"testing"
 
+	"github.com/go-openapi/runtime"
 	"github.com/google/uuid"
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/api/inventory/json/client/agents"
 	"github.com/percona/pmm/api/inventory/json/client/nodes"
 	"github.com/percona/pmm/api/inventory/json/client/services"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	_ "github.com/Percona-Lab/pmm-api-tests" // init default client
@@ -132,4 +134,15 @@ func addMySqldExporter(t *testing.T, body agents.AddMySqldExporterBody) *agents.
 	require.NotNil(t, agentRes)
 	require.NotNil(t, agentRes.Payload.MysqldExporter)
 	return agentRes.Payload
+}
+
+func assertEqualAPIError(t *testing.T, err error, expectedCode int) {
+	t.Helper()
+	expectedError := &runtime.APIError{
+		OperationName: "unknown error",
+		Code:          expectedCode,
+	}
+	assert.Error(t, err)
+	err.(*runtime.APIError).Response = nil
+	assert.Equal(t, expectedError, err)
 }

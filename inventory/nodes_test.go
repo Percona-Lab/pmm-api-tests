@@ -5,6 +5,7 @@ import (
 
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/api/inventory/json/client/nodes"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/Percona-Lab/pmm-api-tests"
@@ -64,9 +65,8 @@ func TestGetNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.GetNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 404)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 404)
+		assert.Nil(t, res)
 	})
 
 	t.Run("EmptyNodeID", func(t *testing.T) {
@@ -75,9 +75,8 @@ func TestGetNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.GetNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 }
 
@@ -105,9 +104,8 @@ func TestGenericNode(t *testing.T) {
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddGenericNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 409)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 409)
+		assert.Nil(t, res)
 
 		// Change node.
 		changedNodeName := withUUID(t, "Changed Generic Node")
@@ -127,9 +125,8 @@ func TestGenericNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddGenericNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 }
 
@@ -162,9 +159,8 @@ func TestContainerNode(t *testing.T) {
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddContainerNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 409)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 409)
+		assert.Nil(t, res)
 
 		// Change node.
 		changedNodeName := withUUID(t, "Changed Container Node")
@@ -184,9 +180,8 @@ func TestContainerNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddContainerNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 }
 
@@ -216,9 +211,8 @@ func TestRemoteNode(t *testing.T) {
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddRemoteNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 409)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 409)
+		assert.Nil(t, res)
 
 		// Change node.
 		changedNodeName := withUUID(t, "Changed Remote Node")
@@ -238,9 +232,8 @@ func TestRemoteNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 }
 
@@ -272,9 +265,8 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddRemoteAmazonRDSNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 409)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 409)
+		assert.Nil(t, res)
 
 		// Change node.
 		changedNodeName := withUUID(t, "Changed RemoteAmazonRDS Node")
@@ -298,9 +290,8 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 
 	t.Run("AddInstanceEmpty", func(t *testing.T) {
@@ -312,9 +303,8 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 
 	t.Run("AddRegionEmpty", func(t *testing.T) {
@@ -326,8 +316,7 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 }

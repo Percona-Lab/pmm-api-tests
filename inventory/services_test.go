@@ -5,6 +5,7 @@ import (
 
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/api/inventory/json/client/services"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/Percona-Lab/pmm-api-tests"
@@ -115,9 +116,8 @@ func TestGetService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.GetService(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 404)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 404)
+		assert.Nil(t, res)
 	})
 
 	t.Run("EmptyServiceID", func(t *testing.T) {
@@ -126,9 +126,8 @@ func TestGetService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.GetService(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 }
 
@@ -183,9 +182,8 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err = client.Default.Services.AddMySQLService(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 409)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 409)
+		assert.Nil(t, res)
 	})
 
 	t.Run("ChangeMySQLServiceName", func(t *testing.T) {
@@ -290,9 +288,8 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddMySQLService(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 }
 
@@ -347,8 +344,7 @@ func TestAmazonRDSMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err = client.Default.Services.AddAmazonRDSMySQLService(params)
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 409)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 409)
+		assert.Nil(t, res)
 	})
 }

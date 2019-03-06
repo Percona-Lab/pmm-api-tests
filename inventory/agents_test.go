@@ -6,6 +6,7 @@ import (
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/api/inventory/json/client/agents"
 	"github.com/percona/pmm/api/inventory/json/client/services"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/Percona-Lab/pmm-api-tests"
@@ -218,9 +219,8 @@ func TestPMMAgent(t *testing.T) {
 			Body:    agents.AddPMMAgentBody{NodeID: ""},
 			Context: pmmapitests.Context,
 		})
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 }
 
@@ -266,9 +266,8 @@ func TestNodeExporter(t *testing.T) {
 			Body:    agents.AddNodeExporterBody{NodeID: ""},
 			Context: pmmapitests.Context,
 		})
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 
 	t.Run("NotExistNodeID", func(t *testing.T) {
@@ -278,9 +277,8 @@ func TestNodeExporter(t *testing.T) {
 			Body:    agents.AddNodeExporterBody{NodeID: "pmm-node-exporter-node"},
 			Context: pmmapitests.Context,
 		})
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 404)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 404)
+		assert.Nil(t, res)
 	})
 }
 
@@ -333,9 +331,8 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 
 	t.Run("AddServiceIDEmpty", func(t *testing.T) {
@@ -348,9 +345,8 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 400)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
 	})
 
 	t.Run("NotExistServiceID", func(t *testing.T) {
@@ -363,9 +359,8 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 404)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 404)
+		assert.Nil(t, res)
 	})
 
 	t.Run("NotExistNodeID", func(t *testing.T) {
@@ -387,9 +382,8 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		require.Error(t, err) // Can't use EqualError because it returns different references each time.
-		require.Contains(t, err.Error(), "unknown error (status 404)")
-		require.Nil(t, res)
+		assertEqualAPIError(t, err, 404)
+		assert.Nil(t, res)
 	})
 }
 
