@@ -17,10 +17,11 @@ import (
 )
 
 var Context context.Context
-var ServerURLF = flag.String("pmm.server-url", "https://127.0.0.1:8443/", "PMM Server URL.")
+var BaseURL *url.URL
 
 func init() {
 	debugF := flag.Bool("pmm.debug", false, "Enable debug output.")
+	serverURLF := flag.String("pmm.server-url", "https://127.0.0.1:8443/", "PMM Server URL.")
 	flag.Parse()
 
 	if *debugF {
@@ -29,7 +30,7 @@ func init() {
 	}
 
 	var cancel func()
-	Context, cancel = context.WithCancel(context.TODO())
+	Context, cancel = context.WithCancel(context.Background())
 
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
@@ -41,20 +42,21 @@ func init() {
 		cancel()
 	}()
 
-	u, err := url.Parse(*ServerURLF)
+	var err error
+	BaseURL, err = url.Parse(*serverURLF)
 	if err != nil {
 		logrus.Fatalf("Failed to parse PMM Server URL: %s.", err)
 	}
-	if u.Host == "" || u.Scheme == "" {
-		logrus.Fatalf("Invalid PMM Server URL: %s", u.String())
+	if BaseURL.Host == "" || BaseURL.Scheme == "" {
+		logrus.Fatalf("Invalid PMM Server URL: %s", BaseURL.String())
 	}
-	if u.Path == "" {
-		u.Path = "/"
+	if BaseURL.Path == "" {
+		BaseURL.Path = "/"
 	}
-	logrus.Debugf("PMM Server URL: %#v.", u)
+	logrus.Debugf("PMM Server URL: %#v.", BaseURL)
 
 	// use JSON APIs over HTTP/1.1 (setting TLSNextProto to non-nil map disables automated HTTP/2)
-	transport := httptransport.New(u.Host, u.Path, []string{u.Scheme})
+	transport := httptransport.New(BaseURL.Host, BaseURL.Path, []string{BaseURL.Scheme})
 	transport.Transport.(*http.Transport).TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 
 	l := logrus.WithField("component", "client")

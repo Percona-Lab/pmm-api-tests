@@ -58,12 +58,16 @@ func TestAgents(t *testing.T) {
 	t.Run("FilterList", func(t *testing.T) {
 		t.Parallel()
 
+		genericNode := addGenericNode(t, withUUID(t, "Test Remote Node for List"))
+		genericNodeID := genericNode.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
+
 		node := addRemoteNode(t, withUUID(t, "Remote node for agents filters"))
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
 		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      "pmm-server",
+			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
 			ServiceName: withUUID(t, "MySQL Service for filter test"),
@@ -75,7 +79,7 @@ func TestAgents(t *testing.T) {
 			ServiceID:    serviceID,
 			Username:     "username",
 			Password:     "password",
-			RunsOnNodeID: "pmm-server",
+			RunsOnNodeID: genericNodeID,
 		})
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer removeAgents(t, mySqldExporterID)
@@ -86,7 +90,7 @@ func TestAgents(t *testing.T) {
 
 		// Filter by runs on node ID.
 		res, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
-			Body:    agents.ListAgentsBody{RunsOnNodeID: "pmm-server"},
+			Body:    agents.ListAgentsBody{RunsOnNodeID: genericNodeID},
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -122,10 +126,14 @@ func TestAgents(t *testing.T) {
 		t.Skip("it doesn't return error")
 		t.Parallel()
 
+		genericNode := addGenericNode(t, withUUID(t, "Test Remote Node for List"))
+		genericNodeID := genericNode.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
+
 		res, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
 			Body: agents.ListAgentsBody{
-				RunsOnNodeID: "pmm-server",
-				NodeID:       "pmm-server",
+				RunsOnNodeID: genericNodeID,
+				NodeID:       genericNodeID,
 				ServiceID:    "some-service-id",
 			},
 			Context: pmmapitests.Context,

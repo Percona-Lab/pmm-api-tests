@@ -252,7 +252,7 @@ func TestMySQLService(t *testing.T) {
 		}, changedService)
 	})
 
-	t.Run("ChangeMySQLServicePort", func(t *testing.T) { //TODO: will we implement this?
+	t.Run("ChangeMySQLServicePort", func(t *testing.T) {
 		t.Skip("Not implemented yet.")
 
 		genericNode := addGenericNode(t, withUUID(t, "Test Remote Node for List"))
@@ -296,6 +296,7 @@ func TestMySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
+		assert.NoError(t, err)
 		assert.Equal(t, &services.ChangeMySQLServiceOK{
 			Payload: &services.ChangeMySQLServiceOKBody{
 				Mysql: &services.ChangeMySQLServiceOKBodyMysql{

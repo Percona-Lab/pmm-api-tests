@@ -47,6 +47,8 @@ func TestGetNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		nodeName := withUUID(t, "TestGenericNode")
 		node := addGenericNode(t, nodeName)
+		defer removeNodes(t, node.Generic.NodeID)
+
 		expectedResponse := &nodes.GetNodeOK{
 			Payload: &nodes.GetNodeOKBody{
 				Generic: &nodes.GetNodeOKBodyGeneric{
@@ -94,7 +96,8 @@ func TestGenericNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddGenericNode(params)
-		require.NoError(t, err)
+		assert.NoError(t, err)
+		require.NotNil(t, res)
 		require.NotNil(t, res.Payload.Generic)
 		nodeID := res.Payload.Generic.NodeID
 		defer removeNodes(t, nodeID)
