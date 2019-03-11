@@ -94,6 +94,18 @@ func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.
 	return res.Payload
 }
 
+func addMongoDBService(t *testing.T, body services.AddMongoDBServiceBody) *services.AddMongoDBServiceOKBody {
+	t.Helper()
+	params := &services.AddMongoDBServiceParams{
+		Body:    body,
+		Context: context.TODO(),
+	}
+	res, err := client.Default.Services.AddMongoDBService(params)
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+	return res.Payload
+}
+
 func removeAgents(t *testing.T, agentIDs ...string) {
 	t.Helper()
 	for _, agentID := range agentIDs {
@@ -110,7 +122,7 @@ func removeAgents(t *testing.T, agentIDs ...string) {
 func addPMMAgent(t *testing.T, node string) *agents.AddPMMAgentOKBody {
 	t.Helper()
 	res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
-		Body:    agents.AddPMMAgentBody{NodeID: node},
+		Body:    agents.AddPMMAgentBody{RunsOnNodeID: node},
 		Context: context.TODO(),
 	})
 	assert.NoError(t, err)
@@ -129,13 +141,24 @@ func addMySqldExporter(t *testing.T, body agents.AddMySqldExporterBody) *agents.
 	return res.Payload
 }
 
+func addMongoDBExporter(t *testing.T, body agents.AddMongoDBExporterBody) *agents.AddMongoDBExporterOKBody {
+	t.Helper()
+	res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
+		Body:    body,
+		Context: context.TODO(),
+	})
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+	return res.Payload
+}
+
 func assertEqualAPIError(t *testing.T, err error, expectedCode int) bool {
 	t.Helper()
 	expectedError := &runtime.APIError{
 		OperationName: "unknown error",
 		Code:          expectedCode,
 	}
-	assert.Error(t, err)
+	require.Error(t, err)
 	err.(*runtime.APIError).Response = nil
 	return assert.Equal(t, expectedError, err)
 }

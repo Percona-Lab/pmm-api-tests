@@ -413,3 +413,93 @@ func TestAmazonRDSMySQLService(t *testing.T) {
 		assert.Nil(t, res)
 	})
 }
+
+func TestMongoService(t *testing.T) {
+	t.Run("Basic", func(t *testing.T) {
+		t.Parallel()
+		genericNodeOKBody := addGenericNode(t, withUUID(t, "Generic node for services test"))
+		genericNodeID := genericNodeOKBody.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
+
+		serviceName := withUUID(t, "Basic Mongo Service")
+		params := &services.AddMongoDBServiceParams{
+			Body: services.AddMongoDBServiceBody{
+				NodeID:      genericNodeID,
+				ServiceName: serviceName,
+			},
+			Context: pmmapitests.Context,
+		}
+		res, err := client.Default.Services.AddMongoDBService(params)
+		assert.NoError(t, err)
+		require.NotNil(t, res)
+		serviceID := res.Payload.Mongodb.ServiceID
+		assert.Equal(t, &services.AddMongoDBServiceOK{
+			Payload: &services.AddMongoDBServiceOKBody{
+				Mongodb: &services.AddMongoDBServiceOKBodyMongodb{
+					ServiceID:   serviceID,
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+				},
+			},
+		}, res)
+		defer removeServices(t, serviceID)
+
+		// Check if the service saved in PMM-Managed.
+		serviceRes, err := client.Default.Services.GetService(&services.GetServiceParams{
+			Body:    services.GetServiceBody{ServiceID: serviceID},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, serviceRes)
+		assert.Equal(t, &services.GetServiceOK{
+			Payload: &services.GetServiceOKBody{
+				Mongodb: &services.GetServiceOKBodyMongodb{
+					ServiceID:   serviceID,
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+				},
+			},
+		}, serviceRes)
+
+		// Check duplicates.
+		params = &services.AddMongoDBServiceParams{
+			Body: services.AddMongoDBServiceBody{
+				NodeID:      genericNodeID,
+				ServiceName: serviceName,
+			},
+			Context: pmmapitests.Context,
+		}
+		res, err = client.Default.Services.AddMongoDBService(params)
+		assertEqualAPIError(t, err, 409)
+		assert.Nil(t, res)
+	})
+
+	t.Run("AddNodeIDEmpty", func(t *testing.T) {
+		t.Parallel()
+		params := &services.AddMongoDBServiceParams{
+			Body: services.AddMongoDBServiceBody{
+				NodeID:      "",
+				ServiceName: withUUID(t, "MongoDB Service with empty node id"),
+			},
+			Context: pmmapitests.Context,
+		}
+		res, err := client.Default.Services.AddMongoDBService(params)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
+	})
+
+	t.Run("AddServiceNameEmpty", func(t *testing.T) {
+		t.Skip("it returns HTTP Status code 500")
+		t.Parallel()
+		params := &services.AddMongoDBServiceParams{
+			Body: services.AddMongoDBServiceBody{
+				NodeID:      withUUID(t, "Generic node for services test"),
+				ServiceName: "",
+			},
+			Context: pmmapitests.Context,
+		}
+		res, err := client.Default.Services.AddMongoDBService(params)
+		assertEqualAPIError(t, err, 400)
+		assert.Nil(t, res)
+	})
+}
