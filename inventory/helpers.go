@@ -94,18 +94,6 @@ func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.
 	return res.Payload
 }
 
-func addMongoDBService(t *testing.T, body services.AddMongoDBServiceBody) *services.AddMongoDBServiceOKBody {
-	t.Helper()
-	params := &services.AddMongoDBServiceParams{
-		Body:    body,
-		Context: context.TODO(),
-	}
-	res, err := client.Default.Services.AddMongoDBService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
 func removeAgents(t *testing.T, agentIDs ...string) {
 	t.Helper()
 	for _, agentID := range agentIDs {
@@ -158,9 +146,13 @@ func assertEqualAPIError(t *testing.T, err error, expectedCode int) bool {
 		OperationName: "unknown error",
 		Code:          expectedCode,
 	}
-	require.Error(t, err)
-	err.(*runtime.APIError).Response = nil
-	return assert.Equal(t, expectedError, err)
+	assert.Error(t, err)
+	apiError, ok := err.(*runtime.APIError)
+	if ok {
+		apiError.Response = nil
+	}
+	assert.Equal(t, expectedError, err)
+	return assert.EqualError(t, err, fmt.Sprintf("unknown error (status %d): <nil> ", expectedCode))
 }
 
 func assertMySQLServiceExists(t *testing.T, res *services.ListServicesOK, serviceID string) bool {

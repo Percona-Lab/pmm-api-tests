@@ -88,7 +88,7 @@ func TestAgents(t *testing.T) {
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer removeAgents(t, mySqldExporterID)
 
-		// Filter by runs on node ID.
+		// Filter by pmm agent ID.
 		res, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
 			Body:    agents.ListAgentsBody{PMMAgentID: pmmAgentID},
 			Context: pmmapitests.Context,
@@ -99,16 +99,16 @@ func TestAgents(t *testing.T) {
 		assertMySQLExporterExists(t, res, mySqldExporterID)
 		assertPMMAgentNotExists(t, res, pmmAgentID)
 
-		//// Filter by node ID.
-		//res, err = client.Default.Agents.ListAgents(&agents.ListAgentsParams{
-		//	Body:    agents.ListAgentsBody{NodeID: nodeID},
-		//	Context: pmmapitests.Context,
-		//})
-		//require.NoError(t, err)
-		//require.NotNil(t, res)
-		//require.NotZerof(t, len(res.Payload.PMMAgent), "There should be at least one service")
-		//assertMySQLExporterNotExists(t, res, mySqldExporterID)
-		//assertPMMAgentExists(t, res, pmmAgentID)
+		// Filter by node ID.
+		res, err = client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+			Body:    agents.ListAgentsBody{NodeID: nodeID},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		require.NotNil(t, res)
+		require.NotZerof(t, len(res.Payload.PMMAgent), "There should be at least one service")
+		assertMySQLExporterNotExists(t, res, mySqldExporterID)
+		assertPMMAgentExists(t, res, pmmAgentID)
 
 		// Filter by service ID.
 		res, err = client.Default.Agents.ListAgents(&agents.ListAgentsParams{
