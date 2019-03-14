@@ -1,6 +1,6 @@
 [[constraint]]
   name = "github.com/percona/pmm"
-  branch = "PMM-2.0"
+  branch = "PMM-1605-error-handling"
 
 [prune]
   # non-go = true

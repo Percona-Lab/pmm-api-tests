@@ -1,12 +1,11 @@
 package inventory
 
 import (
-	"context"
 	"fmt"
 	"os"
+	"reflect"
 	"testing"
 
-	"github.com/go-openapi/runtime"
 	"github.com/google/uuid"
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/api/inventory/json/client/agents"
@@ -15,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/Percona-Lab/pmm-api-tests"
 	_ "github.com/Percona-Lab/pmm-api-tests" // init default client
 )
 
@@ -33,7 +33,7 @@ func removeNodes(t *testing.T, nodeIDs ...string) {
 	for _, nodeID := range nodeIDs {
 		params := &nodes.RemoveNodeParams{
 			Body:    nodes.RemoveNodeBody{NodeID: nodeID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.RemoveNode(params)
 		assert.NoError(t, err)
@@ -47,7 +47,7 @@ func addGenericNode(t *testing.T, nodeName string) *nodes.AddGenericNodeOKBody {
 		Body: nodes.AddGenericNodeBody{
 			NodeName: nodeName,
 		},
-		Context: context.TODO(),
+		Context: pmmapitests.Context,
 	}
 	res, err := client.Default.Nodes.AddGenericNode(params)
 	assert.NoError(t, err)
@@ -61,7 +61,7 @@ func addRemoteNode(t *testing.T, nodeName string) *nodes.AddRemoteNodeOKBody {
 		Body: nodes.AddRemoteNodeBody{
 			NodeName: nodeName,
 		},
-		Context: context.TODO(),
+		Context: pmmapitests.Context,
 	}
 	res, err := client.Default.Nodes.AddRemoteNode(params)
 	assert.NoError(t, err)
@@ -74,7 +74,7 @@ func removeServices(t *testing.T, serviceIDs ...string) {
 	for _, serviceID := range serviceIDs {
 		params := &services.RemoveServiceParams{
 			Body:    services.RemoveServiceBody{ServiceID: serviceID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.RemoveService(params)
 		assert.NoError(t, err)
@@ -86,7 +86,7 @@ func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.
 	t.Helper()
 	params := &services.AddMySQLServiceParams{
 		Body:    body,
-		Context: context.TODO(),
+		Context: pmmapitests.Context,
 	}
 	res, err := client.Default.Services.AddMySQLService(params)
 	assert.NoError(t, err)
@@ -99,7 +99,7 @@ func removeAgents(t *testing.T, agentIDs ...string) {
 	for _, agentID := range agentIDs {
 		params := &agents.RemoveAgentParams{
 			Body:    agents.RemoveAgentBody{AgentID: agentID},
-			Context: context.TODO(),
+			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Agents.RemoveAgent(params)
 		assert.NoError(t, err)
@@ -111,7 +111,7 @@ func addPMMAgent(t *testing.T, node string) *agents.AddPMMAgentOKBody {
 	t.Helper()
 	res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
 		Body:    agents.AddPMMAgentBody{RunsOnNodeID: node},
-		Context: context.TODO(),
+		Context: pmmapitests.Context,
 	})
 	assert.NoError(t, err)
 	require.NotNil(t, res)
@@ -122,7 +122,7 @@ func addMySqldExporter(t *testing.T, body agents.AddMySqldExporterBody) *agents.
 	t.Helper()
 	res, err := client.Default.Agents.AddMySqldExporter(&agents.AddMySqldExporterParams{
 		Body:    body,
-		Context: context.TODO(),
+		Context: pmmapitests.Context,
 	})
 	assert.NoError(t, err)
 	require.NotNil(t, res)
@@ -133,26 +133,39 @@ func addMongoDBExporter(t *testing.T, body agents.AddMongoDBExporterBody) *agent
 	t.Helper()
 	res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
 		Body:    body,
-		Context: context.TODO(),
+		Context: pmmapitests.Context,
 	})
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }
 
-func assertEqualAPIError(t *testing.T, err error, expectedCode int) bool {
+func assertEqualAPIError(t *testing.T, err error, expectedCode int64, expectedError string) bool {
 	t.Helper()
-	expectedError := &runtime.APIError{
-		OperationName: "unknown error",
-		Code:          expectedCode,
+	if !assert.Error(t, err) {
+		return false
 	}
-	assert.Error(t, err)
-	apiError, ok := err.(*runtime.APIError)
-	if ok {
-		apiError.Response = nil
+
+	// Have to use reflect because there are a lot of types with the same structure and different names.
+	val := reflect.ValueOf(err)
+
+	codeMethod, ok := val.Type().MethodByName("Code")
+	if assert.True(t, ok, "Wrong response structure. There is no method Code().") {
+		codeValue := codeMethod.Func.Call([]reflect.Value{val})[0].Int()
+		assert.Equal(t, expectedCode, codeValue)
 	}
-	assert.Equal(t, expectedError, err)
-	return assert.EqualError(t, err, fmt.Sprintf("unknown error (status %d): <nil> ", expectedCode))
+
+	payload := val.Elem().FieldByName("Payload")
+	if !assert.True(t, payload.IsValid(), "Wrong response structure. There is no field Payload.") {
+		return false
+	}
+
+	errorField := payload.Elem().FieldByName("Error")
+	if !assert.True(t, errorField.IsValid(), "Wrong response structure. There is no field Error in Payload.") {
+		return false
+	}
+
+	return assert.Equal(t, expectedError, errorField.String())
 }
 
 func assertMySQLServiceExists(t *testing.T, res *services.ListServicesOK, serviceID string) bool {

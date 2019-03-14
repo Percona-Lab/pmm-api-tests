@@ -173,8 +173,8 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:67ae6bfaf3e7b94f30097e3d8291b3180225743fdb33f34d60ff4346b2dd5403"
+  branch = "PMM-1605-error-handling"
+  digest = "1:82fa926f5268744f196e2f1778c0176977130998efa6b4b66d8b3f716343e1e6"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventory/json/client",
@@ -183,7 +183,7 @@
     "api/inventory/json/client/services",
   ]
   pruneopts = ""
-  revision = "696407ba1a1c11140a3da6dbf408a53fa0b314eb"
+  revision = "ffa6c85566534ec2a6501c1a6a664397968e01eb"
 
 [[projects]]
   digest = "1:256484dbbcd271f9ecebc6795b2df8cad4c458dd0f5fd82a8c2fa0c29f233411"

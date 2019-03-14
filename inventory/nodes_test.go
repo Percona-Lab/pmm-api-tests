@@ -1,6 +1,7 @@
 package inventory
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/percona/pmm/api/inventory/json/client"
@@ -73,7 +74,7 @@ func TestGetNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.GetNode(params)
-		assertEqualAPIError(t, err, 404)
+		assertEqualAPIError(t, err, 404, "Node with ID \"pmm-not-found\" not found.")
 		assert.Nil(t, res)
 	})
 
@@ -83,7 +84,7 @@ func TestGetNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.GetNode(params)
-		assertEqualAPIError(t, err, 400)
+		assertEqualAPIError(t, err, 400, "Empty Node ID.")
 		assert.Nil(t, res)
 	})
 }
@@ -120,8 +121,10 @@ func TestGenericNode(t *testing.T) {
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddGenericNode(params)
-		assertEqualAPIError(t, err, 409)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 409, fmt.Sprintf("Node with name \"%s\" already exists.", nodeName))
+		if !assert.Nil(t, res) {
+			removeNodes(t, res.Payload.Generic.NodeID)
+		}
 
 		// Change node.
 		changedNodeName := withUUID(t, "Changed Generic Node")
@@ -147,8 +150,10 @@ func TestGenericNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddGenericNode(params)
-		assertEqualAPIError(t, err, 400)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 400, "Empty Node name.")
+		if !assert.Nil(t, res) {
+			removeNodes(t, res.Payload.Generic.NodeID)
+		}
 	})
 }
 
@@ -189,8 +194,10 @@ func TestContainerNode(t *testing.T) {
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddContainerNode(params)
-		assertEqualAPIError(t, err, 409)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 409, "")
+		if !assert.Nil(t, res) {
+			removeNodes(t, res.Payload.Container.NodeID)
+		}
 
 		// Change node.
 		changedNodeName := withUUID(t, "Changed Container Node")
@@ -216,8 +223,10 @@ func TestContainerNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddContainerNode(params)
-		assertEqualAPIError(t, err, 400)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 400, "")
+		if !assert.Nil(t, res) {
+			removeNodes(t, res.Payload.Container.NodeID)
+		}
 	})
 }
 
@@ -254,8 +263,10 @@ func TestRemoteNode(t *testing.T) {
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddRemoteNode(params)
-		assertEqualAPIError(t, err, 409)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 409, fmt.Sprintf("Node with name \"%s\" already exists.", nodeName))
+		if !assert.Nil(t, res) {
+			removeNodes(t, res.Payload.Remote.NodeID)
+		}
 
 		// Change node.
 		changedNodeName := withUUID(t, "Changed Remote Node")
@@ -281,8 +292,10 @@ func TestRemoteNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteNode(params)
-		assertEqualAPIError(t, err, 400)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 400, "Empty Node name.")
+		if !assert.Nil(t, res) {
+			removeNodes(t, res.Payload.Remote.NodeID)
+		}
 	})
 }
 
@@ -324,8 +337,10 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 
 		// Check duplicates.
 		res, err = client.Default.Nodes.AddRemoteAmazonRDSNode(params)
-		assertEqualAPIError(t, err, 409)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 409, fmt.Sprintf("Node with name \"%s\" already exists.", nodeName))
+		if !assert.Nil(t, res) {
+			removeNodes(t, res.Payload.RemoteAmazonRDS.NodeID)
+		}
 
 		// Change node.
 		changedNodeName := withUUID(t, "Changed RemoteAmazonRDS Node")
@@ -357,8 +372,10 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
-		assertEqualAPIError(t, err, 400)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 400, "Empty Node name.")
+		if !assert.Nil(t, res) {
+			removeNodes(t, res.Payload.RemoteAmazonRDS.NodeID)
+		}
 	})
 
 	t.Run("AddInstanceEmpty", func(t *testing.T) {
@@ -370,8 +387,10 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
-		assertEqualAPIError(t, err, 400)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 400, "Empty Node instance.")
+		if !assert.Nil(t, res) {
+			removeNodes(t, res.Payload.RemoteAmazonRDS.NodeID)
+		}
 	})
 
 	t.Run("AddRegionEmpty", func(t *testing.T) {
@@ -383,7 +402,9 @@ func TestRemoteAmazonRDSNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Nodes.AddRemoteAmazonRDSNode(params)
-		assertEqualAPIError(t, err, 400)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 400, "Empty Node region.")
+		if !assert.Nil(t, res) {
+			removeNodes(t, res.Payload.RemoteAmazonRDS.NodeID)
+		}
 	})
 }

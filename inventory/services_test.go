@@ -1,6 +1,7 @@
 package inventory
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/percona/pmm/api/inventory/json/client"
@@ -94,7 +95,7 @@ func TestGetService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.GetService(params)
-		assertEqualAPIError(t, err, 404)
+		assertEqualAPIError(t, err, 404, "Service with ID \"pmm-not-found\" not found.")
 		assert.Nil(t, res)
 	})
 
@@ -104,7 +105,7 @@ func TestGetService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.GetService(params)
-		assertEqualAPIError(t, err, 400)
+		assertEqualAPIError(t, err, 400, "Empty Service ID.")
 		assert.Nil(t, res)
 	})
 }
@@ -148,8 +149,8 @@ func TestMySQLService(t *testing.T) {
 			Body:    services.GetServiceBody{ServiceID: serviceID},
 			Context: pmmapitests.Context,
 		})
-		require.NoError(t, err)
-		require.NotNil(t, serviceRes)
+		assert.NoError(t, err)
+		assert.NotNil(t, serviceRes)
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
 				Mysql: &services.GetServiceOKBodyMysql{
@@ -173,8 +174,10 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err = client.Default.Services.AddMySQLService(params)
-		assertEqualAPIError(t, err, 409)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 409, fmt.Sprintf("Service with name \"%s\" already exists.", serviceName))
+		if !assert.Nil(t, res) {
+			removeServices(t, res.Payload.Mysql.ServiceID)
+		}
 	})
 
 	t.Run("ChangeMySQLServiceName", func(t *testing.T) {
@@ -340,8 +343,10 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddMySQLService(params)
-		assertEqualAPIError(t, err, 400)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 400, "Empty Node ID.")
+		if !assert.Nil(t, res) {
+			removeServices(t, res.Payload.Mysql.ServiceID)
+		}
 	})
 }
 
@@ -409,8 +414,10 @@ func TestAmazonRDSMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err = client.Default.Services.AddAmazonRDSMySQLService(params)
-		assertEqualAPIError(t, err, 409)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 409, "")
+		if !assert.Nil(t, res) {
+			removeServices(t, res.Payload.AmazonRDSMysql.ServiceID)
+		}
 	})
 }
 
@@ -470,8 +477,10 @@ func TestMongoService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err = client.Default.Services.AddMongoDBService(params)
-		assertEqualAPIError(t, err, 409)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 409, fmt.Sprintf("Service with name \"%s\" already exists.", serviceName))
+		if !assert.Nil(t, res) {
+			removeServices(t, res.Payload.Mongodb.ServiceID)
+		}
 	})
 
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
@@ -484,22 +493,31 @@ func TestMongoService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddMongoDBService(params)
-		assertEqualAPIError(t, err, 400)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 400, "Empty Node ID.")
+		if !assert.Nil(t, res) {
+			removeServices(t, res.Payload.Mongodb.ServiceID)
+		}
 	})
 
 	t.Run("AddServiceNameEmpty", func(t *testing.T) {
-		t.Skip("it returns HTTP Status code 500")
+		//t.Skip("it returns HTTP Status code 500")
 		t.Parallel()
+
+		genericNodeOKBody := addGenericNode(t, withUUID(t, "Generic node for services test"))
+		genericNodeID := genericNodeOKBody.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
+
 		params := &services.AddMongoDBServiceParams{
 			Body: services.AddMongoDBServiceBody{
-				NodeID:      withUUID(t, "Generic node for services test"),
+				NodeID:      genericNodeID,
 				ServiceName: "",
 			},
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddMongoDBService(params)
-		assertEqualAPIError(t, err, 400)
-		assert.Nil(t, res)
+		assertEqualAPIError(t, err, 400, "")
+		if !assert.Nil(t, res) {
+			removeServices(t, res.Payload.Mongodb.ServiceID)
+		}
 	})
 }
