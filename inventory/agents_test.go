@@ -123,7 +123,6 @@ func TestAgents(t *testing.T) {
 	})
 
 	t.Run("TwoOrMoreFilters", func(t *testing.T) {
-		t.Skip("it doesn't return error")
 		t.Parallel()
 
 		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
@@ -387,7 +386,6 @@ func TestMySQLdExporter(t *testing.T) {
 
 	t.Run("NotExistPMMAgentID", func(t *testing.T) {
 		t.Parallel()
-		t.Skip("Returning HTTP 500 Status code")
 
 		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
 		genericNodeID := genericNode.Generic.NodeID
@@ -599,7 +597,6 @@ func TestMongoDBExporter(t *testing.T) {
 
 	t.Run("NotExistPMMAgentID", func(t *testing.T) {
 		t.Parallel()
-		t.Skip("Returning HTTP 500 Status code")
 
 		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
 		genericNodeID := genericNode.Generic.NodeID

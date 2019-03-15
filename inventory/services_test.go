@@ -49,7 +49,6 @@ func TestServices(t *testing.T) {
 	})
 
 	t.Run("FilterList", func(t *testing.T) {
-		t.Skip("Have not implemented yet.")
 		t.Parallel()
 		genericNodeOKBody := addGenericNode(t, withUUID(t, "Generic node for services test"))
 		genericNodeID := genericNodeOKBody.Generic.NodeID
