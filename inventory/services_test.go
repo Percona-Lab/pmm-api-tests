@@ -95,7 +95,7 @@ func TestGetService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.GetService(params)
-		assertEqualAPIError(t, err, 404, "Service with ID \"pmm-not-found\" not found.")
+		assertEqualAPIError(t, err, ServerResponse{404, "Service with ID \"pmm-not-found\" not found."})
 		assert.Nil(t, res)
 	})
 
@@ -105,7 +105,7 @@ func TestGetService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.GetService(params)
-		assertEqualAPIError(t, err, 400, "Empty Service ID.")
+		assertEqualAPIError(t, err, ServerResponse{400, "Empty Service ID."})
 		assert.Nil(t, res)
 	})
 }
@@ -174,7 +174,7 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err = client.Default.Services.AddMySQLService(params)
-		assertEqualAPIError(t, err, 409, fmt.Sprintf("Service with name \"%s\" already exists.", serviceName))
+		assertEqualAPIError(t, err, ServerResponse{409, fmt.Sprintf("Service with name \"%s\" already exists.", serviceName)})
 		if !assert.Nil(t, res) {
 			removeServices(t, res.Payload.Mysql.ServiceID)
 		}
@@ -343,7 +343,28 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddMySQLService(params)
-		assertEqualAPIError(t, err, 400, "Empty Node ID.")
+		assertEqualAPIError(t, err, ServerResponse{400, "Empty Node ID."})
+		if !assert.Nil(t, res) {
+			removeServices(t, res.Payload.Mysql.ServiceID)
+		}
+	})
+
+	t.Run("AddServiceNameEmpty", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeOKBody := addGenericNode(t, withUUID(t, "Generic node for services test"))
+		genericNodeID := genericNodeOKBody.Generic.NodeID
+		defer removeNodes(t, genericNodeID)
+
+		params := &services.AddMySQLServiceParams{
+			Body: services.AddMySQLServiceBody{
+				NodeID:      genericNodeID,
+				ServiceName: "",
+			},
+			Context: pmmapitests.Context,
+		}
+		res, err := client.Default.Services.AddMySQLService(params)
+		assertEqualAPIError(t, err, ServerResponse{400, ""})
 		if !assert.Nil(t, res) {
 			removeServices(t, res.Payload.Mysql.ServiceID)
 		}
@@ -414,7 +435,7 @@ func TestAmazonRDSMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err = client.Default.Services.AddAmazonRDSMySQLService(params)
-		assertEqualAPIError(t, err, 409, "")
+		assertEqualAPIError(t, err, ServerResponse{409, ""})
 		if !assert.Nil(t, res) {
 			removeServices(t, res.Payload.AmazonRDSMysql.ServiceID)
 		}
@@ -477,7 +498,7 @@ func TestMongoService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err = client.Default.Services.AddMongoDBService(params)
-		assertEqualAPIError(t, err, 409, fmt.Sprintf("Service with name \"%s\" already exists.", serviceName))
+		assertEqualAPIError(t, err, ServerResponse{409, fmt.Sprintf("Service with name \"%s\" already exists.", serviceName)})
 		if !assert.Nil(t, res) {
 			removeServices(t, res.Payload.Mongodb.ServiceID)
 		}
@@ -493,14 +514,13 @@ func TestMongoService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddMongoDBService(params)
-		assertEqualAPIError(t, err, 400, "Empty Node ID.")
+		assertEqualAPIError(t, err, ServerResponse{400, "Empty Node ID."})
 		if !assert.Nil(t, res) {
 			removeServices(t, res.Payload.Mongodb.ServiceID)
 		}
 	})
 
 	t.Run("AddServiceNameEmpty", func(t *testing.T) {
-		//t.Skip("it returns HTTP Status code 500")
 		t.Parallel()
 
 		genericNodeOKBody := addGenericNode(t, withUUID(t, "Generic node for services test"))
@@ -515,7 +535,7 @@ func TestMongoService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddMongoDBService(params)
-		assertEqualAPIError(t, err, 400, "")
+		assertEqualAPIError(t, err, ServerResponse{400, ""})
 		if !assert.Nil(t, res) {
 			removeServices(t, res.Payload.Mongodb.ServiceID)
 		}

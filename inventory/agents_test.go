@@ -182,7 +182,7 @@ func TestPMMAgent(t *testing.T) {
 			Body:    agents.AddPMMAgentBody{RunsOnNodeID: ""},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, 400, "Empty Node ID.")
+		assertEqualAPIError(t, err, ServerResponse{400, "Empty Node ID."})
 		if !assert.Nil(t, res) {
 			removeNodes(t, res.Payload.PMMAgent.AgentID)
 		}
@@ -236,7 +236,7 @@ func TestNodeExporter(t *testing.T) {
 			Body:    agents.AddNodeExporterBody{PMMAgentID: ""},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, 400, "Empty Agent ID.")
+		assertEqualAPIError(t, err, ServerResponse{400, "Empty Agent ID."})
 		if !assert.Nil(t, res) {
 			removeNodes(t, res.Payload.NodeExporter.AgentID)
 		}
@@ -249,7 +249,7 @@ func TestNodeExporter(t *testing.T) {
 			Body:    agents.AddNodeExporterBody{PMMAgentID: "pmm-node-exporter-node"},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, 404, "Agent with ID \"pmm-node-exporter-node\" not found.")
+		assertEqualAPIError(t, err, ServerResponse{404, "Agent with ID \"pmm-node-exporter-node\" not found."})
 		if !assert.Nil(t, res) {
 			removeNodes(t, res.Payload.NodeExporter.AgentID)
 		}
@@ -326,7 +326,7 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, 400, "Empty Service ID.")
+		assertEqualAPIError(t, err, ServerResponse{400, "Empty Service ID."})
 		if !assert.Nil(t, res) {
 			removeNodes(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -355,7 +355,7 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, 404, "Empty PMMAgent ID.")
+		assertEqualAPIError(t, err, ServerResponse{404, "Empty PMMAgent ID."})
 		if !assert.Nil(t, res) {
 			removeAgents(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -379,7 +379,7 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, 404, "Service with ID \"pmm-service-id\" not found.")
+		assertEqualAPIError(t, err, ServerResponse{404, "Service with ID \"pmm-service-id\" not found."})
 		if !assert.Nil(t, res) {
 			removeAgents(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -409,7 +409,7 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, 404, "")
+		assertEqualAPIError(t, err, ServerResponse{404, ""})
 		if !assert.Nil(t, res) {
 			removeAgents(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -538,7 +538,7 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, 400, "Empty Service ID.")
+		assertEqualAPIError(t, err, ServerResponse{400, "Empty Service ID."})
 		if !assert.Nil(t, res) {
 			removeAgents(t, res.Payload.MongodbExporter.AgentID)
 		}
@@ -567,7 +567,7 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, 404, "")
+		assertEqualAPIError(t, err, ServerResponse{404, ""})
 		if !assert.Nil(t, res) {
 			removeAgents(t, res.Payload.MongodbExporter.AgentID)
 		}
@@ -591,7 +591,7 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, 404, "Service with ID \"pmm-service-id\" not found.")
+		assertEqualAPIError(t, err, ServerResponse{404, "Service with ID \"pmm-service-id\" not found."})
 		if !assert.Nil(t, res) {
 			removeAgents(t, res.Payload.MongodbExporter.AgentID)
 		}
@@ -621,7 +621,7 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, 404, "")
+		assertEqualAPIError(t, err, ServerResponse{404, ""})
 		if !assert.Nil(t, res) {
 			removeAgents(t, res.Payload.MongodbExporter.AgentID)
 		}

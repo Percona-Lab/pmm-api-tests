@@ -1,6 +1,7 @@
 package inventory
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"reflect"
@@ -18,6 +19,15 @@ import (
 	_ "github.com/Percona-Lab/pmm-api-tests" // init default client
 )
 
+type ErrorResponse interface {
+	Code() int
+}
+
+type ServerResponse struct {
+	Code  int
+	Error string
+}
+
 func withUUID(t *testing.T, name string) string {
 	t.Helper()
 	hostname, err := os.Hostname()
@@ -33,7 +43,7 @@ func removeNodes(t *testing.T, nodeIDs ...string) {
 	for _, nodeID := range nodeIDs {
 		params := &nodes.RemoveNodeParams{
 			Body:    nodes.RemoveNodeBody{NodeID: nodeID},
-			Context: pmmapitests.Context,
+			Context: context.Background(),
 		}
 		res, err := client.Default.Nodes.RemoveNode(params)
 		assert.NoError(t, err)
@@ -74,7 +84,7 @@ func removeServices(t *testing.T, serviceIDs ...string) {
 	for _, serviceID := range serviceIDs {
 		params := &services.RemoveServiceParams{
 			Body:    services.RemoveServiceBody{ServiceID: serviceID},
-			Context: pmmapitests.Context,
+			Context: context.Background(),
 		}
 		res, err := client.Default.Services.RemoveService(params)
 		assert.NoError(t, err)
@@ -99,7 +109,7 @@ func removeAgents(t *testing.T, agentIDs ...string) {
 	for _, agentID := range agentIDs {
 		params := &agents.RemoveAgentParams{
 			Body:    agents.RemoveAgentBody{AgentID: agentID},
-			Context: pmmapitests.Context,
+			Context: context.Background(),
 		}
 		res, err := client.Default.Agents.RemoveAgent(params)
 		assert.NoError(t, err)
@@ -140,20 +150,16 @@ func addMongoDBExporter(t *testing.T, body agents.AddMongoDBExporterBody) *agent
 	return res.Payload
 }
 
-func assertEqualAPIError(t *testing.T, err error, expectedCode int64, expectedError string) bool {
+func assertEqualAPIError(t *testing.T, err error, expected ServerResponse) bool {
 	t.Helper()
 	if !assert.Error(t, err) {
 		return false
 	}
 
+	assert.Equal(t, expected.Code, err.(ErrorResponse).Code())
+
 	// Have to use reflect because there are a lot of types with the same structure and different names.
 	val := reflect.ValueOf(err)
-
-	codeMethod, ok := val.Type().MethodByName("Code")
-	if assert.True(t, ok, "Wrong response structure. There is no method Code().") {
-		codeValue := codeMethod.Func.Call([]reflect.Value{val})[0].Int()
-		assert.Equal(t, expectedCode, codeValue)
-	}
 
 	payload := val.Elem().FieldByName("Payload")
 	if !assert.True(t, payload.IsValid(), "Wrong response structure. There is no field Payload.") {
@@ -165,7 +171,7 @@ func assertEqualAPIError(t *testing.T, err error, expectedCode int64, expectedEr
 		return false
 	}
 
-	return assert.Equal(t, expectedError, errorField.String())
+	return assert.Equal(t, expected.Error, errorField.String())
 }
 
 func assertMySQLServiceExists(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
