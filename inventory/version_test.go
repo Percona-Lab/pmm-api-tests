@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/Percona-Lab/pmm-api-tests"
+	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
 func prepareUrl(path string) *url.URL {

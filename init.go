@@ -16,20 +16,29 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-var Context context.Context
-var BaseURL *url.URL
+var (
+	// Context is canceled on SIGTERM or SIGINT. Tests should cleanup and exit.
+	Context context.Context
+
+	// BaseURL contains PMM Server base URL like https://127.0.0.1:8443/.
+	BaseURL *url.URL
+)
 
 func init() {
 	debugF := flag.Bool("pmm.debug", false, "Enable debug output.")
+	traceF := flag.Bool("pmm.trace", false, "Enable trace output.")
 	serverURLF := flag.String("pmm.server-url", "https://127.0.0.1:8443/", "PMM Server URL.")
 	flag.Parse()
 
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
-		logrus.Debug("Debug logging enabled.")
+	}
+	if *traceF {
+		logrus.SetLevel(logrus.TraceLevel)
+		logrus.SetReportCaller(true)
 	}
 
-	var cancel func()
+	var cancel context.CancelFunc
 	Context, cancel = context.WithCancel(context.Background())
 
 	// handle termination signals
@@ -55,13 +64,11 @@ func init() {
 	}
 	logrus.Debugf("PMM Server URL: %#v.", BaseURL)
 
-	// use JSON APIs over HTTP/1.1 (setting TLSNextProto to non-nil map disables automated HTTP/2)
+	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(BaseURL.Host, BaseURL.Path, []string{BaseURL.Scheme})
-	transport.Transport.(*http.Transport).TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
-
-	l := logrus.WithField("component", "client")
-	transport.SetLogger(l)
+	transport.SetLogger(logrus.WithField("component", "client"))
 	transport.Debug = *debugF
-
+	// disable HTTP/2
+	transport.Transport.(*http.Transport).TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 	client.Default = client.New(transport, nil)
 }

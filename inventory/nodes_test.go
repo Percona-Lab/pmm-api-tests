@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/Percona-Lab/pmm-api-tests"
+	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
 func TestNodes(t *testing.T) {
