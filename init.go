@@ -16,6 +16,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
+//nolint:gochecknoglobals
 var (
 	// Context is canceled on SIGTERM or SIGINT. Tests should cleanup and exit.
 	Context context.Context
@@ -24,6 +25,7 @@ var (
 	BaseURL *url.URL
 )
 
+//nolint:gochecknoinits
 func init() {
 	debugF := flag.Bool("pmm.debug", false, "Enable debug output.")
 	traceF := flag.Bool("pmm.trace", false, "Enable trace output.")
