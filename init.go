@@ -23,6 +23,9 @@ var (
 
 	// BaseURL contains PMM Server base URL like https://127.0.0.1:8443/.
 	BaseURL *url.URL
+
+	// Hostname contains local hostname that is used for generating test data.
+	Hostname string
 )
 
 //nolint:gochecknoinits
@@ -64,12 +67,17 @@ func init() {
 	if BaseURL.Path == "" {
 		BaseURL.Path = "/"
 	}
-	logrus.Debugf("PMM Server URL: %#v.", BaseURL)
+	logrus.Debugf("PMM Server URL: %s.", BaseURL)
+
+	Hostname, err = os.Hostname()
+	if err != nil {
+		logrus.Fatalf("Failed to detect hostname: %s", err)
+	}
 
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(BaseURL.Host, BaseURL.Path, []string{BaseURL.Scheme})
 	transport.SetLogger(logrus.WithField("component", "client"))
-	transport.Debug = *debugF
+	transport.Debug = *debugF || *traceF
 	// disable HTTP/2
 	transport.Transport.(*http.Transport).TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 	client.Default = client.New(transport, nil)

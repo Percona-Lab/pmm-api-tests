@@ -2,12 +2,9 @@ package inventory
 
 import (
 	"context"
-	"fmt"
-	"os"
 	"reflect"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/api/inventory/json/client/agents"
 	"github.com/percona/pmm/api/inventory/json/client/nodes"
@@ -27,21 +24,14 @@ type ServerResponse struct {
 	Error string
 }
 
-func withUUID(t *testing.T, name string) string {
-	t.Helper()
-	hostname, err := os.Hostname()
-	require.NoError(t, err)
-	random, err := uuid.NewRandom()
-	require.NoError(t, err)
-
-	return fmt.Sprintf("test-for-%s-%s-%s", hostname, name, random.String())
-}
-
 func removeNodes(t *testing.T, nodeIDs ...string) {
 	t.Helper()
+
 	for _, nodeID := range nodeIDs {
 		params := &nodes.RemoveNodeParams{
-			Body:    nodes.RemoveNodeBody{NodeID: nodeID},
+			Body: nodes.RemoveNodeBody{
+				NodeID: nodeID,
+			},
 			Context: context.Background(),
 		}
 		res, err := client.Default.Nodes.RemoveNode(params)
@@ -50,8 +40,9 @@ func removeNodes(t *testing.T, nodeIDs ...string) {
 	}
 }
 
-func addGenericNode(t *testing.T, nodeName string) *nodes.AddGenericNodeOKBody {
+func addGenericNode(t *testing.T, nodeName string) *nodes.AddGenericNodeOKBodyGeneric {
 	t.Helper()
+
 	params := &nodes.AddGenericNodeParams{
 		Body: nodes.AddGenericNodeBody{
 			NodeName: nodeName,
@@ -61,11 +52,14 @@ func addGenericNode(t *testing.T, nodeName string) *nodes.AddGenericNodeOKBody {
 	res, err := client.Default.Nodes.AddGenericNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
-	return res.Payload
+	require.NotNil(t, res.Payload)
+	require.NotNil(t, res.Payload.Generic)
+	return res.Payload.Generic
 }
 
 func addRemoteNode(t *testing.T, nodeName string) *nodes.AddRemoteNodeOKBody {
 	t.Helper()
+
 	params := &nodes.AddRemoteNodeParams{
 		Body: nodes.AddRemoteNodeBody{
 			NodeName: nodeName,
@@ -80,9 +74,12 @@ func addRemoteNode(t *testing.T, nodeName string) *nodes.AddRemoteNodeOKBody {
 
 func removeServices(t *testing.T, serviceIDs ...string) {
 	t.Helper()
+
 	for _, serviceID := range serviceIDs {
 		params := &services.RemoveServiceParams{
-			Body:    services.RemoveServiceBody{ServiceID: serviceID},
+			Body: services.RemoveServiceBody{
+				ServiceID: serviceID,
+			},
 			Context: context.Background(),
 		}
 		res, err := client.Default.Services.RemoveService(params)
@@ -91,10 +88,11 @@ func removeServices(t *testing.T, serviceIDs ...string) {
 	}
 }
 
-func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.AddMySQLServiceOKBody {
+func addMySQLService(t *testing.T, body *services.AddMySQLServiceBody) *services.AddMySQLServiceOKBody {
 	t.Helper()
+
 	params := &services.AddMySQLServiceParams{
-		Body:    body,
+		Body:    *body,
 		Context: pmmapitests.Context,
 	}
 	res, err := client.Default.Services.AddMySQLService(params)
@@ -105,9 +103,12 @@ func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.
 
 func removeAgents(t *testing.T, agentIDs ...string) {
 	t.Helper()
+
 	for _, agentID := range agentIDs {
 		params := &agents.RemoveAgentParams{
-			Body:    agents.RemoveAgentBody{AgentID: agentID},
+			Body: agents.RemoveAgentBody{
+				AgentID: agentID,
+			},
 			Context: context.Background(),
 		}
 		res, err := client.Default.Agents.RemoveAgent(params)
@@ -116,10 +117,13 @@ func removeAgents(t *testing.T, agentIDs ...string) {
 	}
 }
 
-func addPMMAgent(t *testing.T, node string) *agents.AddPMMAgentOKBody {
+func addPMMAgent(t *testing.T, nodeID string) *agents.AddPMMAgentOKBody {
 	t.Helper()
+
 	res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
-		Body:    agents.AddPMMAgentBody{RunsOnNodeID: node},
+		Body: agents.AddPMMAgentBody{
+			RunsOnNodeID: nodeID,
+		},
 		Context: pmmapitests.Context,
 	})
 	assert.NoError(t, err)
@@ -129,6 +133,7 @@ func addPMMAgent(t *testing.T, node string) *agents.AddPMMAgentOKBody {
 
 func addMySqldExporter(t *testing.T, body agents.AddMySqldExporterBody) *agents.AddMySqldExporterOKBody {
 	t.Helper()
+
 	res, err := client.Default.Agents.AddMySqldExporter(&agents.AddMySqldExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
@@ -140,6 +145,7 @@ func addMySqldExporter(t *testing.T, body agents.AddMySqldExporterBody) *agents.
 
 func addMongoDBExporter(t *testing.T, body agents.AddMongoDBExporterBody) *agents.AddMongoDBExporterOKBody {
 	t.Helper()
+
 	res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
@@ -151,6 +157,7 @@ func addMongoDBExporter(t *testing.T, body agents.AddMongoDBExporterBody) *agent
 
 func assertEqualAPIError(t *testing.T, err error, expected ServerResponse) bool {
 	t.Helper()
+
 	if !assert.Error(t, err) {
 		return false
 	}
@@ -175,7 +182,8 @@ func assertEqualAPIError(t *testing.T, err error, expected ServerResponse) bool 
 
 func assertMySQLServiceExists(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
 	t.Helper()
-	return assert.Conditionf(t, func() (success bool) {
+
+	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.Mysql {
 			if v.ServiceID == serviceID {
 				return true
@@ -187,7 +195,8 @@ func assertMySQLServiceExists(t *testing.T, res *services.ListServicesOK, servic
 
 func assertMySQLServiceNotExist(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
 	t.Helper()
-	return assert.Conditionf(t, func() (success bool) {
+
+	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.Mysql {
 			if v.ServiceID == serviceID {
 				return false
@@ -198,7 +207,7 @@ func assertMySQLServiceNotExist(t *testing.T, res *services.ListServicesOK, serv
 }
 
 func assertMySQLExporterExists(t *testing.T, res *agents.ListAgentsOK, mySqldExporterID string) bool {
-	return assert.Conditionf(t, func() (success bool) {
+	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.MysqldExporter {
 			if v.AgentID == mySqldExporterID {
 				return true
@@ -209,7 +218,7 @@ func assertMySQLExporterExists(t *testing.T, res *agents.ListAgentsOK, mySqldExp
 }
 
 func assertMySQLExporterNotExists(t *testing.T, res *agents.ListAgentsOK, mySqldExporterID string) bool {
-	return assert.Conditionf(t, func() (success bool) {
+	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.MysqldExporter {
 			if v.AgentID == mySqldExporterID {
 				return false
@@ -220,7 +229,7 @@ func assertMySQLExporterNotExists(t *testing.T, res *agents.ListAgentsOK, mySqld
 }
 
 func assertPMMAgentExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID string) bool {
-	return assert.Conditionf(t, func() (success bool) {
+	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.PMMAgent {
 			if v.AgentID == pmmAgentID {
 				return true
@@ -231,7 +240,7 @@ func assertPMMAgentExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID str
 }
 
 func assertPMMAgentNotExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID string) bool {
-	return assert.Conditionf(t, func() (success bool) {
+	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.PMMAgent {
 			if v.AgentID == pmmAgentID {
 				return false

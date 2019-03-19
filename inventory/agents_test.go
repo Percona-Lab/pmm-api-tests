@@ -16,19 +16,19 @@ func TestAgents(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Generic node for agents list"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "Generic node for agents list")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		node := addRemoteNode(t, withUUID(t, "Remote node for agents list"))
+		node := addRemoteNode(t, pmmapitests.TestString(t, "Remote node for agents list"))
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, &services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: withUUID(t, "MySQL Service for agent"),
+			ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
 		})
 		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
@@ -58,19 +58,19 @@ func TestAgents(t *testing.T) {
 	t.Run("FilterList", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Generic node for agents filters"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "Generic node for agents filters")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		node := addRemoteNode(t, withUUID(t, "Remote node for agents filters"))
+		node := addRemoteNode(t, pmmapitests.TestString(t, "Remote node for agents filters"))
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, &services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: withUUID(t, "MySQL Service for filter test"),
+			ServiceName: pmmapitests.TestString(t, "MySQL Service for filter test"),
 		})
 		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
@@ -125,8 +125,8 @@ func TestAgents(t *testing.T) {
 	t.Run("TwoOrMoreFilters", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
 		pmmAgent := addPMMAgent(t, genericNodeID)
@@ -150,7 +150,7 @@ func TestPMMAgent(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		node := addRemoteNode(t, withUUID(t, "Remote node for PMM-agent"))
+		node := addRemoteNode(t, pmmapitests.TestString(t, "Remote node for PMM-agent"))
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
@@ -192,7 +192,7 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		node := addRemoteNode(t, withUUID(t, "Remote node for Node exporter"))
+		node := addRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
@@ -259,19 +259,19 @@ func TestMySQLdExporter(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		node := addRemoteNode(t, withUUID(t, "Remote node for Node exporter"))
+		node := addRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, &services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: withUUID(t, "MySQL Service for MySQLdExporter test"),
+			ServiceName: pmmapitests.TestString(t, "MySQL Service for MySQLdExporter test"),
 		})
 		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
@@ -310,8 +310,8 @@ func TestMySQLdExporter(t *testing.T) {
 	t.Run("AddServiceIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
 		pmmAgent := addPMMAgent(t, genericNodeID)
@@ -334,15 +334,15 @@ func TestMySQLdExporter(t *testing.T) {
 	t.Run("AddPMMAgentIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, &services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: withUUID(t, "MySQL Service for agent"),
+			ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
 		})
 		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
@@ -363,8 +363,8 @@ func TestMySQLdExporter(t *testing.T) {
 	t.Run("NotExistServiceID", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
 		pmmAgent := addPMMAgent(t, genericNodeID)
@@ -387,15 +387,15 @@ func TestMySQLdExporter(t *testing.T) {
 	t.Run("NotExistPMMAgentID", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, &services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: withUUID(t, "MySQL Service for not exists node ID"),
+			ServiceName: pmmapitests.TestString(t, "MySQL Service for not exists node ID"),
 		})
 		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
@@ -416,10 +416,11 @@ func TestMySQLdExporter(t *testing.T) {
 
 func TestRDSExporter(t *testing.T) {
 	t.Skip("Not implemented yet.")
+
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		node := addRemoteNode(t, withUUID(t, "Remote node for Node exporter"))
+		node := addRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
@@ -427,11 +428,11 @@ func TestRDSExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer removeAgents(t, pmmAgentID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, &services.AddMySQLServiceBody{
 			NodeID:      nodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: withUUID(t, "MySQL Service for RDSExporter test"),
+			ServiceName: pmmapitests.TestString(t, "MySQL Service for RDSExporter test"),
 		})
 		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
@@ -470,19 +471,19 @@ func TestMongoDBExporter(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		node := addRemoteNode(t, withUUID(t, "Remote node for Node exporter"))
+		node := addRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, &services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: withUUID(t, "MySQL Service for MongoDBExporter test"),
+			ServiceName: pmmapitests.TestString(t, "MySQL Service for MongoDBExporter test"),
 		})
 		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
@@ -521,8 +522,8 @@ func TestMongoDBExporter(t *testing.T) {
 	t.Run("AddServiceIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
 		pmmAgent := addPMMAgent(t, genericNodeID)
@@ -545,15 +546,15 @@ func TestMongoDBExporter(t *testing.T) {
 	t.Run("AddPMMAgentIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, &services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: withUUID(t, "MySQL Service for agent"),
+			ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
 		})
 		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)
@@ -574,8 +575,8 @@ func TestMongoDBExporter(t *testing.T) {
 	t.Run("NotExistServiceID", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
 		pmmAgent := addPMMAgent(t, genericNodeID)
@@ -598,15 +599,15 @@ func TestMongoDBExporter(t *testing.T) {
 	t.Run("NotExistPMMAgentID", func(t *testing.T) {
 		t.Parallel()
 
-		genericNode := addGenericNode(t, withUUID(t, "Test Generic Node for List"))
-		genericNodeID := genericNode.Generic.NodeID
+		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
+		service := addMySQLService(t, &services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
-			ServiceName: withUUID(t, "MySQL Service for not exists node ID"),
+			ServiceName: pmmapitests.TestString(t, "MySQL Service for not exists node ID"),
 		})
 		serviceID := service.Mysql.ServiceID
 		defer removeServices(t, serviceID)

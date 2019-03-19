@@ -137,14 +137,6 @@
   version = "v0.18.0"
 
 [[projects]]
-  digest = "1:ab3ec1fe3e39bac4b3ab63390767766622be35b7cab03f47f787f9ec60522a53"
-  name = "github.com/google/uuid"
-  packages = ["."]
-  pruneopts = "NUT"
-  revision = "0cd6bf5da1e1c83f8b45653022c74f71af0538a4"
-  version = "v1.1.1"
-
-[[projects]]
   digest = "1:58999a98719fddbac6303cb17e8d85b945f60b72f48e3a2df6b950b97fa926f1"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
@@ -276,7 +268,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/go-openapi/runtime/client",
-    "github.com/google/uuid",
     "github.com/percona/pmm/api/inventory/json/client",
     "github.com/percona/pmm/api/inventory/json/client/agents",
     "github.com/percona/pmm/api/inventory/json/client/nodes",
