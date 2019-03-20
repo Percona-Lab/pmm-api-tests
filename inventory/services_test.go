@@ -112,7 +112,7 @@ func TestGetService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.GetService(params)
-		assertEqualAPIError(t, err, ServerResponse{400, "Empty Service ID."})
+		assertEqualAPIError(t, err, ServerResponse{400, "invalid field ServiceId: value '' must not be an empty string"})
 		assert.Nil(t, res)
 	})
 }
@@ -188,158 +188,6 @@ func TestMySQLService(t *testing.T) {
 		}
 	})
 
-	t.Run("ChangeMySQLServiceName", func(t *testing.T) {
-		t.Parallel()
-
-		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer removeNodes(t, genericNodeID)
-
-		serviceName := pmmapitests.TestString(t, "MySQL Service to change name")
-		body := &services.AddMySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: serviceName,
-		}
-		service := addMySQLService(t, body)
-		serviceID := service.Mysql.ServiceID
-		defer removeServices(t, serviceID)
-
-		serviceRes, err := client.Default.Services.GetService(&services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: serviceID},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.Equal(t, &services.GetServiceOK{
-			Payload: &services.GetServiceOKBody{
-				Mysql: &services.GetServiceOKBodyMysql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        3306,
-					ServiceName: serviceName,
-				},
-			},
-		}, serviceRes)
-
-		// Change MySQL service name.
-		changedServiceName := pmmapitests.TestString(t, "Changed MySQL Service")
-		changeRes, err := client.Default.Services.ChangeMySQLService(&services.ChangeMySQLServiceParams{
-			Body: services.ChangeMySQLServiceBody{
-				ServiceID:   serviceID,
-				ServiceName: changedServiceName,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.Equal(t, &services.ChangeMySQLServiceOK{
-			Payload: &services.ChangeMySQLServiceOKBody{
-				Mysql: &services.ChangeMySQLServiceOKBodyMysql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        3306,
-					ServiceName: changedServiceName,
-				},
-			},
-		}, changeRes)
-
-		// Check changes in backend.
-		changedService, err := client.Default.Services.GetService(&services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: serviceID},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.Equal(t, &services.GetServiceOK{
-			Payload: &services.GetServiceOKBody{
-				Mysql: &services.GetServiceOKBodyMysql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        3306,
-					ServiceName: changedServiceName,
-				},
-			},
-		}, changedService)
-	})
-
-	t.Run("ChangeMySQLServicePort", func(t *testing.T) {
-		t.Skip("Not implemented yet.")
-
-		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		require.NotEmpty(t, genericNodeID)
-		defer removeNodes(t, genericNodeID)
-
-		serviceName := pmmapitests.TestString(t, "MySQL Service to change port")
-		body := &services.AddMySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: serviceName,
-		}
-		service := addMySQLService(t, body)
-		serviceID := service.Mysql.ServiceID
-		defer removeServices(t, serviceID)
-
-		serviceRes, err := client.Default.Services.GetService(&services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: serviceID},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.Equal(t, &services.GetServiceOK{
-			Payload: &services.GetServiceOKBody{
-				Mysql: &services.GetServiceOKBodyMysql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        3306,
-					ServiceName: serviceName,
-				},
-			},
-		}, serviceRes)
-
-		// Change MySQL service name.
-		newPort := int64(3337)
-		changeRes, err := client.Default.Services.ChangeMySQLService(&services.ChangeMySQLServiceParams{
-			Body: services.ChangeMySQLServiceBody{
-				ServiceID: serviceID,
-				Port:      newPort,
-			},
-			Context: pmmapitests.Context,
-		})
-		assert.NoError(t, err)
-		assert.Equal(t, &services.ChangeMySQLServiceOK{
-			Payload: &services.ChangeMySQLServiceOKBody{
-				Mysql: &services.ChangeMySQLServiceOKBodyMysql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        newPort,
-					ServiceName: serviceName,
-				},
-			},
-		}, changeRes)
-
-		// Check changes in backend.
-		changedService, err := client.Default.Services.GetService(&services.GetServiceParams{
-			Body:    services.GetServiceBody{ServiceID: serviceID},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.Equal(t, &services.GetServiceOK{
-			Payload: &services.GetServiceOKBody{
-				Mysql: &services.GetServiceOKBodyMysql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        newPort,
-					ServiceName: serviceName,
-				},
-			},
-		}, changedService)
-	})
-
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
@@ -353,7 +201,7 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddMySQLService(params)
-		assertEqualAPIError(t, err, ServerResponse{400, "Empty Node ID."})
+		assertEqualAPIError(t, err, ServerResponse{400, "invalid field NodeId: value '' must not be an empty string"})
 		if !assert.Nil(t, res) {
 			removeServices(t, res.Payload.Mysql.ServiceID)
 		}
@@ -374,7 +222,7 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddMySQLService(params)
-		assertEqualAPIError(t, err, ServerResponse{400, ""})
+		assertEqualAPIError(t, err, ServerResponse{400, "invalid field ServiceName: value '' must not be an empty string"})
 		if !assert.Nil(t, res) {
 			removeServices(t, res.Payload.Mysql.ServiceID)
 		}
@@ -466,6 +314,8 @@ func TestMongoDBService(t *testing.T) {
 			Body: services.AddMongoDBServiceBody{
 				NodeID:      genericNodeID,
 				ServiceName: serviceName,
+				Address:     "localhost",
+				Port:        27017,
 			},
 			Context: pmmapitests.Context,
 		}
@@ -479,6 +329,8 @@ func TestMongoDBService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Address:     "localhost",
+					Port:        27017,
 				},
 			},
 		}, res)
@@ -497,6 +349,8 @@ func TestMongoDBService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Address:     "localhost",
+					Port:        27017,
 				},
 			},
 		}, serviceRes)
@@ -506,6 +360,8 @@ func TestMongoDBService(t *testing.T) {
 			Body: services.AddMongoDBServiceBody{
 				NodeID:      genericNodeID,
 				ServiceName: serviceName,
+				Address:     "localhost",
+				Port:        27017,
 			},
 			Context: pmmapitests.Context,
 		}
@@ -527,7 +383,7 @@ func TestMongoDBService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddMongoDBService(params)
-		assertEqualAPIError(t, err, ServerResponse{400, "Empty Node ID."})
+		assertEqualAPIError(t, err, ServerResponse{400, "invalid field NodeId: value '' must not be an empty string"})
 		if !assert.Nil(t, res) {
 			removeServices(t, res.Payload.Mongodb.ServiceID)
 		}
@@ -548,7 +404,7 @@ func TestMongoDBService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddMongoDBService(params)
-		assertEqualAPIError(t, err, ServerResponse{400, ""})
+		assertEqualAPIError(t, err, ServerResponse{400, "invalid field ServiceName: value '' must not be an empty string"})
 		if !assert.Nil(t, res) {
 			removeServices(t, res.Payload.Mongodb.ServiceID)
 		}

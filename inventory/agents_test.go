@@ -181,7 +181,7 @@ func TestPMMAgent(t *testing.T) {
 			Body:    agents.AddPMMAgentBody{RunsOnNodeID: ""},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, ServerResponse{400, "Empty Node ID."})
+		assertEqualAPIError(t, err, ServerResponse{400, "invalid field RunsOnNodeId: value '' must not be an empty string"})
 		if !assert.Nil(t, res) {
 			removeNodes(t, res.Payload.PMMAgent.AgentID)
 		}
@@ -235,7 +235,7 @@ func TestNodeExporter(t *testing.T) {
 			Body:    agents.AddNodeExporterBody{PMMAgentID: ""},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, ServerResponse{400, "Empty Agent ID."})
+		assertEqualAPIError(t, err, ServerResponse{400, "invalid field PmmAgentId: value '' must not be an empty string"})
 		if !assert.Nil(t, res) {
 			removeNodes(t, res.Payload.NodeExporter.AgentID)
 		}
@@ -325,7 +325,7 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, ServerResponse{400, "Empty Service ID."})
+		assertEqualAPIError(t, err, ServerResponse{400, "invalid field ServiceId: value '' must not be an empty string"})
 		if !assert.Nil(t, res) {
 			removeNodes(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -351,10 +351,12 @@ func TestMySQLdExporter(t *testing.T) {
 			Body: agents.AddMySqldExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "",
+				Username:   "username",
+				Password:   "password",
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, ServerResponse{404, "Empty PMMAgent ID."})
+		assertEqualAPIError(t, err, ServerResponse{400, "invalid field PmmAgentId: value '' must not be an empty string"})
 		if !assert.Nil(t, res) {
 			removeAgents(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -375,6 +377,8 @@ func TestMySQLdExporter(t *testing.T) {
 			Body: agents.AddMySqldExporterBody{
 				ServiceID:  "pmm-service-id",
 				PMMAgentID: pmmAgentID,
+				Username:   "username",
+				Password:   "password",
 			},
 			Context: pmmapitests.Context,
 		})
@@ -404,6 +408,8 @@ func TestMySQLdExporter(t *testing.T) {
 			Body: agents.AddMySqldExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "pmm-not-exist-server",
+				Username:   "username",
+				Password:   "password",
 			},
 			Context: pmmapitests.Context,
 		})
@@ -537,7 +543,7 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, ServerResponse{400, "Empty Service ID."})
+		assertEqualAPIError(t, err, ServerResponse{400, "invalid field ServiceId: value '' must not be an empty string"})
 		if !assert.Nil(t, res) {
 			removeAgents(t, res.Payload.MongodbExporter.AgentID)
 		}
@@ -563,10 +569,12 @@ func TestMongoDBExporter(t *testing.T) {
 			Body: agents.AddMongoDBExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "",
+				Username:   "username",
+				Password:   "password",
 			},
 			Context: pmmapitests.Context,
 		})
-		assertEqualAPIError(t, err, ServerResponse{404, ""})
+		assertEqualAPIError(t, err, ServerResponse{400, "invalid field PmmAgentId: value '' must not be an empty string"})
 		if !assert.Nil(t, res) {
 			removeAgents(t, res.Payload.MongodbExporter.AgentID)
 		}
@@ -587,6 +595,8 @@ func TestMongoDBExporter(t *testing.T) {
 			Body: agents.AddMongoDBExporterBody{
 				ServiceID:  "pmm-service-id",
 				PMMAgentID: pmmAgentID,
+				Username:   "username",
+				Password:   "password",
 			},
 			Context: pmmapitests.Context,
 		})
@@ -616,6 +626,8 @@ func TestMongoDBExporter(t *testing.T) {
 			Body: agents.AddMongoDBExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "pmm-not-exist-server",
+				Username:   "username",
+				Password:   "password",
 			},
 			Context: pmmapitests.Context,
 		})
