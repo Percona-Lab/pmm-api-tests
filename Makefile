@@ -7,3 +7,7 @@ race:
 	go install -v -race ./...
 	go test -c -v -race ./inventory
 	go test -c -v -race ./server
+
+run:
+	./inventory.test
+	./server.test

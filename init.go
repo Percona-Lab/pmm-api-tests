@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	httptransport "github.com/go-openapi/runtime/client"
@@ -34,6 +35,15 @@ func init() {
 	traceF := flag.Bool("pmm.trace", false, "Enable trace output.")
 	serverURLF := flag.String("pmm.server-url", "https://127.0.0.1:8443/", "PMM Server URL.")
 	flag.Parse()
+
+	flag.VisitAll(func(i *flag.Flag) {
+		envVar := strings.Replace(i.Name, ".", "_", -1)
+		envVar = strings.Replace(envVar, "-", "_", -1)
+		env, ok := os.LookupEnv(strings.ToUpper(envVar))
+		if ok {
+			i.Value.Set(env)
+		}
+	})
 
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
