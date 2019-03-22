@@ -37,11 +37,14 @@ func init() {
 	flag.Parse()
 
 	flag.VisitAll(func(i *flag.Flag) {
-		envVar := strings.Replace(i.Name, ".", "_", -1)
+		envVar := strings.Replace(strings.ToUpper(i.Name), ".", "_", -1)
 		envVar = strings.Replace(envVar, "-", "_", -1)
-		env, ok := os.LookupEnv(strings.ToUpper(envVar))
+		env, ok := os.LookupEnv(envVar)
 		if ok {
-			i.Value.Set(env)
+			err := i.Value.Set(env)
+			if err != nil {
+				logrus.Fatalf("Invalid ENV variable %s: %s", envVar, env)
+			}
 		}
 	})
 

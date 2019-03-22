@@ -9,5 +9,4 @@ race:
 	go test -c -v -race ./server
 
 run:
-	./inventory.test
-	./server.test
+	go test ./...
