@@ -1,4 +1,4 @@
-FROM golang:1.11.0-alpine3.7
+FROM golang:1.12-alpine
 
 RUN apk update && \
   apk upgrade --update-cache --available
