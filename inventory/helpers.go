@@ -155,6 +155,18 @@ func addMongoDBExporter(t *testing.T, body agents.AddMongoDBExporterBody) *agent
 	return res.Payload
 }
 
+func addPostgresExporter(t *testing.T, body agents.AddPostgresExporterBody) *agents.AddPostgresExporterOKBody {
+	t.Helper()
+
+	res, err := client.Default.Agents.AddPostgresExporter(&agents.AddPostgresExporterParams{
+		Body:    body,
+		Context: pmmapitests.Context,
+	})
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+	return res.Payload
+}
+
 func assertEqualAPIError(t *testing.T, err error, expected ServerResponse) bool {
 	t.Helper()
 
