@@ -1031,13 +1031,13 @@ func TestPostgresExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addPostgreSQLService(t, &services.AddPostgreSQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for PostgresExporter test"),
+			Port:        5432,
+			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for PostgresExporter test"),
 		})
-		serviceID := service.Mysql.ServiceID
+		serviceID := service.Postgresql.ServiceID
 		defer removeServices(t, serviceID)
 
 		pmmAgent := addPMMAgent(t, nodeID)
@@ -1158,13 +1158,13 @@ func TestPostgresExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addPostgreSQLService(t, &services.AddPostgreSQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
+			Port:        5432,
+			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for agent"),
 		})
-		serviceID := service.Mysql.ServiceID
+		serviceID := service.Postgresql.ServiceID
 		defer removeServices(t, serviceID)
 
 		res, err := client.Default.Agents.AddPostgresExporter(&agents.AddPostgresExporterParams{
@@ -1215,13 +1215,13 @@ func TestPostgresExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addPostgreSQLService(t, &services.AddPostgreSQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for not exists node ID"),
+			Port:        5432,
+			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for not exists node ID"),
 		})
-		serviceID := service.Mysql.ServiceID
+		serviceID := service.Postgresql.ServiceID
 		defer removeServices(t, serviceID)
 
 		res, err := client.Default.Agents.AddPostgresExporter(&agents.AddPostgresExporterParams{

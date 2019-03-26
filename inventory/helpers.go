@@ -101,6 +101,19 @@ func addMySQLService(t *testing.T, body *services.AddMySQLServiceBody) *services
 	return res.Payload
 }
 
+func addPostgreSQLService(t *testing.T, body *services.AddPostgreSQLServiceBody) *services.AddPostgreSQLServiceOKBody {
+	t.Helper()
+
+	params := &services.AddPostgreSQLServiceParams{
+		Body:    *body,
+		Context: pmmapitests.Context,
+	}
+	res, err := client.Default.Services.AddPostgreSQLService(params)
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+	return res.Payload
+}
+
 func removeAgents(t *testing.T, agentIDs ...string) {
 	t.Helper()
 
