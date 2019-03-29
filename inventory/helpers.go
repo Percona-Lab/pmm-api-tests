@@ -88,11 +88,11 @@ func removeServices(t *testing.T, serviceIDs ...string) {
 	}
 }
 
-func addMySQLService(t *testing.T, body *services.AddMySQLServiceBody) *services.AddMySQLServiceOKBody {
+func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.AddMySQLServiceOKBody {
 	t.Helper()
 
 	params := &services.AddMySQLServiceParams{
-		Body:    *body,
+		Body:    body,
 		Context: pmmapitests.Context,
 	}
 	res, err := client.Default.Services.AddMySQLService(params)
@@ -101,11 +101,11 @@ func addMySQLService(t *testing.T, body *services.AddMySQLServiceBody) *services
 	return res.Payload
 }
 
-func addPostgreSQLService(t *testing.T, body *services.AddPostgreSQLServiceBody) *services.AddPostgreSQLServiceOKBody {
+func addPostgreSQLService(t *testing.T, body services.AddPostgreSQLServiceBody) *services.AddPostgreSQLServiceOKBody {
 	t.Helper()
 
 	params := &services.AddPostgreSQLServiceParams{
-		Body:    *body,
+		Body:    body,
 		Context: pmmapitests.Context,
 	}
 	res, err := client.Default.Services.AddPostgreSQLService(params)

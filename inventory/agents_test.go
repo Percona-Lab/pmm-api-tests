@@ -24,7 +24,7 @@ func TestAgents(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -66,7 +66,7 @@ func TestAgents(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -318,7 +318,7 @@ func TestMySQLdExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -445,7 +445,7 @@ func TestMySQLdExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -502,7 +502,7 @@ func TestMySQLdExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -541,7 +541,7 @@ func TestRDSExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer removeAgents(t, pmmAgentID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      nodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -592,7 +592,7 @@ func TestMongoDBExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -719,7 +719,7 @@ func TestMongoDBExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -776,7 +776,7 @@ func TestMongoDBExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -808,7 +808,7 @@ func TestQanAgentExporter(t *testing.T) {
 		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -939,7 +939,7 @@ func TestQanAgentExporter(t *testing.T) {
 		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -994,7 +994,7 @@ func TestQanAgentExporter(t *testing.T) {
 		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer removeNodes(t, genericNodeID)
 
-		service := addMySQLService(t, &services.AddMySQLServiceBody{
+		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        3306,
@@ -1031,7 +1031,7 @@ func TestPostgresExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer removeNodes(t, nodeID)
 
-		service := addPostgreSQLService(t, &services.AddPostgreSQLServiceBody{
+		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        5432,
@@ -1158,7 +1158,7 @@ func TestPostgresExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, &services.AddPostgreSQLServiceBody{
+		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        5432,
@@ -1215,7 +1215,7 @@ func TestPostgresExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer removeNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, &services.AddPostgreSQLServiceBody{
+		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
 			Port:        5432,
