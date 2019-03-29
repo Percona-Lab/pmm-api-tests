@@ -35,3 +35,7 @@ docker run -e PMM_SERVER_URL=**pmm-server-url** IMAGENAME
 ```
 
 where `PMM_SERVER_URL` should be pointing to pmm-server.
+
+If pmm-server located locally:
+* Use --network=host while running docker container.
+* Use non-secured url if you use self generated certificate.
