@@ -30,9 +30,9 @@ var (
 
 //nolint:gochecknoinits
 func init() {
-	debugF := flag.Bool("pmm.debug", false, "Enable debug output.")
-	traceF := flag.Bool("pmm.trace", false, "Enable trace output.")
-	serverURLF := flag.String("pmm.server-url", "https://127.0.0.1:8443/", "PMM Server URL.")
+	debugF := flag.Bool("pmm.debug", false, "Enable debug output [PMM_DEBUG].")
+	traceF := flag.Bool("pmm.trace", false, "Enable trace output [PMM_TRACE].")
+	serverURLF := flag.String("pmm.server-url", "https://127.0.0.1:8443/", "PMM Server URL [PMM_SERVER_URL].")
 	flag.Parse()
 	envvars := map[string]*flag.Flag{
 		"PMM_DEBUG":      flag.Lookup("pmm.debug"),
