@@ -281,6 +281,7 @@
     "github.com/percona/pmm/api/managementpb/json/client/mongo_db",
     "github.com/percona/pmm/api/managementpb/json/client/my_sql",
     "github.com/percona/pmm/api/managementpb/json/client/node",
+    "github.com/percona/pmm/api/managementpb/json/client/postgre_sql",
     "github.com/percona/pmm/api/managementpb/json/client/service",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
