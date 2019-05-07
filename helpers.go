@@ -3,15 +3,16 @@ package pmmapitests
 import (
 	"context"
 	"fmt"
+	"math/rand"
+	"reflect"
+	"testing"
+
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"math/rand"
-	"reflect"
-	"testing"
 )
 
 // TestString returns semi-random string that can be used as a test data.
