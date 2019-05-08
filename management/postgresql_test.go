@@ -79,6 +79,10 @@ func TestAddPostgreSQL(t *testing.T) {
 	})
 
 	t.Run("All fields", func(t *testing.T) {
+
+		tt := pmmapitests.ExpectFailure(t, "https://jira.percona.com/browse/PMM-3982")
+		defer tt.Check()
+
 		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
 		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterBody{
 			NodeName: nodeName,
@@ -120,7 +124,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, serviceOK)
-		assert.Equal(t, services.GetServiceOKBody{
+		assert.Equal(tt, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
 				ServiceID:    serviceID,
 				NodeID:       nodeID,

@@ -80,6 +80,10 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("All fields", func(t *testing.T) {
+
+		tt := pmmapitests.ExpectFailure(t, "https://jira.percona.com/browse/PMM-3982")
+		defer tt.Check()
+
 		nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
 		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterBody{
 			NodeName: nodeName,
@@ -124,7 +128,7 @@ func TestAddMongoDB(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, serviceOK)
-		assert.Equal(t, services.GetServiceOKBody{
+		assert.Equal(tt, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
 				ServiceID:      serviceID,
 				NodeID:         nodeID,
