@@ -20,7 +20,6 @@ import (
 
 func TestAddMongoDB(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
-
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterBody{
 			NodeName: nodeName,
@@ -80,7 +79,6 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("All fields", func(t *testing.T) {
-
 		tt := pmmapitests.ExpectFailure(t, "https://jira.percona.com/browse/PMM-3982")
 		defer tt.Check()
 

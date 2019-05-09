@@ -16,12 +16,17 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var randomSource rand.Source
+
+func init() {
+	randomSource = rand.NewSource(time.Now().UnixNano())
+}
+
 // TestString returns semi-random string that can be used as a test data.
 func TestString(t *testing.T, name string) string {
 	t.Helper()
 
-	r := rand.NewSource(time.Now().UnixNano())
-	n := r.Int63() //nolint:gosec
+	n := randomSource.Int63() //nolint:gosec
 	return fmt.Sprintf("pmm-api-tests/%s/%s/%s/%d", Hostname, t.Name(), name, n)
 }
 
@@ -61,8 +66,6 @@ func AssertEqualAPIError(t require.TestingT, err error, expected ServerResponse)
 	return assert.Equal(t, expected.Error, errorField.String())
 }
 
-//expectedFailureTestingT
-
 func ExpectFailure(t *testing.T, link string) (failureTestingT *expectedFailureTestingT) {
 	failureTestingT = &expectedFailureTestingT{
 		t:    t,
@@ -70,6 +73,10 @@ func ExpectFailure(t *testing.T, link string) (failureTestingT *expectedFailureT
 	}
 	return failureTestingT
 }
+
+// expectedFailureTestingT expects that test will fail.
+// if test is failed we skip it
+// if it doesn't we call Fail
 
 type expectedFailureTestingT struct {
 	t      *testing.T
