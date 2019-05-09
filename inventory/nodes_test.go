@@ -440,4 +440,27 @@ func TestRemoveNode(t *testing.T) {
 		pmmapitests.AssertEqualAPIError(t, err, pmmapitests.ServerResponse{412, fmt.Sprintf(`Node with ID %q has pmm-agent.`, node.NodeID)})
 		assert.Nil(t, removeResp)
 	})
+
+	t.Run("Not-exist node", func(t *testing.T) {
+		t.Parallel()
+		nodeID := "not-exist-node-id"
+		removeResp, err := client.Default.Nodes.RemoveNode(&nodes.RemoveNodeParams{
+			Body: nodes.RemoveNodeBody{
+				NodeID: nodeID,
+			},
+			Context: context.Background(),
+		})
+		pmmapitests.AssertEqualAPIError(t, err, pmmapitests.ServerResponse{404, fmt.Sprintf(`Node with ID %q not found.`, nodeID)})
+		assert.Nil(t, removeResp)
+	})
+
+	t.Run("Empty params", func(t *testing.T) {
+		t.Parallel()
+		removeResp, err := client.Default.Nodes.RemoveNode(&nodes.RemoveNodeParams{
+			Body:    nodes.RemoveNodeBody{},
+			Context: context.Background(),
+		})
+		pmmapitests.AssertEqualAPIError(t, err, pmmapitests.ServerResponse{400, "invalid field NodeId: value '' must not be an empty string"})
+		assert.Nil(t, removeResp)
+	})
 }

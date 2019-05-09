@@ -177,7 +177,6 @@ func TestPMMAgent(t *testing.T) {
 		res := addPMMAgent(t, nodeID)
 		require.Equal(t, nodeID, res.PMMAgent.RunsOnNodeID)
 		agentID := res.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
 
 		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
@@ -192,6 +191,16 @@ func TestPMMAgent(t *testing.T) {
 				},
 			},
 		}, getAgentRes)
+
+		params := &agents.RemoveAgentParams{
+			Body: agents.RemoveAgentBody{
+				AgentID: agentID,
+			},
+			Context: context.Background(),
+		}
+		removeAgentOK, err := client.Default.Agents.RemoveAgent(params)
+		assert.NoError(t, err)
+		assert.NotNil(t, removeAgentOK)
 	})
 
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
@@ -207,7 +216,7 @@ func TestPMMAgent(t *testing.T) {
 		}
 	})
 
-	t.Run("Remove", func(t *testing.T) {
+	t.Run("Remove pmm-agent with agents", func(t *testing.T) {
 		t.Parallel()
 
 		node := addGenericNode(t, pmmapitests.TestString(t, "Generic node for PMM-agent"))
@@ -258,42 +267,8 @@ func TestPMMAgent(t *testing.T) {
 
 	t.Run("Remove not-exist agent", func(t *testing.T) {
 		t.Parallel()
-		t.Skip()
 
-		node := addRemoteNode(t, pmmapitests.TestString(t, "Remote node for PMM-agent"))
-		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      nodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for remove pmm-agent test"),
-		})
-		serviceID := service.Mysql.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-
-		pmmAgentOKBody := addPMMAgent(t, nodeID)
-		require.Equal(t, nodeID, pmmAgentOKBody.PMMAgent.RunsOnNodeID)
-		pmmAgentID := pmmAgentOKBody.PMMAgent.AgentID
-		defer pmmapitests.RemoveAgents(t, pmmAgentID)
-
-		nodeExporterOK := addNodeExporter(t, pmmAgentID, map[string]string{})
-		nodeExporterID := nodeExporterOK.Payload.NodeExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, nodeExporterID)
-
-		mySqldExporter := addMySqldExporter(t, agents.AddMySqldExporterBody{
-			ServiceID:  serviceID,
-			Username:   "username",
-			Password:   "password",
-			PMMAgentID: pmmAgentID,
-			CustomLabels: map[string]string{
-				"custom_label_mysql_exporter": "mysql_exporter",
-			},
-		})
-		agentID := mySqldExporter.MysqldExporter.AgentID
-		defer pmmapitests.RemoveAgents(t, agentID)
-
+		agentID := "not-exist-pmm-agent"
 		params := &agents.RemoveAgentParams{
 			Body: agents.RemoveAgentBody{
 				AgentID: agentID,
@@ -302,7 +277,18 @@ func TestPMMAgent(t *testing.T) {
 		}
 		res, err := client.Default.Agents.RemoveAgent(params)
 		assert.Nil(t, res)
-		pmmapitests.AssertEqualAPIError(t, err, pmmapitests.ServerResponse{400, ""})
+		pmmapitests.AssertEqualAPIError(t, err, pmmapitests.ServerResponse{404, fmt.Sprintf(`Agent with ID %q not found.`, agentID)})
+	})
+
+	t.Run("Remove with empty params", func(t *testing.T) {
+		t.Parallel()
+
+		removeResp, err := client.Default.Agents.RemoveAgent(&agents.RemoveAgentParams{
+			Body:    agents.RemoveAgentBody{},
+			Context: context.Background(),
+		})
+		pmmapitests.AssertEqualAPIError(t, err, pmmapitests.ServerResponse{400, "invalid field AgentId: value '' must not be an empty string"})
+		assert.Nil(t, removeResp)
 	})
 }
 
