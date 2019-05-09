@@ -16,17 +16,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var randomSource rand.Source
-
 func init() {
-	randomSource = rand.NewSource(time.Now().UnixNano())
+	rand.Seed(time.Now().UnixNano())
 }
 
 // TestString returns semi-random string that can be used as a test data.
 func TestString(t *testing.T, name string) string {
 	t.Helper()
 
-	n := randomSource.Int63() //nolint:gosec
+	n := rand.Int() //nolint:gosec
 	return fmt.Sprintf("pmm-api-tests/%s/%s/%s/%d", Hostname, t.Name(), name, n)
 }
 

@@ -224,7 +224,7 @@ func TestNodeRegister(t *testing.T) {
 		})
 
 		t.Run("Re-register", func(t *testing.T) {
-			t.Skip("Re-register logic is not defined yet.")
+			t.Skip("Re-register logic is not defined yet. https://jira.percona.com/browse/PMM-3717")
 
 			nodeName := pmmapitests.TestString(t, "node-name")
 			nodeID, pmmAgentID := registerContainerNode(t, node.RegisterBody{
@@ -282,7 +282,7 @@ func TestNodeRegister(t *testing.T) {
 	})
 
 	t.Run("Re-register node with different type", func(t *testing.T) {
-		t.Skip("Re-register logic is not defined yet.")
+		t.Skip("Re-register logic is not defined yet. https://jira.percona.com/browse/PMM-3717")
 
 		nodeName := pmmapitests.TestString(t, "node-name")
 		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterBody{

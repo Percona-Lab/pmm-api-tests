@@ -37,7 +37,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
-				Port:        3306,
+				Port:        5432,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -62,7 +62,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
-				Port:        3306,
+				Port:        5432,
 			},
 		}, *serviceOK.Payload)
 
@@ -78,10 +78,7 @@ func TestAddPostgreSQL(t *testing.T) {
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
-	t.Run("All fields", func(t *testing.T) {
-		tt := pmmapitests.ExpectFailure(t, "https://jira.percona.com/browse/PMM-3982")
-		defer tt.Check()
-
+	t.Run("With exporters", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
 		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterBody{
 			NodeName: nodeName,
@@ -99,12 +96,10 @@ func TestAddPostgreSQL(t *testing.T) {
 				PMMAgentID:       pmmAgentID,
 				ServiceName:      serviceName,
 				Address:          "10.10.10.10",
-				Port:             3306,
+				Port:             5432,
 				Username:         "username",
 				Password:         "password",
-				Environment:      "some-environment",
 				PostgresExporter: true,
-				CustomLabels:     map[string]string{"bar": "foo"},
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -123,19 +118,17 @@ func TestAddPostgreSQL(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, serviceOK)
-		assert.Equal(tt, services.GetServiceOKBody{
+		assert.Equal(t, services.GetServiceOKBody{
 			Postgresql: &services.GetServiceOKBodyPostgresql{
-				ServiceID:    serviceID,
-				NodeID:       nodeID,
-				ServiceName:  serviceName,
-				Address:      "10.10.10.10",
-				Port:         3306,
-				Environment:  "some-environment",
-				CustomLabels: map[string]string{"bar": "foo"},
+				ServiceID:   serviceID,
+				NodeID:      nodeID,
+				ServiceName: serviceName,
+				Address:     "10.10.10.10",
+				Port:        5432,
 			},
 		}, *serviceOK.Payload)
 
-		// Check that no one exporter is added.
+		// Check that postgres_exporter is added.
 		listAgents, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
 			Context: pmmapitests.Context,
 			Body: agents.ListAgentsBody{
@@ -159,6 +152,61 @@ func TestAddPostgreSQL(t *testing.T) {
 		}, *listAgents.Payload)
 	})
 
+	t.Run("With labels", func(realT *testing.T) {
+		expectedFailureTestingT := pmmapitests.ExpectFailure(realT, "https://jira.percona.com/browse/PMM-3982")
+		defer expectedFailureTestingT.Check()
+
+		nodeName := pmmapitests.TestString(realT, "node-for-all-fields-name")
+		nodeID, pmmAgentID := registerGenericNode(realT, node.RegisterBody{
+			NodeName: nodeName,
+			NodeType: pointer.ToString(node.RegisterBodyNodeTypeGENERICNODE),
+		})
+		defer pmmapitests.RemoveNodes(realT, nodeID)
+		defer removePMMAgentWithSubAgents(realT, pmmAgentID)
+
+		serviceName := pmmapitests.TestString(realT, "service-for-all-fields-name")
+
+		params := &postgresql.AddPostgreSQLParams{
+			Context: pmmapitests.Context,
+			Body: postgresql.AddPostgreSQLBody{
+				NodeID:       nodeID,
+				PMMAgentID:   pmmAgentID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         5432,
+				Environment:  "some-environment",
+				CustomLabels: map[string]string{"bar": "foo"},
+			},
+		}
+		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
+		require.NoError(realT, err)
+		require.NotNil(realT, addPostgreSQLOK)
+		require.NotNil(realT, addPostgreSQLOK.Payload.Service)
+		serviceID := addPostgreSQLOK.Payload.Service.ServiceID
+		defer pmmapitests.RemoveServices(realT, serviceID)
+
+		// Check that service is created and its fields.
+		serviceOK, err := inventoryClient.Default.Services.GetService(&services.GetServiceParams{
+			Body: services.GetServiceBody{
+				ServiceID: serviceID,
+			},
+			Context: pmmapitests.Context,
+		})
+		assert.NoError(realT, err)
+		assert.NotNil(realT, serviceOK)
+		assert.Equal(expectedFailureTestingT, services.GetServiceOKBody{
+			Postgresql: &services.GetServiceOKBodyPostgresql{
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         5432,
+				Environment:  "some-environment",
+				CustomLabels: map[string]string{"bar": "foo"},
+			},
+		}, *serviceOK.Payload)
+	})
+
 	t.Run("With the same name", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-the-same-name")
 		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterBody{
@@ -177,7 +225,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				PMMAgentID:  pmmAgentID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
-				Port:        3306,
+				Port:        5432,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -291,7 +339,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
-				Port:        3306,
+				Port:        5432,
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -314,7 +362,7 @@ func TestRemovePostgreSQL(t *testing.T) {
 				PMMAgentID:       pmmAgentID,
 				ServiceName:      serviceName,
 				Address:          "10.10.10.10",
-				Port:             3306,
+				Port:             5432,
 				Username:         "username",
 				Password:         "password",
 				PostgresExporter: withAgents,
