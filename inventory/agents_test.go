@@ -1019,6 +1019,7 @@ func TestQanAgentExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
+		require.NoError(t, err)
 		agentID := res.Payload.QANMysqlPerfschemaAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
@@ -1701,6 +1702,7 @@ func TestPostgreSQLQanAgentExporter(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
+		require.NoError(t, err)
 		agentID := res.Payload.QANPostgresqlPgstatementsAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
