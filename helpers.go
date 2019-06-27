@@ -59,7 +59,7 @@ func AssertEqualAPIError(t require.TestingT, err error, expected ServerResponse)
 	return assert.Equal(t, expected.Error, errorField.String())
 }
 
-func AssertAPIError(t require.TestingT, actual error, expectedCode int, expectedFormat string, a ...interface{}) bool {
+func AssertAPIErrorf(t require.TestingT, actual error, expectedCode int, expectedFormat string, a ...interface{}) bool {
 	if n, ok := t.(interface {
 		Helper()
 	}); ok {

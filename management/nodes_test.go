@@ -294,7 +294,7 @@ func TestNodeRegister(t *testing.T) {
 			},
 		}
 		registerOK, err := client.Default.Node.Register(&params)
-		pmmapitests.AssertAPIError(t, err, 400, "")
+		pmmapitests.AssertAPIErrorf(t, err, 400, "")
 		require.Nil(t, registerOK)
 	})
 
@@ -304,7 +304,7 @@ func TestNodeRegister(t *testing.T) {
 			Body:    node.RegisterBody{},
 		}
 		registerOK, err := client.Default.Node.Register(&params)
-		pmmapitests.AssertAPIError(t, err, 400, "invalid field NodeName: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, "invalid field NodeName: value '' must not be an empty string")
 		require.Nil(t, registerOK)
 	})
 
@@ -316,7 +316,7 @@ func TestNodeRegister(t *testing.T) {
 			},
 		}
 		registerOK, err := client.Default.Node.Register(&params)
-		pmmapitests.AssertAPIError(t, err, 400, `Unsupported Node type "NODE_TYPE_INVALID".`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, `Unsupported Node type "NODE_TYPE_INVALID".`)
 		require.Nil(t, registerOK)
 	})
 }
