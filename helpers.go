@@ -13,6 +13,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 )
 
 // TestString returns semi-random string that can be used as a test data.
@@ -28,7 +29,8 @@ type ErrorResponse interface {
 }
 
 type ServerResponse struct {
-	Code  int
+	Code int
+	// TODO add gRPC code
 	Error string
 }
 
@@ -59,24 +61,34 @@ func AssertEqualAPIError(t require.TestingT, err error, expected ServerResponse)
 	return assert.Equal(t, expected.Error, errorField.String())
 }
 
-func AssertAPIErrorf(t require.TestingT, actual error, expectedCode int, expectedFormat string, a ...interface{}) bool {
+// AssertAPIErrorf check that actual API error equals expected.
+func AssertAPIErrorf(t require.TestingT, actual error, httpStatus int, code codes.Code, format string, a ...interface{}) {
 	if n, ok := t.(interface {
 		Helper()
 	}); ok {
 		n.Helper()
 	}
 
-	if !assert.Error(t, actual) {
-		return false
-	}
+	require.Error(t, actual)
 
-	if len(a) != 0 {
-		expectedFormat = fmt.Sprintf(expectedFormat, a...)
+	require.Implementsf(t, new(ErrorResponse), actual, "Wrong response type. Expected %T, got %T.\nError message: %v", new(ErrorResponse), actual, actual)
+
+	assert.Equal(t, httpStatus, actual.(ErrorResponse).Code())
+
+	// Have to use reflect because there are a lot of types with the same structure and different names.
+	payload := reflect.ValueOf(actual).Elem().FieldByName("Payload")
+	require.True(t, payload.IsValid(), "Wrong response structure. There is no field Payload.")
+
+	codeField := payload.Elem().FieldByName("Code")
+	require.True(t, codeField.IsValid(), "Wrong response structure. There is no field Code in Payload.")
+	assert.Equal(t, int64(code), codeField.Int(), "gRPC status codes are not equal")
+
+	errorField := payload.Elem().FieldByName("Error")
+	require.True(t, errorField.IsValid(), "Wrong response structure. There is no field Error in Payload.")
+	if len(a) > 0 {
+		format = fmt.Sprintf(format, a...)
 	}
-	return AssertEqualAPIError(t, actual, ServerResponse{
-		Code:  expectedCode,
-		Error: expectedFormat,
-	})
+	assert.Equal(t, format, errorField.String())
 }
 
 func ExpectFailure(t *testing.T, link string) (failureTestingT *expectedFailureTestingT) {
