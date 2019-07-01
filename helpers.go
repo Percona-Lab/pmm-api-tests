@@ -28,39 +28,6 @@ type ErrorResponse interface {
 	Code() int
 }
 
-type ServerResponse struct {
-	Code int
-	// TODO add gRPC code
-	Error string
-}
-
-func AssertEqualAPIError(t require.TestingT, err error, expected ServerResponse) bool {
-	if n, ok := t.(interface {
-		Helper()
-	}); ok {
-		n.Helper()
-	}
-
-	if !assert.Error(t, err) {
-		return false
-	}
-
-	require.Implementsf(t, new(ErrorResponse), err, "Wrong response type. Expected %T, got %T.\nError message: %v", new(ErrorResponse), err, err)
-
-	assert.Equal(t, expected.Code, err.(ErrorResponse).Code())
-
-	// Have to use reflect because there are a lot of types with the same structure and different names.
-	val := reflect.ValueOf(err)
-
-	payload := val.Elem().FieldByName("Payload")
-	require.True(t, payload.IsValid(), "Wrong response structure. There is no field Payload.")
-
-	errorField := payload.Elem().FieldByName("Error")
-	require.True(t, errorField.IsValid(), "Wrong response structure. There is no field Error in Payload.")
-
-	return assert.Equal(t, expected.Error, errorField.String())
-}
-
 // AssertAPIErrorf check that actual API error equals expected.
 func AssertAPIErrorf(t require.TestingT, actual error, httpStatus int, grpcCode codes.Code, format string, a ...interface{}) {
 	if n, ok := t.(interface {
