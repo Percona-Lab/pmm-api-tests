@@ -521,6 +521,7 @@ func TestRemoveNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		assert.NoError(t, err)
+		require.NotNil(t, listAgentsOK)
 		assert.Equal(t, &agents.ListAgentsOKBody{}, listAgentsOK.Payload)
 	})
 

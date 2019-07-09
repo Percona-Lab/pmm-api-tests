@@ -438,6 +438,7 @@ func TestRemoveMongoDB(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
+		require.NotNil(t, listAgents)
 		assert.Equal(t, agents.ListAgentsOKBody{}, *listAgents.Payload)
 		defer removeAllAgentsInList(t, listAgents)
 	})
@@ -469,6 +470,7 @@ func TestRemoveMongoDB(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
+		require.NotNil(t, listAgents)
 		assert.Equal(t, agents.ListAgentsOKBody{}, *listAgents.Payload)
 		defer removeAllAgentsInList(t, listAgents)
 	})
