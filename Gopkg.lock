@@ -171,7 +171,7 @@
 
 [[projects]]
   branch = "PMM-4379-update-api-stubs"
-  digest = "1:f0b32905a742b378242d7b611a48031236b9f76c099734210b8aafc4771ddd83"
+  digest = "1:a774fafe4845c858eb1fc66a01a51f080698dc265ab9c383da0a8cffbc4a9904"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -190,7 +190,7 @@
     "api/serverpb/json/client/server",
   ]
   pruneopts = "NUT"
-  revision = "ddc33bfe8a73a1b9890186969f8efd0f0033d149"
+  revision = "62f5a18f9c9eef09a76b07060c5f1852d056da22"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
