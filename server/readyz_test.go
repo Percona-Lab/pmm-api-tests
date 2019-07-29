@@ -19,7 +19,12 @@ func TestReadyz(t *testing.T) {
 	}
 	for _, path := range paths {
 		t.Run(path, func(t *testing.T) {
-			uri := pmmapitests.BaseURL.ResolveReference(&url.URL{
+			// make a BaseURL without authentication
+			baseURL, err := url.Parse(pmmapitests.BaseURL.String())
+			require.NoError(t, err)
+			baseURL.User = nil
+
+			uri := baseURL.ResolveReference(&url.URL{
 				Path: path,
 			})
 
