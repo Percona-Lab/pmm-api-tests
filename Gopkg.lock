@@ -170,8 +170,8 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:ee3a77029c82c78fa3e897941308d1414baf442f4b5466329a17ba1753aeedbb"
+  branch = "PMM-4425-auth-error"
+  digest = "1:70bfeb8c4fb8f01f255a303c5c618c6f2dbc722ab4999f87a197ea0aef8b1df3"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -190,7 +190,7 @@
     "api/serverpb/json/client/server",
   ]
   pruneopts = "NUT"
-  revision = "df931f31889ff5815f4b7298eb9de566c49aa0a9"
+  revision = "f812fb90b272004315f6b49c01711dc553f22cee"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
