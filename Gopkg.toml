@@ -6,5 +6,4 @@
 # TODO switch to tags before PMM 2.0 release
 [[constraint]]
   name = "github.com/percona/pmm"
-  # branch = "PMM-2.0"
-  branch = "PMM-4425-auth-error"
+  branch = "PMM-2.0"
