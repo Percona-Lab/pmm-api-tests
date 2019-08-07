@@ -28,25 +28,23 @@ func TestUpdates(t *testing.T) {
 
 		require.NotEmpty(t, res.Payload.Installed)
 		assert.True(t, strings.HasPrefix(res.Payload.Installed.Version, "2.0.0-"),
-			"version = %q should have '2.0.0-' prefix", res.Payload.Installed.Version)
-		assert.True(t, strings.HasPrefix(res.Payload.Installed.FullVersion, "1:2.0.0-"),
-			"full_version = %q should have '1:2.0.0-' prefix", res.Payload.Installed.FullVersion)
+			"installed.version = %q should have '2.0.0-' prefix", res.Payload.Installed.Version)
+		assert.NotEmpty(t, res.Payload.Installed.FullVersion)
 		require.NotEmpty(t, res.Payload.Installed.Timestamp)
 		ts := time.Time(res.Payload.Installed.Timestamp)
 		hour, min, _ := ts.Clock()
-		assert.Zero(t, hour, "server timestamp should contain only date")
-		assert.Zero(t, min, "server timestamp should contain only date")
+		assert.Zero(t, hour, "installed.timestamp should contain only date")
+		assert.Zero(t, min, "installed.timestamp should contain only date")
 
 		require.NotEmpty(t, res.Payload.Latest)
 		assert.True(t, strings.HasPrefix(res.Payload.Latest.Version, "2.0.0-"),
-			"version = %q should have '2.0.0-' prefix", res.Payload.Latest.Version)
-		assert.True(t, strings.HasPrefix(res.Payload.Latest.FullVersion, "1:2.0.0-"),
-			"full_version = %q should have '1:2.0.0-' prefix", res.Payload.Latest.FullVersion)
+			"latest.version = %q should have '2.0.0-' prefix", res.Payload.Latest.Version)
+		assert.NotEmpty(t, res.Payload.Latest.FullVersion)
 		require.NotEmpty(t, res.Payload.Latest.Timestamp)
 		ts = time.Time(res.Payload.Latest.Timestamp)
 		hour, min, _ = ts.Clock()
-		assert.Zero(t, hour, "server timestamp should contain only date")
-		assert.Zero(t, min, "server timestamp should contain only date")
+		assert.Zero(t, hour, "latest.timestamp should contain only date")
+		assert.Zero(t, min, "latest.timestamp should contain only date")
 
 		assert.Equal(t, res.Payload.Installed.FullVersion != res.Payload.Latest.FullVersion, res.Payload.UpdateAvailable)
 
