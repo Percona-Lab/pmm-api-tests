@@ -20,6 +20,7 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
+	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 )
@@ -137,14 +138,9 @@ func init() {
 	httpTransport := transport.Transport.(*http.Transport)
 	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 	if BaseURL.Scheme == "https" {
-		if httpTransport.TLSClientConfig == nil {
-			httpTransport.TLSClientConfig = new(tls.Config)
-		}
-		if *serverInsecureTLSF {
-			httpTransport.TLSClientConfig.InsecureSkipVerify = true
-		} else {
-			httpTransport.TLSClientConfig.ServerName = BaseURL.Hostname()
-		}
+		httpTransport.TLSClientConfig = tlsconfig.Get()
+		httpTransport.TLSClientConfig.ServerName = BaseURL.Hostname()
+		httpTransport.TLSClientConfig.InsecureSkipVerify = *serverInsecureTLSF
 	}
 
 	inventoryClient.Default = inventoryClient.New(transport, nil)
@@ -152,7 +148,7 @@ func init() {
 	serverClient.Default = serverClient.New(transport, nil)
 
 	// do not run tests if server is not available
-	_, err = serverClient.Default.Server.Version(nil)
+	_, err = serverClient.Default.Server.Readiness(nil)
 	if err != nil {
 		panic(err)
 	}

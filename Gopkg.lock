@@ -171,7 +171,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:bdf25afee6bb53faf0d0d6f46adde25d28b591986514427492190952bfd96e29"
+  digest = "1:cddd22359d7b9b22a9b94b2113e14786f847b82f69fffa08b67d8d2e33483d24"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -188,6 +188,7 @@
     "api/managementpb/json/client/service",
     "api/serverpb/json/client",
     "api/serverpb/json/client/server",
+    "utils/tlsconfig",
   ]
   pruneopts = "NUT"
   revision = "da11188bce3d0511a78eec09d9cdabd991c600c1"
@@ -244,11 +245,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4de466b9ebe9685614b7db1ab3b2fb4a16a79aa1ea639866d033901c577f3328"
+  digest = "1:9c684a8c6bb9501591c1ac600e7669fdf4683b1a08be53e17e98e4660985c000"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "fc99dfbffb4e5ed5758a37e31dd861afe285406b"
+  revision = "cbf593c0f2f39034e9104bbf77e2ec7c48c98fc5"
 
 [[projects]]
   digest = "1:66a2f252a58b4fbbad0e4e180e1d85a83c222b6bce09c3dcdef3dc87c72eda7c"
@@ -313,6 +314,7 @@
     "github.com/percona/pmm/api/managementpb/json/client/service",
     "github.com/percona/pmm/api/serverpb/json/client",
     "github.com/percona/pmm/api/serverpb/json/client/server",
+    "github.com/percona/pmm/utils/tlsconfig",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
