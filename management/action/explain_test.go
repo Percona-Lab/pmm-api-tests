@@ -38,3 +38,30 @@ func TestRunExplain(t *testing.T) {
 	require.Empty(t, actionOK.Payload.Error)
 	fmt.Println(actionOK.Payload.Output)
 }
+func TestRunPostgreSQLShowIndex(t *testing.T) {
+	//t.Skip("not implemented yet")
+
+	explainActionOK, err := client.Default.Actions.StartPostgreSQLShowIndexAction(&actions.StartPostgreSQLShowIndexActionParams{
+		Context: pmmapitests.Context,
+		Body: actions.StartPostgreSQLShowIndexActionBody{
+			//PMMAgentID: "/agent_id/f235005b-9cca-4b73-bbbd-1251067c3138",
+			ServiceID: "/service_id/1a3c9ede-8ed5-4ec1-9699-139acd375fac",
+			Database:  "pmm-agent",
+			TableName: "city",
+		},
+	})
+	require.NoError(t, err)
+	require.NotEmpty(t, explainActionOK.Payload.ActionID)
+
+	time.Sleep(2 * time.Second)
+
+	actionOK, err := client.Default.Actions.GetAction(&actions.GetActionParams{
+		Context: pmmapitests.Context,
+		Body: actions.GetActionBody{
+			ActionID: explainActionOK.Payload.ActionID,
+		},
+	})
+	require.NoError(t, err)
+	require.Empty(t, actionOK.Payload.Error)
+	fmt.Println(actionOK.Payload.Output)
+}
