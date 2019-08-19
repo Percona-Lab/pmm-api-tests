@@ -15,15 +15,22 @@ import (
 
 func TestUpdates(t *testing.T) {
 	t.Run("CheckUpdates", func(t *testing.T) {
-		// do not run this test in parallel with other tests
+		// do not run this test in parallel with other tests as it also tests timings
 
-		version, err := serverClient.Default.Server.Version(nil)
+		const fast, slow = 3 * time.Second, 60 * time.Second
+
+		// that call should always be fast
+		version, err := serverClient.Default.Server.Version(server.NewVersionParamsWithTimeout(fast))
 		require.NoError(t, err)
 		if version.Payload.Server == nil || version.Payload.Server.Version == "" {
 			t.Skip("skipping test in developer's environment")
 		}
 
-		res, err := serverClient.Default.Server.CheckUpdates(nil)
+		params := &server.CheckUpdatesParams{
+			Context: pmmapitests.Context,
+		}
+		params.SetTimeout(slow) // that call can be slow with a cold cache
+		res, err := serverClient.Default.Server.CheckUpdates(params)
 		require.NoError(t, err)
 
 		require.NotEmpty(t, res.Payload.Installed)
@@ -47,19 +54,33 @@ func TestUpdates(t *testing.T) {
 		assert.Zero(t, min, "latest.timestamp should contain only date")
 
 		assert.Equal(t, res.Payload.Installed.FullVersion != res.Payload.Latest.FullVersion, res.Payload.UpdateAvailable)
-
 		assert.NotEmpty(t, res.Payload.LastCheck)
 
-		resForce, err := serverClient.Default.Server.CheckUpdates(&server.CheckUpdatesParams{
-			Body: server.CheckUpdatesBody{
-				Force: true,
-			},
-			Context: pmmapitests.Context,
+		t.Run("HotCache", func(t *testing.T) {
+			params = &server.CheckUpdatesParams{
+				Context: pmmapitests.Context,
+			}
+			params.SetTimeout(fast) // that call should be fast with hot cache
+			resAgain, err := serverClient.Default.Server.CheckUpdates(params)
+			require.NoError(t, err)
+
+			assert.Equal(t, res.Payload, resAgain.Payload)
 		})
-		require.NoError(t, err)
-		assert.Equal(t, res.Payload.Installed, resForce.Payload.Installed)
-		assert.Equal(t, resForce.Payload.Installed.FullVersion != resForce.Payload.Latest.FullVersion, resForce.Payload.UpdateAvailable)
-		assert.NotEmpty(t, resForce.Payload.LastCheck)
-		assert.NotEqual(t, res.Payload.LastCheck, resForce.Payload.LastCheck)
+
+		t.Run("Force", func(t *testing.T) {
+			params = &server.CheckUpdatesParams{
+				Body: server.CheckUpdatesBody{
+					Force: true,
+				},
+				Context: pmmapitests.Context,
+			}
+			params.SetTimeout(slow) // that call with force can be slow
+			resForce, err := serverClient.Default.Server.CheckUpdates(params)
+			require.NoError(t, err)
+
+			assert.Equal(t, res.Payload.Installed, resForce.Payload.Installed)
+			assert.Equal(t, resForce.Payload.Installed.FullVersion != resForce.Payload.Latest.FullVersion, resForce.Payload.UpdateAvailable)
+			assert.NotEqual(t, res.Payload.LastCheck, resForce.Payload.LastCheck)
+		})
 	})
 }
