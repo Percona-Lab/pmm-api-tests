@@ -9,6 +9,7 @@ import (
 	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
@@ -84,7 +85,7 @@ func TestUpdates(t *testing.T) {
 		})
 	})
 
-	t.Run("Perform", func(t *testing.T) {
+	t.Run("Update", func(t *testing.T) {
 		if !pmmapitests.RunUpdateTest {
 			t.Skip("skipping PMM Server update test")
 		}
@@ -95,7 +96,7 @@ func TestUpdates(t *testing.T) {
 		authToken := startRes.Payload.AuthToken
 		require.NotEmpty(t, authToken)
 
-		startRes, err = serverClient.Default.Server.StartUpdate(nil)
-		require.NoError(t, err)
+		_, err = serverClient.Default.Server.StartUpdate(nil)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Update is already running.")
 	})
 }
