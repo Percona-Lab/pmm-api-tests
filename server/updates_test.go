@@ -83,4 +83,19 @@ func TestUpdates(t *testing.T) {
 			assert.NotEqual(t, res.Payload.LastCheck, resForce.Payload.LastCheck)
 		})
 	})
+
+	t.Run("Perform", func(t *testing.T) {
+		if !pmmapitests.RunUpdateTest {
+			t.Skip("skipping PMM Server update test")
+		}
+
+		startRes, err := serverClient.Default.Server.StartUpdate(nil)
+		require.NoError(t, err)
+		assert.Zero(t, startRes.Payload.LogOffset)
+		authToken := startRes.Payload.AuthToken
+		require.NotEmpty(t, authToken)
+
+		startRes, err = serverClient.Default.Server.StartUpdate(nil)
+		require.NoError(t, err)
+	})
 }

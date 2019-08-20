@@ -35,6 +35,9 @@ var (
 
 	// Hostname contains local hostname that is used for generating test data.
 	Hostname string
+
+	// RunUpdateTest is true if PMM Server update should be tested.
+	RunUpdateTest bool
 )
 
 type errFromNginx string
@@ -55,15 +58,16 @@ func init() {
 	traceF := flag.Bool("pmm.trace", false, "Enable trace output [PMM_TRACE].")
 	serverURLF := flag.String("pmm.server-url", "https://admin:admin@127.0.0.1:8443/", "PMM Server URL [PMM_SERVER_URL].")
 	serverInsecureTLSF := flag.Bool("pmm.server-insecure-tls", false, "Skip PMM Server TLS certificate validation [PMM_SERVER_INSECURE_TLS].")
+	runUpdateTestF := flag.Bool("pmm.run-update-test", false, "Run PMM Server update test [PMM_RUN_UPDATE_TEST].")
 	flag.Parse()
-	envvars := map[string]*flag.Flag{
+
+	for envVar, f := range map[string]*flag.Flag{
 		"PMM_DEBUG":               flag.Lookup("pmm.debug"),
 		"PMM_TRACE":               flag.Lookup("pmm.trace"),
 		"PMM_SERVER_URL":          flag.Lookup("pmm.server-url"),
 		"PMM_SERVER_INSECURE_TLS": flag.Lookup("pmm.server-insecure-tls"),
-	}
-
-	for envVar, f := range envvars {
+		"PMM_RUN_UPDATE_TEST":     flag.Lookup("pmm.run-update-test"),
+	} {
 		env, ok := os.LookupEnv(envVar)
 		if ok {
 			err := f.Value.Set(env)
@@ -80,6 +84,7 @@ func init() {
 		logrus.SetLevel(logrus.TraceLevel)
 		logrus.SetReportCaller(true)
 	}
+	RunUpdateTest = *runUpdateTestF
 
 	var cancel context.CancelFunc
 	Context, cancel = context.WithCancel(context.Background())
