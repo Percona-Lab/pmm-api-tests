@@ -1,5 +1,5 @@
 init:
-	go get -u github.com/jstemmer/go-junit-report
+	go install ./vendor/github.com/jstemmer/go-junit-report
 
 build:
 	go install -v ./...
