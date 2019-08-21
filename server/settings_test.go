@@ -23,6 +23,10 @@ func TestSettings(t *testing.T) {
 			Lr: "60s",
 		}
 		require.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
+		expectedDataRetention := &server.GetSettingsOKBodySettingsQAN{
+			DataRetention: "2592000s",
+		}
+		require.Equal(t, expectedDataRetention, res.Payload.Settings.QAN)
 
 		t.Run("ChangeSettings", func(t *testing.T) {
 			// always restore settings on exit
@@ -36,6 +40,9 @@ func TestSettings(t *testing.T) {
 							Mr: "5s",
 							Lr: "60s",
 						},
+						QAN: &server.ChangeSettingsParamsBodyQAN{
+							DataRetention: "720h",
+						},
 					},
 				})
 				require.NoError(t, err)
@@ -46,6 +53,10 @@ func TestSettings(t *testing.T) {
 					Lr: "60s",
 				}
 				assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
+				expectedDataRetention := &server.ChangeSettingsOKBodySettingsQAN{
+					DataRetention: "2592000s",
+				}
+				require.Equal(t, expectedDataRetention, res.Payload.Settings.QAN)
 			}()
 
 			t.Run("BothEnableAndDisable", func(t *testing.T) {
@@ -57,6 +68,32 @@ func TestSettings(t *testing.T) {
 					},
 				})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_telemetry and disable_telemetry are present.`)
+				assert.Empty(t, res)
+			})
+
+			t.Run("InvalidDataRetentionDuration", func(t *testing.T) {
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Context: pmmapitests.Context,
+					Body: server.ChangeSettingsBody{
+						QAN: &server.ChangeSettingsParamsBodyQAN{
+							DataRetention: "INVALID_DURATION",
+						},
+					},
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `bad Duration: time: invalid duration INVALID_DURATION`)
+				assert.Empty(t, res)
+			})
+
+			t.Run("InvalidDataRetentionDuration2", func(t *testing.T) {
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Context: pmmapitests.Context,
+					Body: server.ChangeSettingsBody{
+						QAN: &server.ChangeSettingsParamsBodyQAN{
+							DataRetention: "10s",
+						},
+					},
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `The data retention duration must be a multiple of 24 hours, but is 10s`)
 				assert.Empty(t, res)
 			})
 
@@ -82,6 +119,9 @@ func TestSettings(t *testing.T) {
 							Hr: "2s",
 							Mr: "15s",
 						},
+						QAN: &server.ChangeSettingsParamsBodyQAN{
+							DataRetention: "240h",
+						},
 					},
 				})
 				require.NoError(t, err)
@@ -102,6 +142,10 @@ func TestSettings(t *testing.T) {
 					Lr: "60s",
 				}
 				require.Equal(t, getExpected, getRes.Payload.Settings.MetricsResolutions)
+				expectedDataRetention := &server.GetSettingsOKBodySettingsQAN{
+					DataRetention: "864000s",
+				}
+				require.Equal(t, expectedDataRetention, getRes.Payload.Settings.QAN)
 			})
 		})
 	})
