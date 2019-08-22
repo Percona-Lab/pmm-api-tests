@@ -40,14 +40,14 @@ var (
 	RunUpdateTest bool
 )
 
-type errFromNginx string
+type ErrFromNginx string
 
-func (e errFromNginx) Error() string {
-	return "response from nginx: " + string(e)
+func (e *ErrFromNginx) Error() string {
+	return "response from nginx: " + string(*e)
 }
 
-func (e errFromNginx) GoString() string {
-	return fmt.Sprintf("errFromNginx(%q)", string(e))
+func (e *ErrFromNginx) GoString() string {
+	return fmt.Sprintf("ErrFromNginx(%q)", string(*e))
 }
 
 //nolint:gochecknoinits
@@ -130,7 +130,8 @@ func init() {
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
 		b, _ := ioutil.ReadAll(reader)
-		return errFromNginx(string(b))
+		err := ErrFromNginx(string(b))
+		return &err
 	})
 	transport.Consumers = map[string]runtime.Consumer{
 		runtime.JSONMime:    runtime.JSONConsumer(),
@@ -161,6 +162,6 @@ func init() {
 
 // check interfaces
 var (
-	_ error          = errFromNginx("")
-	_ fmt.GoStringer = errFromNginx("")
+	_ error          = (*ErrFromNginx)(nil)
+	_ fmt.GoStringer = (*ErrFromNginx)(nil)
 )
