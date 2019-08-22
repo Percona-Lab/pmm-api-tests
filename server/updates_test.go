@@ -94,6 +94,17 @@ func TestUpdate(t *testing.T) {
 		t.Skip("skipping PMM Server update test")
 	}
 
+	// make a new client without authentication
+	baseURL, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	baseURL.User = nil
+	noAuthClient := serverClient.New(pmmapitests.Transport(baseURL, true), nil)
+
+	// without authentication
+	_, err = noAuthClient.Server.StartUpdate(nil)
+	pmmapitests.AssertAPIErrorf(t, err, 401, codes.Unauthenticated, "Unauthorized")
+
+	// with authentication
 	startRes, err := serverClient.Default.Server.StartUpdate(nil)
 	require.NoError(t, err)
 	authToken := startRes.Payload.AuthToken
@@ -104,11 +115,18 @@ func TestUpdate(t *testing.T) {
 	_, err = serverClient.Default.Server.StartUpdate(nil)
 	pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Update is already running.")
 
-	// TODO remove authentication!!
+	// without token
+	_, err = noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
+		Body: server.UpdateStatusBody{
+			LogOffset: logOffset,
+		},
+		Context: pmmapitests.Context,
+	})
+	pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "Invalid authentication token.")
 
 	// read log lines like UI would do, but without delays to increase a chance for race detector to spot something
 	for {
-		statusRes, err := serverClient.Default.Server.UpdateStatus(&server.UpdateStatusParams{
+		statusRes, err := noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
 			Body: server.UpdateStatusBody{
 				AuthToken: authToken,
 				LogOffset: logOffset,
@@ -145,7 +163,7 @@ func TestUpdate(t *testing.T) {
 	}
 
 	// extra check for done
-	statusRes, err := serverClient.Default.Server.UpdateStatus(&server.UpdateStatusParams{
+	statusRes, err := noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
 		Body: server.UpdateStatusBody{
 			AuthToken: authToken,
 			LogOffset: logOffset,

@@ -40,14 +40,53 @@ var (
 	RunUpdateTest bool
 )
 
+// ErrFromNginx is an error type for nginx HTML response.
 type ErrFromNginx string
 
+// Error implements error interface.
 func (e *ErrFromNginx) Error() string {
 	return "response from nginx: " + string(*e)
 }
 
+// GoString implements fmt.GoStringer interface.
 func (e *ErrFromNginx) GoString() string {
 	return fmt.Sprintf("ErrFromNginx(%q)", string(*e))
+}
+
+// Transport returns configured Swagger transport for given URL.
+func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
+	transport := httptransport.New(baseURL.Host, baseURL.Path, []string{baseURL.Scheme})
+	if u := baseURL.User; u != nil {
+		password, _ := u.Password()
+		transport.DefaultAuthentication = httptransport.BasicAuth(u.Username(), password)
+	}
+	transport.SetLogger(logrus.WithField("component", "client"))
+	transport.SetDebug(logrus.GetLevel() >= logrus.DebugLevel)
+	transport.Context = context.Background() // not Context - do not cancel the whole transport
+
+	// set error handlers for nginx responses if pmm-managed is down
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
+		b, _ := ioutil.ReadAll(reader)
+		err := ErrFromNginx(string(b))
+		return &err
+	})
+	transport.Consumers = map[string]runtime.Consumer{
+		runtime.JSONMime:    runtime.JSONConsumer(),
+		runtime.HTMLMime:    errorConsumer,
+		runtime.TextMime:    errorConsumer,
+		runtime.DefaultMime: errorConsumer,
+	}
+
+	// disable HTTP/2, set TLS config
+	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	if baseURL.Scheme == "https" {
+		httpTransport.TLSClientConfig = tlsconfig.Get()
+		httpTransport.TLSClientConfig.ServerName = baseURL.Hostname()
+		httpTransport.TLSClientConfig.InsecureSkipVerify = insecureTLS
+	}
+
+	return transport
 }
 
 //nolint:gochecknoinits
@@ -117,38 +156,7 @@ func init() {
 		logrus.Fatalf("Failed to detect hostname: %s", err)
 	}
 
-	// use JSON APIs over HTTP/1.1
-	transport := httptransport.New(BaseURL.Host, BaseURL.Path, []string{BaseURL.Scheme})
-	if u := BaseURL.User; u != nil {
-		password, _ := u.Password()
-		transport.DefaultAuthentication = httptransport.BasicAuth(u.Username(), password)
-	}
-	transport.SetLogger(logrus.WithField("component", "client"))
-	transport.SetDebug(logrus.GetLevel() >= logrus.DebugLevel)
-	transport.Context = context.Background() // not Context - do not cancel the whole transport
-
-	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
-		b, _ := ioutil.ReadAll(reader)
-		err := ErrFromNginx(string(b))
-		return &err
-	})
-	transport.Consumers = map[string]runtime.Consumer{
-		runtime.JSONMime:    runtime.JSONConsumer(),
-		runtime.HTMLMime:    errorConsumer,
-		runtime.TextMime:    errorConsumer,
-		runtime.DefaultMime: errorConsumer,
-	}
-
-	// disable HTTP/2, set TLS config
-	httpTransport := transport.Transport.(*http.Transport)
-	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
-	if BaseURL.Scheme == "https" {
-		httpTransport.TLSClientConfig = tlsconfig.Get()
-		httpTransport.TLSClientConfig.ServerName = BaseURL.Hostname()
-		httpTransport.TLSClientConfig.InsecureSkipVerify = *serverInsecureTLSF
-	}
-
+	transport := Transport(BaseURL, *serverInsecureTLSF)
 	inventoryClient.Default = inventoryClient.New(transport, nil)
 	managementClient.Default = managementClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
