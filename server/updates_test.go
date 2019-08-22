@@ -149,8 +149,8 @@ func TestUpdate(t *testing.T) {
 		t.Logf("new offset = %d, done = %t:\n%s", statusRes.Payload.LogOffset, statusRes.Payload.Done, strings.Join(statusRes.Payload.LogLines, "\n"))
 
 		if statusRes.Payload.LogOffset == logOffset {
-			assert.Empty(t, statusRes.Payload.LogLines)
-			assert.True(t, statusRes.Payload.Done)
+			assert.Empty(t, statusRes.Payload.LogLines, "lines should be empty for the same offset")
+			assert.True(t, statusRes.Payload.Done, "lines should be empty only when done")
 			break
 		}
 
@@ -171,7 +171,19 @@ func TestUpdate(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
-	assert.True(t, statusRes.Payload.Done)
-	assert.Empty(t, statusRes.Payload.LogLines)
+	assert.True(t, statusRes.Payload.Done, "should be done")
+	assert.Empty(t, statusRes.Payload.LogLines, "lines should be empty when done")
+	assert.Equal(t, logOffset, statusRes.Payload.LogOffset)
+
+	// whole log
+	statusRes, err = noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
+		Body: server.UpdateStatusBody{
+			AuthToken: authToken,
+		},
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+	assert.True(t, statusRes.Payload.Done, "should be done")
+	assert.Equal(t, int(logOffset), len(strings.Join(statusRes.Payload.LogLines, "\n")+"\n"))
 	assert.Equal(t, logOffset, statusRes.Payload.LogOffset)
 }
