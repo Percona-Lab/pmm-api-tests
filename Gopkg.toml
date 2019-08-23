@@ -1,3 +1,8 @@
+# tools
+required = [
+"github.com/jstemmer/go-junit-report",
+]
+
 [prune]
   go-tests = true
   non-go = true
@@ -6,5 +11,4 @@
 # TODO switch to tags before PMM 2.0 release
 [[constraint]]
   name = "github.com/percona/pmm"
-  # branch = "PMM-2.0"
-  branch = "PMM-4249-api-data-retention"
+  branch = "PMM-2.0"
