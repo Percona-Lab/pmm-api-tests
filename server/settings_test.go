@@ -68,36 +68,83 @@ func TestSettings(t *testing.T) {
 
 			defer teardown(t)
 
-			t.Run("BothEnableAndDisable", func(t *testing.T) {
+			t.Run("Invalid", func(t *testing.T) {
+				t.Run("BothEnableAndDisable", func(t *testing.T) {
+					defer teardown(t)
+
+					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							EnableTelemetry:  true,
+							DisableTelemetry: true,
+						},
+						Context: pmmapitests.Context,
+					})
+					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_telemetry and disable_telemetry are present.`)
+					assert.Empty(t, res)
+				})
+			})
+
+			t.Run("HRInvalid", func(t *testing.T) {
 				defer teardown(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableTelemetry:  true,
-						DisableTelemetry: true,
+						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
+							Hr: "1",
+						},
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_telemetry and disable_telemetry are present.`)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `bad Duration: time: missing unit in duration 1`)
 				assert.Empty(t, res)
 			})
 
-			t.Run("InvalidDataRetentionDuration", func(t *testing.T) {
+			t.Run("HRTooSmall", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
+							Hr: "0.5s",
+						},
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `hr: minimal resolution is 1s`)
+				assert.Empty(t, res)
+			})
+
+			t.Run("HRFractional", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
+							Hr: "1.5s",
+						},
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `hr: should be a natural number of seconds`)
+				assert.Empty(t, res)
+			})
+
+			t.Run("DataRetentionInvalid", func(t *testing.T) {
 				defer teardown(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						QAN: &server.ChangeSettingsParamsBodyQAN{
-							DataRetention: "INVALID_DURATION",
+							DataRetention: "1",
 						},
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `bad Duration: time: invalid duration INVALID_DURATION`)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `bad Duration: time: missing unit in duration 1`)
 				assert.Empty(t, res)
 			})
 
-			t.Run("InvalidDataRetentionDuration2", func(t *testing.T) {
+			t.Run("DataRetentionInvalidToSmall", func(t *testing.T) {
 				defer teardown(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -108,22 +155,22 @@ func TestSettings(t *testing.T) {
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `The data retention duration must be a multiple of 24 hours, but is 10s`)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `data_retention: minimal resolution is 24h`)
 				assert.Empty(t, res)
 			})
 
-			t.Run("TooSmall", func(t *testing.T) {
+			t.Run("DataRetentionFractional", func(t *testing.T) {
 				defer teardown(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
-							Hr: "0.1s",
+						QAN: &server.ChangeSettingsParamsBodyQAN{
+							DataRetention: "36h",
 						},
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Minimal resolution is 1s.`)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `data_retention: should be a natural number of days`)
 				assert.Empty(t, res)
 			})
 
