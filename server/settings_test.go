@@ -118,6 +118,7 @@ func TestSettings(t *testing.T) {
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 							Hr: "2s",
 							Mr: "15s",
+							Lr: "2m",
 						},
 						QAN: &server.ChangeSettingsParamsBodyQAN{
 							DataRetention: "240h",
@@ -129,7 +130,7 @@ func TestSettings(t *testing.T) {
 				expected := &server.ChangeSettingsOKBodySettingsMetricsResolutions{
 					Hr: "2s",
 					Mr: "15s",
-					Lr: "60s",
+					Lr: "120s",
 				}
 				assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
 
@@ -139,7 +140,7 @@ func TestSettings(t *testing.T) {
 				getExpected := &server.GetSettingsOKBodySettingsMetricsResolutions{
 					Hr: "2s",
 					Mr: "15s",
-					Lr: "60s",
+					Lr: "120s",
 				}
 				require.Equal(t, getExpected, getRes.Payload.Settings.MetricsResolutions)
 				expectedDataRetention := &server.GetSettingsOKBodySettingsQAN{
