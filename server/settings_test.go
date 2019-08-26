@@ -22,7 +22,7 @@ func TestSettings(t *testing.T) {
 	t.Run("GetSettings", func(t *testing.T) {
 		res, err := serverClient.Default.Server.GetSettings(nil)
 		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.Telemetry)
+		assert.True(t, res.Payload.Settings.TelemetryEnabled)
 		expected := &server.GetSettingsOKBodySettingsMetricsResolutions{
 			Hr: "1s",
 			Mr: "5s",
@@ -53,7 +53,7 @@ func TestSettings(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.True(t, res.Payload.Settings.Telemetry)
+				assert.True(t, res.Payload.Settings.TelemetryEnabled)
 				expected := &server.ChangeSettingsOKBodySettingsMetricsResolutions{
 					Hr: "1s",
 					Mr: "5s",
@@ -145,7 +145,7 @@ func TestSettings(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.False(t, res.Payload.Settings.Telemetry)
+				assert.False(t, res.Payload.Settings.TelemetryEnabled)
 				expected := &server.ChangeSettingsOKBodySettingsMetricsResolutions{
 					Hr: "2s",
 					Mr: "15s",
@@ -155,7 +155,7 @@ func TestSettings(t *testing.T) {
 
 				getRes, err := serverClient.Default.Server.GetSettings(nil)
 				require.NoError(t, err)
-				assert.False(t, getRes.Payload.Settings.Telemetry)
+				assert.False(t, getRes.Payload.Settings.TelemetryEnabled)
 				getExpected := &server.GetSettingsOKBodySettingsMetricsResolutions{
 					Hr: "2s",
 					Mr: "15s",
