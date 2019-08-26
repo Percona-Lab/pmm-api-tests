@@ -1,6 +1,12 @@
 package server
 
 import (
+	"bytes"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"testing"
 
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
@@ -22,17 +28,17 @@ func TestSettings(t *testing.T) {
 			Mr: "5s",
 			Lr: "60s",
 		}
-		require.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
+		assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
 		expectedDataRetention := &server.GetSettingsOKBodySettingsQAN{
 			DataRetention: "2592000s",
 		}
-		require.Equal(t, expectedDataRetention, res.Payload.Settings.QAN)
+		assert.Equal(t, expectedDataRetention, res.Payload.Settings.QAN)
 
 		t.Run("ChangeSettings", func(t *testing.T) {
-			// always restore settings on exit
-			defer func() {
+			teardown := func(t *testing.T) {
+				t.Helper()
+
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Context: pmmapitests.Context,
 					Body: server.ChangeSettingsBody{
 						EnableTelemetry: true,
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
@@ -44,6 +50,7 @@ func TestSettings(t *testing.T) {
 							DataRetention: "720h",
 						},
 					},
+					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
 				assert.True(t, res.Payload.Settings.Telemetry)
@@ -56,63 +63,74 @@ func TestSettings(t *testing.T) {
 				expectedDataRetention := &server.ChangeSettingsOKBodySettingsQAN{
 					DataRetention: "2592000s",
 				}
-				require.Equal(t, expectedDataRetention, res.Payload.Settings.QAN)
-			}()
+				assert.Equal(t, expectedDataRetention, res.Payload.Settings.QAN)
+			}
+
+			defer teardown(t)
 
 			t.Run("BothEnableAndDisable", func(t *testing.T) {
+				defer teardown(t)
+
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Context: pmmapitests.Context,
 					Body: server.ChangeSettingsBody{
 						EnableTelemetry:  true,
 						DisableTelemetry: true,
 					},
+					Context: pmmapitests.Context,
 				})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_telemetry and disable_telemetry are present.`)
 				assert.Empty(t, res)
 			})
 
 			t.Run("InvalidDataRetentionDuration", func(t *testing.T) {
+				defer teardown(t)
+
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Context: pmmapitests.Context,
 					Body: server.ChangeSettingsBody{
 						QAN: &server.ChangeSettingsParamsBodyQAN{
 							DataRetention: "INVALID_DURATION",
 						},
 					},
+					Context: pmmapitests.Context,
 				})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `bad Duration: time: invalid duration INVALID_DURATION`)
 				assert.Empty(t, res)
 			})
 
 			t.Run("InvalidDataRetentionDuration2", func(t *testing.T) {
+				defer teardown(t)
+
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Context: pmmapitests.Context,
 					Body: server.ChangeSettingsBody{
 						QAN: &server.ChangeSettingsParamsBodyQAN{
 							DataRetention: "10s",
 						},
 					},
+					Context: pmmapitests.Context,
 				})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `The data retention duration must be a multiple of 24 hours, but is 10s`)
 				assert.Empty(t, res)
 			})
 
 			t.Run("TooSmall", func(t *testing.T) {
+				defer teardown(t)
+
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Context: pmmapitests.Context,
 					Body: server.ChangeSettingsBody{
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 							Hr: "0.1s",
 						},
 					},
+					Context: pmmapitests.Context,
 				})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Minimal resolution is 1s.`)
 				assert.Empty(t, res)
 			})
 
 			t.Run("OK", func(t *testing.T) {
+				defer teardown(t)
+
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Context: pmmapitests.Context,
 					Body: server.ChangeSettingsBody{
 						DisableTelemetry: true,
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
@@ -124,6 +142,7 @@ func TestSettings(t *testing.T) {
 							DataRetention: "240h",
 						},
 					},
+					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
 				assert.False(t, res.Payload.Settings.Telemetry)
@@ -142,11 +161,106 @@ func TestSettings(t *testing.T) {
 					Mr: "15s",
 					Lr: "120s",
 				}
-				require.Equal(t, getExpected, getRes.Payload.Settings.MetricsResolutions)
+				assert.Equal(t, getExpected, getRes.Payload.Settings.MetricsResolutions)
 				expectedDataRetention := &server.GetSettingsOKBodySettingsQAN{
 					DataRetention: "864000s",
 				}
-				require.Equal(t, expectedDataRetention, getRes.Payload.Settings.QAN)
+				assert.Equal(t, expectedDataRetention, getRes.Payload.Settings.QAN)
+			})
+
+			t.Run("grpc-gateway", func(t *testing.T) {
+				// Test with pure JSON without swagger for tracking grpc-gateway behavior:
+				// https://github.com/grpc-ecosystem/grpc-gateway/issues/400
+
+				// do not use generated types as they can do extra work in generated methods
+				type params struct {
+					Settings struct {
+						MetricsResolutions struct {
+							LR string `json:"lr"`
+						} `json:"metrics_resolutions"`
+					} `json:"settings"`
+				}
+				changeURI := pmmapitests.BaseURL.ResolveReference(&url.URL{
+					Path: "v1/Settings/Change",
+				})
+				getURI := pmmapitests.BaseURL.ResolveReference(&url.URL{
+					Path: "v1/Settings/Get",
+				})
+
+				for change, get := range map[string]string{
+					"59s": "59s",
+					"60s": "60s",
+					"61s": "61s",
+					"61":  "", // no suffix => error
+					"2m":  "120s",
+					"1h":  "3600s",
+					"1d":  "", // d suffix => error
+					"1w":  "", // w suffix => error
+				} {
+					change, get := change, get
+					t.Run(change, func(t *testing.T) {
+						defer teardown(t)
+
+						var p params
+						p.Settings.MetricsResolutions.LR = change
+						b, err := json.Marshal(p.Settings)
+						require.NoError(t, err)
+						req, err := http.NewRequest("POST", changeURI.String(), bytes.NewReader(b))
+						require.NoError(t, err)
+						if pmmapitests.Debug {
+							b, err = httputil.DumpRequestOut(req, true)
+							require.NoError(t, err)
+							t.Logf("Request:\n%s", b)
+						}
+
+						resp, err := http.DefaultClient.Do(req)
+						require.NoError(t, err)
+						if pmmapitests.Debug {
+							b, err = httputil.DumpResponse(resp, true)
+							require.NoError(t, err)
+							t.Logf("Response:\n%s", b)
+						}
+						b, err = ioutil.ReadAll(resp.Body)
+						assert.NoError(t, err)
+						resp.Body.Close() //nolint:errcheck
+
+						if get == "" {
+							assert.Equal(t, 400, resp.StatusCode, "response:\n%s", b)
+							return
+						}
+						assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
+
+						p.Settings.MetricsResolutions.LR = ""
+						err = json.Unmarshal(b, &p)
+						require.NoError(t, err)
+						assert.Equal(t, get, p.Settings.MetricsResolutions.LR, "Change")
+
+						req, err = http.NewRequest("POST", getURI.String(), nil)
+						require.NoError(t, err)
+						if pmmapitests.Debug {
+							b, err = httputil.DumpRequestOut(req, true)
+							require.NoError(t, err)
+							t.Logf("Request:\n%s", b)
+						}
+
+						resp, err = http.DefaultClient.Do(req)
+						require.NoError(t, err)
+						if pmmapitests.Debug {
+							b, err = httputil.DumpResponse(resp, true)
+							require.NoError(t, err)
+							t.Logf("Response:\n%s", b)
+						}
+						b, err = ioutil.ReadAll(resp.Body)
+						assert.NoError(t, err)
+						resp.Body.Close() //nolint:errcheck
+						assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
+
+						p.Settings.MetricsResolutions.LR = ""
+						err = json.Unmarshal(b, &p)
+						require.NoError(t, err)
+						assert.Equal(t, get, p.Settings.MetricsResolutions.LR, "Get")
+					})
+				}
 			})
 		})
 	})
