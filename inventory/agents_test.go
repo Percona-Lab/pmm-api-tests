@@ -1248,6 +1248,8 @@ func TestPostgresExporter(t *testing.T) {
 			},
 
 			SkipConnectionCheck: true,
+			TLS:                 true,
+			TLSSkipVerify:       false,
 		})
 		agentID := PostgresExporter.PostgresExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
