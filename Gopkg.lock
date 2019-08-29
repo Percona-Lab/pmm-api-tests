@@ -182,8 +182,8 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-4534"
-  digest = "1:62ecb6a6f7ad53b36fd3267dbc00815ed45ac737ba0bb5e9f3846d107ef6a779"
+  branch = "PMM-2.0"
+  digest = "1:f06ca107ca5f8849f57445c7d5f7903f99538d468690c3f50152de9c01a3d410"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -203,7 +203,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "671366ddfbfc95f31d6d53979cdc0107a3e1be61"
+  revision = "8f73fba53308b05f2898a01bed621f34d439b55a"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
