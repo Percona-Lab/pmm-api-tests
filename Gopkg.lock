@@ -182,8 +182,16 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-4192"
-  digest = "1:26e1fb9c178c61497ce73731f6ec7fc402af1ff35014f25aeea4b05717ecb078"
+  digest = "1:6f436920f12a308c3727451524e6734cc9ffb20d4ae49c5064d12113189787c8"
+  name = "github.com/percona/percona-toolkit"
+  packages = ["src/go/mongolib/proto"]
+  pruneopts = "NUT"
+  revision = "e85ce15ef24bc4614b4d2f13792fa73583d68f8e"
+  version = "3.0.13"
+
+[[projects]]
+  branch = "PMM-2.0"
+  digest = "1:e665843242ab7329426030d94eb9aef41fd79b89922ab7a17594173dd6825ff2"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -203,7 +211,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "c0493de4e3b46931b855f7eafcf874b08ff20a94"
+  revision = "f8fed450fcb387e906b21fa1bf14a63366250204"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -298,6 +306,17 @@
   version = "v1.23.0"
 
 [[projects]]
+  branch = "v2"
+  digest = "1:2642fd0b6900c77247d61d80cf2eb59a374ef4ffc2d25a1b95b87dc355b2894e"
+  name = "gopkg.in/mgo.v2"
+  packages = [
+    "bson",
+    "internal/json",
+  ]
+  pruneopts = "NUT"
+  revision = "a6b53ec6cb22a3699387a57a161566f9402ee85b"
+
+[[projects]]
   digest = "1:18108594151654e9e696b27b181b953f9a90b16bf14d253dd1b397b025a1487f"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -313,6 +332,7 @@
     "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",
     "github.com/jstemmer/go-junit-report",
+    "github.com/percona/percona-toolkit/src/go/mongolib/proto",
     "github.com/percona/pmm/api/inventorypb/json/client",
     "github.com/percona/pmm/api/inventorypb/json/client/agents",
     "github.com/percona/pmm/api/inventorypb/json/client/nodes",
@@ -331,6 +351,7 @@
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
+    "go.mongodb.org/mongo-driver/bson",
     "golang.org/x/sys/unix",
     "google.golang.org/grpc/codes",
   ]
