@@ -1,7 +1,8 @@
 all: build
 
 init:
-	go install ./vendor/github.com/jstemmer/go-junit-report
+	go install ./vendor/golang.org/x/tools/cmd/goimports \
+				./vendor/github.com/jstemmer/go-junit-report
 
 build:
 	go install -v ./...

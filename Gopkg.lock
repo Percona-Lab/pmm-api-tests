@@ -298,6 +298,27 @@
   version = "v0.3.2"
 
 [[projects]]
+  branch = "master"
+  digest = "1:f23485d5cc71631f9e1dc1b33db28c2e2b1bd16834d395346cfb05429b5a52c3"
+  name = "golang.org/x/tools"
+  packages = [
+    "cmd/goimports",
+    "go/ast/astutil",
+    "go/gcexportdata",
+    "go/internal/gcimporter",
+    "go/internal/packagesdriver",
+    "go/packages",
+    "go/types/typeutil",
+    "internal/fastwalk",
+    "internal/gopathwalk",
+    "internal/imports",
+    "internal/module",
+    "internal/semver",
+  ]
+  pruneopts = "NUT"
+  revision = "d0542c01b04d73cee88be0cd7343c19d9d157525"
+
+[[projects]]
   digest = "1:a222e924e8dfeca0eccb0e6e8958d233752df7d52b6996f03df2a13a542c30f4"
   name = "google.golang.org/grpc"
   packages = ["codes"]
@@ -353,6 +374,7 @@
     "github.com/stretchr/testify/require",
     "go.mongodb.org/mongo-driver/bson",
     "golang.org/x/sys/unix",
+    "golang.org/x/tools/cmd/goimports",
     "google.golang.org/grpc/codes",
   ]
   solver-name = "gps-cdcl"
