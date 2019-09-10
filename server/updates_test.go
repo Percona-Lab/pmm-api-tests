@@ -2,6 +2,7 @@ package server
 
 import (
 	"io"
+	"net"
 	"net/url"
 	"strings"
 	"testing"
@@ -125,6 +126,7 @@ func TestUpdate(t *testing.T) {
 	pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "Invalid authentication token.")
 
 	// read log lines like UI would do, but without delays to increase a chance for race detector to spot something
+	var retries int
 	for {
 		start := time.Now()
 		statusRes, err := noAuthClient.Server.UpdateStatus(&server.UpdateStatusParams{
@@ -135,27 +137,48 @@ func TestUpdate(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		if err != nil {
+			// check that we know and understand all possible errors
 			switch err := err.(type) {
 			case *pmmapitests.ErrFromNginx:
 				// nothing
 			case *url.Error:
-				assert.Equal(t, io.EOF, err.Err)
+				switch err2 := err.Err.(type) {
+				case *net.OpError:
+					t.Logf("%[1]T %[1]s", err2)
+				default:
+					assert.Equal(t, io.EOF, err.Err, "%[1]T %[1]s", err)
+				}
 			case *server.UpdateStatusDefault:
-				assert.Equal(t, 503, err.Code())
+				assert.Equal(t, 503, err.Code(), "%[1]T %[1]s", err)
 			default:
 				t.Fatalf("%#v", err)
 			}
 			continue
 		}
-		t.Logf("%s, offset = %d->%d, done = %t:\n%s", time.Since(start), logOffset, statusRes.Payload.LogOffset,
+		dur := time.Since(start)
+		t.Logf("%s, offset = %d->%d, done = %t:\n%s", dur, logOffset, statusRes.Payload.LogOffset,
 			statusRes.Payload.Done, strings.Join(statusRes.Payload.LogLines, "\n"))
 
 		if statusRes.Payload.LogOffset == logOffset {
+			// pmm-managed waits up to 30 seconds for new log lines. Usually, that's more than enough for
+			// Ansible playbook to produce a new output, and that test checks that. However, our Jenkins node
+			// is very slow, so we try several times.
+			// That code should be removed once Jenkins performance is fixed.
+			t.Logf("retries = %d", retries)
+			if !statusRes.Payload.Done {
+				retries++
+				if retries < 5 {
+					assert.InDelta(t, (30 * time.Second).Seconds(), dur.Seconds(), (3 * time.Second).Seconds())
+					continue
+				}
+			}
+
 			assert.Empty(t, statusRes.Payload.LogLines, "lines should be empty for the same offset")
 			require.True(t, statusRes.Payload.Done, "lines should be empty only when done")
 			break
 		}
 
+		retries = 0
 		assert.NotEmpty(t, statusRes.Payload.LogLines, "pmm-managed should delay response until some lines are available")
 		assert.True(t, statusRes.Payload.LogOffset > logOffset,
 			"expected statusRes.Payload.LogOffset (%d) > logOffset (%d)",
