@@ -182,6 +182,14 @@
   version = "v1.1.2"
 
 [[projects]]
+  digest = "1:6f436920f12a308c3727451524e6734cc9ffb20d4ae49c5064d12113189787c8"
+  name = "github.com/percona/percona-toolkit"
+  packages = ["src/go/mongolib/proto"]
+  pruneopts = "NUT"
+  revision = "e85ce15ef24bc4614b4d2f13792fa73583d68f8e"
+  version = "3.0.13"
+
+[[projects]]
   branch = "PMM-2.0"
   digest = "1:cac208517aad764092581fd25ecbcab0dd81ea81dac64484e46a14575972e0a3"
   name = "github.com/percona/pmm"
@@ -290,12 +298,44 @@
   version = "v0.3.2"
 
 [[projects]]
+  branch = "master"
+  digest = "1:f23485d5cc71631f9e1dc1b33db28c2e2b1bd16834d395346cfb05429b5a52c3"
+  name = "golang.org/x/tools"
+  packages = [
+    "cmd/goimports",
+    "go/ast/astutil",
+    "go/gcexportdata",
+    "go/internal/gcimporter",
+    "go/internal/packagesdriver",
+    "go/packages",
+    "go/types/typeutil",
+    "internal/fastwalk",
+    "internal/gopathwalk",
+    "internal/imports",
+    "internal/module",
+    "internal/semver",
+  ]
+  pruneopts = "NUT"
+  revision = "d0542c01b04d73cee88be0cd7343c19d9d157525"
+
+[[projects]]
   digest = "1:a222e924e8dfeca0eccb0e6e8958d233752df7d52b6996f03df2a13a542c30f4"
   name = "google.golang.org/grpc"
   packages = ["codes"]
   pruneopts = "NUT"
   revision = "6eaf6f47437a6b4e2153a190160ef39a92c7eceb"
   version = "v1.23.0"
+
+[[projects]]
+  branch = "v2"
+  digest = "1:2642fd0b6900c77247d61d80cf2eb59a374ef4ffc2d25a1b95b87dc355b2894e"
+  name = "gopkg.in/mgo.v2"
+  packages = [
+    "bson",
+    "internal/json",
+  ]
+  pruneopts = "NUT"
+  revision = "a6b53ec6cb22a3699387a57a161566f9402ee85b"
 
 [[projects]]
   digest = "1:18108594151654e9e696b27b181b953f9a90b16bf14d253dd1b397b025a1487f"
@@ -313,6 +353,7 @@
     "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",
     "github.com/jstemmer/go-junit-report",
+    "github.com/percona/percona-toolkit/src/go/mongolib/proto",
     "github.com/percona/pmm/api/inventorypb/json/client",
     "github.com/percona/pmm/api/inventorypb/json/client/agents",
     "github.com/percona/pmm/api/inventorypb/json/client/nodes",
@@ -331,7 +372,9 @@
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
+    "go.mongodb.org/mongo-driver/bson",
     "golang.org/x/sys/unix",
+    "golang.org/x/tools/cmd/goimports",
     "google.golang.org/grpc/codes",
   ]
   solver-name = "gps-cdcl"

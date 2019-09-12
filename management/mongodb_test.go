@@ -1,22 +1,160 @@
 package management
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/percona/pmm/api/managementpb/json/client"
+	"github.com/percona/pmm/api/managementpb/json/client/actions"
 	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.mongodb.org/mongo-driver/bson"
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
+
+func TestMongoDBExplain(t *testing.T) {
+	t.Run("MongoDB explain", func(t *testing.T) {
+		nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
+		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterBody{
+			NodeName: nodeName,
+			NodeType: pointer.ToString(node.RegisterBodyNodeTypeGENERICNODE),
+		})
+		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer removePMMAgentWithSubAgents(t, pmmAgentID)
+
+		serviceName := pmmapitests.TestString(t, "service-name-for-all-fields")
+
+		params := &mongodb.AddMongoDBParams{
+			Context: pmmapitests.Context,
+			Body: mongodb.AddMongoDBBody{
+				NodeID:             nodeID,
+				PMMAgentID:         pmmAgentID,
+				ServiceName:        serviceName,
+				Address:            "10.10.10.10",
+				Port:               27017,
+				Username:           "username",
+				Password:           "password",
+				QANMongodbProfiler: true,
+
+				SkipConnectionCheck: true,
+			},
+		}
+		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
+		require.NoError(t, err)
+		require.NotNil(t, addMongoDBOK)
+		require.NotNil(t, addMongoDBOK.Payload.Service)
+		serviceID := addMongoDBOK.Payload.Service.ServiceID
+		fmt.Printf("ServiceID: %s\n", serviceID)
+		defer pmmapitests.RemoveServices(t, serviceID)
+
+		// Check that service is created and its fields.
+		serviceOK, err := inventoryClient.Default.Services.GetService(&services.GetServiceParams{
+			Body: services.GetServiceBody{
+				ServiceID: serviceID,
+			},
+			Context: pmmapitests.Context,
+		})
+		assert.NoError(t, err)
+		assert.NotNil(t, serviceOK)
+		assert.Equal(t, services.GetServiceOKBody{
+			Mongodb: &services.GetServiceOKBodyMongodb{
+				ServiceID:   serviceID,
+				NodeID:      nodeID,
+				ServiceName: serviceName,
+				Address:     "10.10.10.10",
+				Port:        27017,
+			},
+		}, *serviceOK.Payload)
+
+		// --------------------------------------------------------------------------------------
+		eq := proto.ExampleQuery{
+			Ns: "test.coll",
+			Op: "query",
+			Query: proto.BsonD{
+				{
+					Key: "k",
+					Value: proto.BsonD{
+						{
+							Key:   "$lte",
+							Value: int32(1),
+						},
+					},
+				},
+			},
+			Command:            nil,
+			OriginatingCommand: nil,
+			UpdateObj:          nil,
+		}
+		buf, _ := bson.MarshalExtJSON(eq, true, true)
+		explainActionOK, err := client.Default.Actions.StartMongoDBExplainAction(&actions.StartMongoDBExplainActionParams{
+			Context: pmmapitests.Context,
+			Body: actions.StartMongoDBExplainActionBody{
+				//PMMAgentID: "/agent_id/f235005b-9cca-4b73-bbbd-1251067c3138",
+				ServiceID: serviceID,
+				Database:  "test",
+				Query:     string(buf),
+			},
+		})
+		require.NoError(t, err)
+		require.NotEmpty(t, explainActionOK.Payload.ActionID)
+
+		time.Sleep(2 * time.Second)
+
+		actionOK, err := client.Default.Actions.GetAction(&actions.GetActionParams{
+			Context: pmmapitests.Context,
+			Body: actions.GetActionBody{
+				ActionID: explainActionOK.Payload.ActionID,
+			},
+		})
+		require.NoError(t, err)
+		require.Empty(t, actionOK.Payload.Error)
+		// --------------------------------------------------------------------------------------
+		// Check that exporters are added.
+		listAgents, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+			Context: pmmapitests.Context,
+			Body: agents.ListAgentsBody{
+				ServiceID: serviceID,
+			},
+		})
+		assert.NoError(t, err)
+		require.NotNil(t, listAgents)
+		defer removeAllAgentsInList(t, listAgents)
+
+		require.Len(t, listAgents.Payload.MongodbExporter, 1)
+		require.Len(t, listAgents.Payload.QANMongodbProfilerAgent, 1)
+		assert.Equal(t, agents.ListAgentsOKBody{
+			MongodbExporter: []*agents.MongodbExporterItems0{
+				{
+					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
+					ServiceID:  serviceID,
+					PMMAgentID: pmmAgentID,
+					Username:   "username",
+					Password:   "password",
+				},
+			},
+			QANMongodbProfilerAgent: []*agents.QANMongodbProfilerAgentItems0{
+				{
+					AgentID:    listAgents.Payload.QANMongodbProfilerAgent[0].AgentID,
+					ServiceID:  serviceID,
+					PMMAgentID: pmmAgentID,
+					Username:   "username",
+					Password:   "password",
+				},
+			},
+		}, *listAgents.Payload)
+	})
+}
 
 func TestAddMongoDB(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
