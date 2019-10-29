@@ -47,6 +47,22 @@ func addRemoteNode(t *testing.T, nodeName string) *nodes.AddRemoteNodeOKBody {
 	return res.Payload
 }
 
+func addRemoteRDSNode(t *testing.T, nodeName string) *nodes.AddRemoteRDSNodeOKBody {
+	t.Helper()
+
+	params := &nodes.AddRemoteRDSNodeParams{
+		Body: nodes.AddRemoteRDSNodeBody{
+			NodeName: nodeName,
+			Address:  "10.10.10.10",
+		},
+		Context: pmmapitests.Context,
+	}
+	res, err := client.Default.Nodes.AddRemoteRDSNode(params)
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+	return res.Payload
+}
+
 func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.AddMySQLServiceOKBody {
 	t.Helper()
 
@@ -155,6 +171,18 @@ func addProxySQLExporter(t *testing.T, body agents.AddProxySQLExporterBody) *age
 	t.Helper()
 
 	res, err := client.Default.Agents.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
+		Body:    body,
+		Context: pmmapitests.Context,
+	})
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+	return res.Payload
+}
+
+func addRDSExporter(t *testing.T, body agents.AddRDSExporterBody) *agents.AddRDSExporterOKBody {
+	t.Helper()
+
+	res, err := client.Default.Agents.AddRDSExporter(&agents.AddRDSExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})

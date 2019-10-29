@@ -182,8 +182,8 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:479f087d58c36d79bb968326adc8c9976b20ccb2cac52cb73539d97b817af052"
+  branch = "PMM-4474_Add_rds_exporter_agent-B"
+  digest = "1:b063de3c18f42194d81d1297a77ee7d747c8c1b4ca9dd92c785de7bc9cf26618"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -203,7 +203,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "66c182c32ebc3582b449242a0c294f442967a38f"
+  revision = "bc01745fd9ec88338a9ba85387739e46b3fcc628"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"

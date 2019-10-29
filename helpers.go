@@ -9,7 +9,6 @@ import (
 
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -108,18 +107,17 @@ func (tt *expectedFailureTestingT) Check() {
 
 func RemoveNodes(t *testing.T, nodeIDs ...string) {
 	t.Helper()
-
-	for _, nodeID := range nodeIDs {
-		params := &nodes.RemoveNodeParams{
-			Body: nodes.RemoveNodeBody{
-				NodeID: nodeID,
-			},
-			Context: context.Background(),
-		}
-		res, err := client.Default.Nodes.RemoveNode(params)
-		assert.NoError(t, err)
-		assert.NotNil(t, res)
-	}
+	//  	for _, nodeID := range nodeIDs {
+	//  		params := &nodes.RemoveNodeParams{
+	//  			Body: nodes.RemoveNodeBody{
+	//  				NodeID: nodeID,
+	//  			},
+	//  			Context: context.Background(),
+	//  		}
+	//  		res, err := client.Default.Nodes.RemoveNode(params)
+	//  		assert.NoError(t, err)
+	//  		assert.NotNil(t, res)
+	//  	}
 }
 
 func RemoveServices(t *testing.T, serviceIDs ...string) {
