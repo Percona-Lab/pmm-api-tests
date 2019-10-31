@@ -1831,12 +1831,12 @@ func TestRDSExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		node := addRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
+		node := addRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for RDS exporter"))
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      genericNodeID,
+			NodeID:      nodeID,
 			Address:     "localhost",
 			Port:        3306,
 			ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
@@ -1844,7 +1844,7 @@ func TestRDSExporter(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		pmmAgent := addPMMAgent(t, nodeID)
+		pmmAgent := addPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
@@ -1852,7 +1852,7 @@ func TestRDSExporter(t *testing.T) {
 			ServiceID:  serviceID,
 			PMMAgentID: pmmAgentID,
 			CustomLabels: map[string]string{
-				"custom_label_proxysql_exporter": "proxysql_exporter",
+				"custom_label_rds_exporter": "rds_exporter",
 			},
 
 			SkipConnectionCheck: true,
@@ -1868,10 +1868,11 @@ func TestRDSExporter(t *testing.T) {
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
 				RDSExporter: &agents.GetAgentOKBodyRDSExporter{
+					ServiceID:  serviceID,
 					AgentID:    agentID,
 					PMMAgentID: pmmAgentID,
 					CustomLabels: map[string]string{
-						"custom_label_proxysql_exporter": "proxysql_exporter",
+						"custom_label_rds_exporter": "rds_exporter",
 					},
 				},
 			},
@@ -1892,6 +1893,7 @@ func TestRDSExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeRDSExporterOK{
 			Payload: &agents.ChangeRDSExporterOKBody{
 				RDSExporter: &agents.ChangeRDSExporterOKBodyRDSExporter{
+					ServiceID:  serviceID,
 					AgentID:    agentID,
 					PMMAgentID: pmmAgentID,
 					Disabled:   true,
@@ -1905,7 +1907,7 @@ func TestRDSExporter(t *testing.T) {
 				Common: &agents.ChangeRDSExporterParamsBodyCommon{
 					Enable: true,
 					CustomLabels: map[string]string{
-						"new_label": "proxysql_exporter",
+						"new_label": "rds_exporter",
 					},
 				},
 			},
@@ -1915,11 +1917,12 @@ func TestRDSExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeRDSExporterOK{
 			Payload: &agents.ChangeRDSExporterOKBody{
 				RDSExporter: &agents.ChangeRDSExporterOKBodyRDSExporter{
+					ServiceID:  serviceID,
 					AgentID:    agentID,
 					PMMAgentID: pmmAgentID,
 					Disabled:   false,
 					CustomLabels: map[string]string{
-						"new_label": "proxysql_exporter",
+						"new_label": "rds_exporter",
 					},
 				},
 			},
