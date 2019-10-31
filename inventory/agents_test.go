@@ -1965,7 +1965,6 @@ func TestRDSExporter(t *testing.T) {
 			Body: agents.AddRDSExporterBody{
 				ServiceID:  "pmm-service-id",
 				PMMAgentID: pmmAgentID,
-				Username:   "username",
 			},
 			Context: pmmapitests.Context,
 		})
@@ -1985,7 +1984,6 @@ func TestRDSExporter(t *testing.T) {
 			Body: agents.AddRDSExporterBody{
 				ServiceID:  "serviceID",
 				PMMAgentID: "pmm-not-exist-server",
-				Username:   "username",
 			},
 			Context: pmmapitests.Context,
 		})
