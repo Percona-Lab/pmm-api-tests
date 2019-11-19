@@ -56,6 +56,9 @@ func TestSettings(t *testing.T) {
 				}
 				assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
 				assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
+				// Default partition is "aws". We could use the real value from AWS SDK but
+				// it is better to not to have an extra dependency
+				assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
 			}
 
 			defer teardown(t)
@@ -74,6 +77,20 @@ func TestSettings(t *testing.T) {
 					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_telemetry and disable_telemetry are present.`)
 					assert.Empty(t, res)
 				})
+			})
+
+			t.Run("InvalidPartition", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EnableTelemetry: true,
+						AWSPartitions:   []string{"aws-123"},
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Partition "aws-123" is invalid`)
+				assert.Empty(t, res)
 			})
 
 			t.Run("HRInvalid", func(t *testing.T) {
