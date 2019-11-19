@@ -436,11 +436,13 @@ type AddMySQLOKBodyMysqldExporter struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Tablestats group collectors are disabled if there are more than that number of tables.
+	// 0 means tablestats group collectors are always enabled (no limit).
+	// Negative value means tablestats group collectors are always disabled.
+	TablestatsGroupTableLimit int32 `json:"tablestats_group_table_limit,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -451,6 +453,12 @@ type AddMySQLOKBodyMysqldExporter struct {
 	//  - DONE: Agent finished.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// True if tablestats group collectors are currently disabled.
+	TablestatsGroupDisabled bool `json:"tablestats_group_disabled,omitempty"`
 }
 
 // Validate validates this add my SQL OK body mysqld exporter
@@ -864,6 +872,10 @@ swagger:model AddMySQLParamsBodyAddNode
 */
 type AddMySQLParamsBodyAddNode struct {
 
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE]
+	NodeType *string `json:"node_type,omitempty"`
+
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -890,10 +902,6 @@ type AddMySQLParamsBodyAddNode struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE]
-	NodeType *string `json:"node_type,omitempty"`
 }
 
 // Validate validates this add my SQL params body add node
