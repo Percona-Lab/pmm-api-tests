@@ -60,6 +60,19 @@ func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.
 	return res.Payload
 }
 
+func addMongoDBService(t *testing.T, body services.AddMongoDBServiceBody) *services.AddMongoDBServiceOKBody {
+	t.Helper()
+
+	params := &services.AddMongoDBServiceParams{
+		Body:    body,
+		Context: pmmapitests.Context,
+	}
+	res, err := client.Default.Services.AddMongoDBService(params)
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+	return res.Payload
+}
+
 func addPostgreSQLService(t *testing.T, body services.AddPostgreSQLServiceBody) *services.AddPostgreSQLServiceOKBody {
 	t.Helper()
 
