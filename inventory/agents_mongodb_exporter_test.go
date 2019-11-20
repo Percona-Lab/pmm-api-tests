@@ -25,6 +25,8 @@ func TestMongoDBExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
+		// FIXME MySQL service for mongodb_exporter is totally wrong.
+		// https://jira.percona.com/browse/PMM-5016
 		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
 			Address:     "localhost",
