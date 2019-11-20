@@ -115,7 +115,8 @@ func TestAddMySQL(t *testing.T) {
 				QANMysqlSlowlog:    true,
 				QANMysqlPerfschema: true,
 
-				SkipConnectionCheck: true,
+				SkipConnectionCheck:       true,
+				TablestatsGroupTableLimit: -1,
 			},
 		}
 		addMySQLOK, err := client.Default.MySQL.AddMySQL(params)
@@ -164,7 +165,8 @@ func TestAddMySQL(t *testing.T) {
 					ServiceID:                 serviceID,
 					PMMAgentID:                pmmAgentID,
 					Username:                  "username",
-					TablestatsGroupTableLimit: 1000,
+					TablestatsGroupTableLimit: -1,
+					TablestatsGroupDisabled:   true,
 				},
 			},
 			QANMysqlSlowlogAgent: []*agents.QANMysqlSlowlogAgentItems0{
