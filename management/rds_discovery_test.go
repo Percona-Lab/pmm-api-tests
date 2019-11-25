@@ -13,22 +13,25 @@ import (
 )
 
 func TestRDSDiscovery(t *testing.T) {
-	t.Skip("Need to configure Jenkins & Travis to handle credentials")
 	t.Run("Basic", func(t *testing.T) {
-		awsAccesKey := os.Getenv("AWS_ACCESS_KEY_ID")
-		awsSecretKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
+		accessKey, secretKey := os.Getenv("AWS_ACCESS_KEY"), os.Getenv("AWS_SECRET_KEY")
+		if accessKey == "" || secretKey == "" {
+			// TODO remove skip once secrets are added
+			t.Skip("Environment variables AWS_ACCESS_KEY / AWS_SECRET_KEY are not defined, skipping test")
+		}
+
 		params := &discovery.DiscoverRDSParams{
-			Context: pmmapitests.Context,
 			Body: discovery.DiscoverRDSBody{
-				AWSAccessKey: awsAccesKey,
-				AWSSecretKey: awsSecretKey,
+				AWSAccessKey: accessKey,
+				AWSSecretKey: secretKey,
 			},
+			Context: pmmapitests.Context,
 		}
 		discoverOK, err := client.Default.Discovery.DiscoverRDS(params)
 		require.NoError(t, err)
-		require.NotNil(t, discoverOK)
-		require.NotNil(t, discoverOK.Payload.RDSInstances)
-		instances := discoverOK.Payload.RDSInstances
-		assert.NotEmpty(t, instances)
+		require.NotNil(t, discoverOK.Payload)
+		assert.NotEmpty(t, discoverOK.Payload.RDSInstances)
+
+		// TODO Better tests: https://jira.percona.com/browse/PMM-4896
 	})
 }
