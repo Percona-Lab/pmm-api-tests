@@ -182,8 +182,8 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-4474_Add_rds_exporter_agent-B"
-  digest = "1:972eac2ff815fb23c3ab65163011323d1f5bbea6a88f7c3f5535c83f8ef3a010"
+  branch = "PMM-4474-rds-inventory"
+  digest = "1:e22efa9fb5ac66474f38bac99af51a172378185a00707eaceee92528d57c1db9"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -192,6 +192,7 @@
     "api/inventorypb/json/client/services",
     "api/managementpb/json/client",
     "api/managementpb/json/client/actions",
+    "api/managementpb/json/client/discovery",
     "api/managementpb/json/client/mongo_db",
     "api/managementpb/json/client/my_sql",
     "api/managementpb/json/client/node",
@@ -203,7 +204,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "a52cca38e6f015467c45a28ee4c9f020b89fd41e"
+  revision = "ff0f53af8a23e4edf6790eb0cc4db2a0980dad0c"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"

@@ -483,7 +483,7 @@ func (o *RemoteItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RemoteRDSItems0 RemoteRDSNode represents generic remote RDS Node. Agents can't run on Remote Nodes.
+/*RemoteRDSItems0 RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.
 swagger:model RemoteRDSItems0
 */
 type RemoteRDSItems0 struct {
@@ -494,7 +494,7 @@ type RemoteRDSItems0 struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node address (DNS name or IP).
+	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.

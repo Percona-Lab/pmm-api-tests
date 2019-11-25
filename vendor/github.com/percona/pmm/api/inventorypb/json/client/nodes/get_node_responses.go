@@ -486,7 +486,7 @@ func (o *GetNodeOKBodyRemote) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeOKBodyRemoteRDS RemoteRDSNode represents generic remote RDS Node. Agents can't run on Remote Nodes.
+/*GetNodeOKBodyRemoteRDS RemoteRDSNode represents remote RDS Node. Agents can't run on Remote Nodes.
 swagger:model GetNodeOKBodyRemoteRDS
 */
 type GetNodeOKBodyRemoteRDS struct {
@@ -497,7 +497,7 @@ type GetNodeOKBodyRemoteRDS struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
-	// Node address (DNS name or IP).
+	// DB instance identifier.
 	Address string `json:"address,omitempty"`
 
 	// Node model.
