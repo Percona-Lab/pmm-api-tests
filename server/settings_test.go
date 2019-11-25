@@ -44,6 +44,7 @@ func TestSettings(t *testing.T) {
 							Lr: "60s",
 						},
 						DataRetention: "720h",
+						AWSPartitions: []string{"aws"},
 					},
 					Context: pmmapitests.Context,
 				})
@@ -56,27 +57,23 @@ func TestSettings(t *testing.T) {
 				}
 				assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
 				assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
-				// Default partition is "aws". We could use the real value from AWS SDK but
-				// it is better to not to have an extra dependency
 				assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
 			}
 
 			defer teardown(t)
 
-			t.Run("Invalid", func(t *testing.T) {
-				t.Run("BothEnableAndDisable", func(t *testing.T) {
-					defer teardown(t)
+			t.Run("InvalidBothEnableAndDisable", func(t *testing.T) {
+				defer teardown(t)
 
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-						Body: server.ChangeSettingsBody{
-							EnableTelemetry:  true,
-							DisableTelemetry: true,
-						},
-						Context: pmmapitests.Context,
-					})
-					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_telemetry and disable_telemetry are present.`)
-					assert.Empty(t, res)
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EnableTelemetry:  true,
+						DisableTelemetry: true,
+					},
+					Context: pmmapitests.Context,
 				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_telemetry and disable_telemetry are present.`)
+				assert.Empty(t, res)
 			})
 
 			t.Run("InvalidPartition", func(t *testing.T) {
@@ -84,12 +81,24 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableTelemetry: true,
-						AWSPartitions:   []string{"aws-123"},
+						AWSPartitions: []string{"aws-123"},
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Partition "aws-123" is invalid`)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `aws_partitions: partition "aws-123" is invalid`)
+				assert.Empty(t, res)
+			})
+
+			t.Run("TooManyPartitions", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						AWSPartitions: []string{"aws", "aws", "aws", "aws", "aws", "aws"},
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `aws_partitions: list is too long`)
 				assert.Empty(t, res)
 			})
 
@@ -189,6 +198,7 @@ func TestSettings(t *testing.T) {
 							Lr: "2m",
 						},
 						DataRetention: "240h",
+						AWSPartitions: []string{"aws-cn", "aws", "aws-cn"}, // duplicates are ok
 					},
 					Context: pmmapitests.Context,
 				})
@@ -200,6 +210,7 @@ func TestSettings(t *testing.T) {
 					Lr: "120s",
 				}
 				assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
+				assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
 
 				getRes, err := serverClient.Default.Server.GetSettings(nil)
 				require.NoError(t, err)
@@ -211,6 +222,7 @@ func TestSettings(t *testing.T) {
 				}
 				assert.Equal(t, getExpected, getRes.Payload.Settings.MetricsResolutions)
 				assert.Equal(t, "864000s", res.Payload.Settings.DataRetention)
+				assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
 			})
 
 			t.Run("grpc-gateway", func(t *testing.T) {
