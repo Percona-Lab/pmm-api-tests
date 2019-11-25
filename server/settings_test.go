@@ -30,6 +30,7 @@ func TestSettings(t *testing.T) {
 		}
 		assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
 		assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
+		assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
 
 		t.Run("ChangeSettings", func(t *testing.T) {
 			teardown := func(t *testing.T) {
@@ -223,6 +224,36 @@ func TestSettings(t *testing.T) {
 				assert.Equal(t, getExpected, getRes.Payload.Settings.MetricsResolutions)
 				assert.Equal(t, "864000s", res.Payload.Settings.DataRetention)
 				assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
+
+				t.Run("DefaultsAreNotRestored", func(t *testing.T) {
+					defer teardown(t)
+
+					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body:    server.ChangeSettingsBody{},
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+					assert.False(t, res.Payload.Settings.TelemetryEnabled)
+					expected := &server.ChangeSettingsOKBodySettingsMetricsResolutions{
+						Hr: "2s",
+						Mr: "15s",
+						Lr: "120s",
+					}
+					assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
+					assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
+
+					getRes, err := serverClient.Default.Server.GetSettings(nil)
+					require.NoError(t, err)
+					assert.False(t, getRes.Payload.Settings.TelemetryEnabled)
+					getExpected := &server.GetSettingsOKBodySettingsMetricsResolutions{
+						Hr: "2s",
+						Mr: "15s",
+						Lr: "120s",
+					}
+					assert.Equal(t, getExpected, getRes.Payload.Settings.MetricsResolutions)
+					assert.Equal(t, "864000s", res.Payload.Settings.DataRetention)
+					assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
+				})
 			})
 
 			t.Run("grpc-gateway", func(t *testing.T) {
