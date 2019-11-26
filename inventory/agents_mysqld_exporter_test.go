@@ -175,8 +175,8 @@ func TestMySQLdExporter(t *testing.T) {
 		assert.EqualValues(t, 2000, mySqldExporter.MysqldExporter.TablestatsGroupTableLimit)
 		agentID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
-
 	})
+
 	t.Run("AddServiceIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
