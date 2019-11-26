@@ -1,8 +1,6 @@
 package inventory
 
 import (
-	"testing"
-
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
@@ -13,7 +11,7 @@ import (
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
-func addGenericNode(t *testing.T, nodeName string) *nodes.AddGenericNodeOKBodyGeneric {
+func addGenericNode(t pmmapitests.TestingT, nodeName string) *nodes.AddGenericNodeOKBodyGeneric {
 	t.Helper()
 
 	params := &nodes.AddGenericNodeParams{
@@ -31,7 +29,7 @@ func addGenericNode(t *testing.T, nodeName string) *nodes.AddGenericNodeOKBodyGe
 	return res.Payload.Generic
 }
 
-func addRemoteNode(t *testing.T, nodeName string) *nodes.AddRemoteNodeOKBody {
+func addRemoteNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteNodeOKBody {
 	t.Helper()
 
 	params := &nodes.AddRemoteNodeParams{
@@ -47,7 +45,7 @@ func addRemoteNode(t *testing.T, nodeName string) *nodes.AddRemoteNodeOKBody {
 	return res.Payload
 }
 
-func addRemoteRDSNode(t *testing.T, nodeName string) *nodes.AddRemoteRDSNodeOKBody {
+func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteRDSNodeOKBody {
 	t.Helper()
 
 	params := &nodes.AddRemoteRDSNodeParams{
@@ -63,7 +61,7 @@ func addRemoteRDSNode(t *testing.T, nodeName string) *nodes.AddRemoteRDSNodeOKBo
 	return res.Payload
 }
 
-func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.AddMySQLServiceOKBody {
+func addMySQLService(t pmmapitests.TestingT, body services.AddMySQLServiceBody) *services.AddMySQLServiceOKBody {
 	t.Helper()
 
 	params := &services.AddMySQLServiceParams{
@@ -76,7 +74,20 @@ func addMySQLService(t *testing.T, body services.AddMySQLServiceBody) *services.
 	return res.Payload
 }
 
-func addPostgreSQLService(t *testing.T, body services.AddPostgreSQLServiceBody) *services.AddPostgreSQLServiceOKBody {
+func addMongoDBService(t pmmapitests.TestingT, body services.AddMongoDBServiceBody) *services.AddMongoDBServiceOKBody {
+	t.Helper()
+
+	params := &services.AddMongoDBServiceParams{
+		Body:    body,
+		Context: pmmapitests.Context,
+	}
+	res, err := client.Default.Services.AddMongoDBService(params)
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+	return res.Payload
+}
+
+func addPostgreSQLService(t pmmapitests.TestingT, body services.AddPostgreSQLServiceBody) *services.AddPostgreSQLServiceOKBody {
 	t.Helper()
 
 	params := &services.AddPostgreSQLServiceParams{
@@ -89,7 +100,7 @@ func addPostgreSQLService(t *testing.T, body services.AddPostgreSQLServiceBody) 
 	return res.Payload
 }
 
-func addProxySQLService(t *testing.T, body services.AddProxySQLServiceBody) *services.AddProxySQLServiceOKBody {
+func addProxySQLService(t pmmapitests.TestingT, body services.AddProxySQLServiceBody) *services.AddProxySQLServiceOKBody {
 	t.Helper()
 
 	params := &services.AddProxySQLServiceParams{
@@ -102,7 +113,7 @@ func addProxySQLService(t *testing.T, body services.AddProxySQLServiceBody) *ser
 	return res.Payload
 }
 
-func addPMMAgent(t *testing.T, nodeID string) *agents.AddPMMAgentOKBody {
+func addPMMAgent(t pmmapitests.TestingT, nodeID string) *agents.AddPMMAgentOKBody {
 	t.Helper()
 
 	res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
@@ -116,7 +127,7 @@ func addPMMAgent(t *testing.T, nodeID string) *agents.AddPMMAgentOKBody {
 	return res.Payload
 }
 
-func addNodeExporter(t *testing.T, pmmAgentID string, customLabels map[string]string) *agents.AddNodeExporterOK {
+func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map[string]string) *agents.AddNodeExporterOK {
 	res, err := client.Default.Agents.AddNodeExporter(&agents.AddNodeExporterParams{
 		Body: agents.AddNodeExporterBody{
 			PMMAgentID:   pmmAgentID,
@@ -131,7 +142,7 @@ func addNodeExporter(t *testing.T, pmmAgentID string, customLabels map[string]st
 	return res
 }
 
-func addMySQLdExporter(t *testing.T, body agents.AddMySQLdExporterBody) *agents.AddMySQLdExporterOKBody {
+func addMySQLdExporter(t pmmapitests.TestingT, body agents.AddMySQLdExporterBody) *agents.AddMySQLdExporterOKBody {
 	t.Helper()
 
 	res, err := client.Default.Agents.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
@@ -143,7 +154,7 @@ func addMySQLdExporter(t *testing.T, body agents.AddMySQLdExporterBody) *agents.
 	return res.Payload
 }
 
-func addMongoDBExporter(t *testing.T, body agents.AddMongoDBExporterBody) *agents.AddMongoDBExporterOKBody {
+func addMongoDBExporter(t pmmapitests.TestingT, body agents.AddMongoDBExporterBody) *agents.AddMongoDBExporterOKBody {
 	t.Helper()
 
 	res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
@@ -155,7 +166,7 @@ func addMongoDBExporter(t *testing.T, body agents.AddMongoDBExporterBody) *agent
 	return res.Payload
 }
 
-func addPostgresExporter(t *testing.T, body agents.AddPostgresExporterBody) *agents.AddPostgresExporterOKBody {
+func addPostgresExporter(t pmmapitests.TestingT, body agents.AddPostgresExporterBody) *agents.AddPostgresExporterOKBody {
 	t.Helper()
 
 	res, err := client.Default.Agents.AddPostgresExporter(&agents.AddPostgresExporterParams{
@@ -167,7 +178,7 @@ func addPostgresExporter(t *testing.T, body agents.AddPostgresExporterBody) *age
 	return res.Payload
 }
 
-func addProxySQLExporter(t *testing.T, body agents.AddProxySQLExporterBody) *agents.AddProxySQLExporterOKBody {
+func addProxySQLExporter(t pmmapitests.TestingT, body agents.AddProxySQLExporterBody) *agents.AddProxySQLExporterOKBody {
 	t.Helper()
 
 	res, err := client.Default.Agents.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
@@ -179,7 +190,7 @@ func addProxySQLExporter(t *testing.T, body agents.AddProxySQLExporterBody) *age
 	return res.Payload
 }
 
-func addRDSExporter(t *testing.T, body agents.AddRDSExporterBody) *agents.AddRDSExporterOKBody {
+func addRDSExporter(t pmmapitests.TestingT, body agents.AddRDSExporterBody) *agents.AddRDSExporterOKBody {
 	t.Helper()
 
 	res, err := client.Default.Agents.AddRDSExporter(&agents.AddRDSExporterParams{
@@ -191,7 +202,7 @@ func addRDSExporter(t *testing.T, body agents.AddRDSExporterBody) *agents.AddRDS
 	return res.Payload
 }
 
-func assertMySQLServiceExists(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
+func assertMySQLServiceExists(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool {
 	t.Helper()
 
 	return assert.Conditionf(t, func() bool {
@@ -204,7 +215,7 @@ func assertMySQLServiceExists(t *testing.T, res *services.ListServicesOK, servic
 	}, "There should be MySQL service with id `%s`", serviceID)
 }
 
-func assertMySQLServiceNotExist(t *testing.T, res *services.ListServicesOK, serviceID string) bool {
+func assertMySQLServiceNotExist(t pmmapitests.TestingT, res *services.ListServicesOK, serviceID string) bool {
 	t.Helper()
 
 	return assert.Conditionf(t, func() bool {
@@ -217,7 +228,7 @@ func assertMySQLServiceNotExist(t *testing.T, res *services.ListServicesOK, serv
 	}, "There should not be MySQL service with id `%s`", serviceID)
 }
 
-func assertMySQLExporterExists(t *testing.T, res *agents.ListAgentsOK, mySqldExporterID string) bool {
+func assertMySQLExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, mySqldExporterID string) bool {
 	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.MysqldExporter {
 			if v.AgentID == mySqldExporterID {
@@ -228,7 +239,7 @@ func assertMySQLExporterExists(t *testing.T, res *agents.ListAgentsOK, mySqldExp
 	}, "There should be MySQL agent with id `%s`", mySqldExporterID)
 }
 
-func assertMySQLExporterNotExists(t *testing.T, res *agents.ListAgentsOK, mySqldExporterID string) bool {
+func assertMySQLExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, mySqldExporterID string) bool {
 	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.MysqldExporter {
 			if v.AgentID == mySqldExporterID {
@@ -239,7 +250,7 @@ func assertMySQLExporterNotExists(t *testing.T, res *agents.ListAgentsOK, mySqld
 	}, "There should be MySQL agent with id `%s`", mySqldExporterID)
 }
 
-func assertPMMAgentExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID string) bool {
+func assertPMMAgentExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, pmmAgentID string) bool {
 	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.PMMAgent {
 			if v.AgentID == pmmAgentID {
@@ -250,7 +261,7 @@ func assertPMMAgentExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID str
 	}, "There should be PMM-agent with id `%s`", pmmAgentID)
 }
 
-func assertPMMAgentNotExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID string) bool {
+func assertPMMAgentNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, pmmAgentID string) bool {
 	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.PMMAgent {
 			if v.AgentID == pmmAgentID {
@@ -261,7 +272,7 @@ func assertPMMAgentNotExists(t *testing.T, res *agents.ListAgentsOK, pmmAgentID 
 	}, "There should be PMM-agent with id `%s`", pmmAgentID)
 }
 
-func assertNodeExporterExists(t *testing.T, res *agents.ListAgentsOK, nodeExporterID string) bool {
+func assertNodeExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, nodeExporterID string) bool {
 	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.NodeExporter {
 			if v.AgentID == nodeExporterID {
@@ -272,7 +283,7 @@ func assertNodeExporterExists(t *testing.T, res *agents.ListAgentsOK, nodeExport
 	}, "There should be Node exporter with id `%s`", nodeExporterID)
 }
 
-func assertNodeExporterNotExists(t *testing.T, res *agents.ListAgentsOK, nodeExporterID string) bool {
+func assertNodeExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, nodeExporterID string) bool {
 	return assert.Conditionf(t, func() bool {
 		for _, v := range res.Payload.NodeExporter {
 			if v.AgentID == nodeExporterID {
