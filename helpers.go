@@ -111,6 +111,7 @@ func (tt *expectedFailureTestingT) Check() {
 
 func RemoveNodes(t TestingT, nodeIDs ...string) {
 	t.Helper()
+
 	for _, nodeID := range nodeIDs {
 		params := &nodes.RemoveNodeParams{
 			Body: nodes.RemoveNodeBody{
