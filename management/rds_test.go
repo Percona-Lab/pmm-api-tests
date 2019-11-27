@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/discovery"
+	"github.com/percona/pmm/api/managementpb/json/client/rds"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -20,14 +20,14 @@ func TestRDSDiscovery(t *testing.T) {
 			t.Skip("Environment variables AWS_ACCESS_KEY / AWS_SECRET_KEY are not defined, skipping test")
 		}
 
-		params := &discovery.DiscoverRDSParams{
-			Body: discovery.DiscoverRDSBody{
+		params := &rds.DiscoverRDSParams{
+			Body: rds.DiscoverRDSBody{
 				AWSAccessKey: accessKey,
 				AWSSecretKey: secretKey,
 			},
 			Context: pmmapitests.Context,
 		}
-		discoverOK, err := client.Default.Discovery.DiscoverRDS(params)
+		discoverOK, err := client.Default.RDS.DiscoverRDS(params)
 		require.NoError(t, err)
 		require.NotNil(t, discoverOK.Payload)
 		assert.NotEmpty(t, discoverOK.Payload.RDSInstances)
