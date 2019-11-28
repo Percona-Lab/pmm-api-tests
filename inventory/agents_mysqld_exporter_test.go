@@ -125,6 +125,7 @@ func TestMySQLdExporter(t *testing.T) {
 	})
 
 	t.Run("WithRealPMMAgent", func(t *testing.T) {
+		t.Skip("Skipping until we know there are connected agents in the new environment")
 		t.Parallel()
 
 		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
