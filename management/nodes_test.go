@@ -43,6 +43,27 @@ func TestNodeRegister(t *testing.T) {
 			}
 		})
 
+		t.Run("Reregister with different node name", func(t *testing.T) {
+			nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
+			nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
+				NodeName: nodeName,
+				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+				Address:  "node-address",
+				Region:   "region",
+			})
+
+			nodeID, pmmAgentID = registerGenericNode(t, node.RegisterNodeBody{
+				NodeName:   nodeName + "_new",
+				NodeType:   pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+				Address:    "node-address",
+				Region:     "region",
+				Reregister: true,
+			})
+			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer removePMMAgentWithSubAgents(t, pmmAgentID)
+
+		})
+
 		t.Run("With all fields", func(t *testing.T) {
 			nodeName := pmmapitests.TestString(t, "node-name")
 			machineID := pmmapitests.TestString(t, "machine-id")
