@@ -158,16 +158,8 @@ func TestAuth(t *testing.T) {
 			defer resp.Body.Close() //nolint:errcheck
 			b, err = ioutil.ReadAll(resp.Body)
 			require.NoError(t, err)
-			assert.Equal(t, 503, resp.StatusCode, "response:\n%s", b)
-
-			expected := server.AWSInstanceCheckDefaultBody{
-				Code:    int32(codes.Unavailable),
-				Error:   `cannot get instance metadata`,
-				Message: `cannot get instance metadata`,
-			}
-			var actual server.AWSInstanceCheckDefaultBody
-			require.NoError(t, json.Unmarshal(b, &actual))
-			assert.Equal(t, expected, actual)
+			assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
+			assert.Equal(t, `{}`, string(b), "response:\n%s", b)
 		})
 	})
 }
