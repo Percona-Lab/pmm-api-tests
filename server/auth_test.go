@@ -107,18 +107,19 @@ func TestAuth(t *testing.T) {
 		})
 
 		t.Run("Redirect", func(t *testing.T) {
-			paths := []string{
-				"graph",
-				"prometheus",
-				"qan",
-				"swagger",
+			paths := map[string]int{
+				"graph":      303,
+				"prometheus": 303,
+				"qan":        303,
+				"swagger":    303,
 
-				"v1/readyz",
-				"v1/version",
+				"v1/readyz":           200,
+				"v1/AWSInstanceCheck": 405, // only POST is expected
+				"v1/version":          401, // Grafana authentication required
 			}
-			for _, path := range paths {
-				path := path
-				t.Run(path, func(t *testing.T) {
+			for path, code := range paths {
+				path, code := path, code
+				t.Run(fmt.Sprintf("%s=%d", path, code), func(t *testing.T) {
 					t.Parallel()
 
 					uri := baseURL.ResolveReference(&url.URL{
@@ -133,8 +134,10 @@ func TestAuth(t *testing.T) {
 					defer resp.Body.Close() //nolint:errcheck
 					b, err := ioutil.ReadAll(resp.Body)
 					require.NoError(t, err)
-					assert.Equal(t, 303, resp.StatusCode, "response:\n%s", b)
-					assert.Equal(t, "/setup", resp.Header.Get("Location"))
+					assert.Equal(t, code, resp.StatusCode, "response:\n%s", b)
+					if code == 303 {
+						assert.Equal(t, "/setup", resp.Header.Get("Location"))
+					}
 				})
 			}
 		})
