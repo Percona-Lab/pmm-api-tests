@@ -2,10 +2,13 @@ package server
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -23,7 +26,6 @@ func TestAuth(t *testing.T) {
 		for user, httpCode := range map[*url.Userinfo]int{
 			nil:                              401,
 			url.UserPassword("bad", "wrong"): 401,
-			// TODO test 403
 		} {
 			user := user
 			httpCode := httpCode
@@ -70,5 +72,102 @@ func TestAuth(t *testing.T) {
 				pmmapitests.AssertAPIErrorf(t, err, httpCode, grpcCode, "gRPC code %d (%s)", grpcCode, grpcCode)
 			})
 		}
+	})
+
+	t.Run("Setup", func(t *testing.T) {
+		// make a BaseURL without authentication
+		baseURL, err := url.Parse(pmmapitests.BaseURL.String())
+		require.NoError(t, err)
+		baseURL.User = nil
+
+		// make client that does not follow redirects
+		client := &http.Client{
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+				return http.ErrUseLastResponse
+			},
+		}
+
+		t.Run("WebPage", func(t *testing.T) {
+			t.Parallel()
+
+			uri := baseURL.ResolveReference(&url.URL{
+				Path: "/setup",
+			})
+			req, err := http.NewRequest("GET", uri.String(), nil)
+			require.NoError(t, err)
+			req.Header.Set("X-Test-Must-Setup", "1")
+
+			resp, err := client.Do(req)
+			require.NoError(t, err)
+			defer resp.Body.Close() //nolint:errcheck
+			b, err := ioutil.ReadAll(resp.Body)
+			require.NoError(t, err)
+			assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
+			assert.True(t, strings.HasPrefix(string(b), `<!doctype html>`), string(b))
+		})
+
+		t.Run("Redirect", func(t *testing.T) {
+			paths := []string{
+				"graph",
+				"prometheus",
+				"qan",
+				"swagger",
+
+				"v1/readyz",
+				"v1/version",
+			}
+			for _, path := range paths {
+				path := path
+				t.Run(path, func(t *testing.T) {
+					t.Parallel()
+
+					uri := baseURL.ResolveReference(&url.URL{
+						Path: path,
+					})
+					req, err := http.NewRequest("GET", uri.String(), nil)
+					require.NoError(t, err)
+					req.Header.Set("X-Test-Must-Setup", "1")
+
+					resp, err := client.Do(req)
+					require.NoError(t, err)
+					defer resp.Body.Close() //nolint:errcheck
+					b, err := ioutil.ReadAll(resp.Body)
+					require.NoError(t, err)
+					assert.Equal(t, 303, resp.StatusCode, "response:\n%s", b)
+					assert.Equal(t, "/setup", resp.Header.Get("Location"))
+				})
+			}
+		})
+
+		t.Run("API", func(t *testing.T) {
+			t.Parallel()
+
+			uri := baseURL.ResolveReference(&url.URL{
+				Path: "v1/AWSInstanceCheck",
+			})
+			b, err := json.Marshal(server.AWSInstanceCheckBody{
+				InstanceID: "123",
+			})
+			require.NoError(t, err)
+			req, err := http.NewRequest("POST", uri.String(), bytes.NewReader(b))
+			require.NoError(t, err)
+			req.Header.Set("X-Test-Must-Setup", "1")
+
+			resp, err := client.Do(req)
+			require.NoError(t, err)
+			defer resp.Body.Close() //nolint:errcheck
+			b, err = ioutil.ReadAll(resp.Body)
+			require.NoError(t, err)
+			assert.Equal(t, 503, resp.StatusCode, "response:\n%s", b)
+
+			expected := server.AWSInstanceCheckDefaultBody{
+				Code:    int32(codes.Unavailable),
+				Error:   `cannot get instance metadata`,
+				Message: `cannot get instance metadata`,
+			}
+			var actual server.AWSInstanceCheckDefaultBody
+			require.NoError(t, json.Unmarshal(b, &actual))
+			assert.Equal(t, expected, actual)
+		})
 	})
 }
