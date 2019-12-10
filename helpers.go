@@ -62,6 +62,29 @@ func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Co
 	assert.Equal(t, format, errorField.String())
 }
 
+// AssertAPIErrorContains check that actual API error code equals expected and error text contains a string
+func AssertAPIErrorContains(t TestingT, actual error, httpStatus int, grpcCode codes.Code, msg string) {
+	t.Helper()
+
+	require.Error(t, actual)
+
+	require.Implementsf(t, new(ErrorResponse), actual, "Wrong response type. Expected %T, got %T.\nError message: %v", new(ErrorResponse), actual, actual)
+
+	assert.Equal(t, httpStatus, actual.(ErrorResponse).Code())
+
+	// Have to use reflect because there are a lot of types with the same structure and different names.
+	payload := reflect.ValueOf(actual).Elem().FieldByName("Payload")
+	require.True(t, payload.IsValid(), "Wrong response structure. There is no field Payload.")
+
+	codeField := payload.Elem().FieldByName("Code")
+	require.True(t, codeField.IsValid(), "Wrong response structure. There is no field Code in Payload.")
+	assert.Equal(t, int64(grpcCode), codeField.Int(), "gRPC status codes are not equal")
+
+	errorField := payload.Elem().FieldByName("Error")
+	require.True(t, errorField.IsValid(), "Wrong response structure. There is no field Error in Payload.")
+	assert.Contains(t, errorField.String(), msg)
+}
+
 func ExpectFailure(t *testing.T, link string) *expectedFailureTestingT {
 	return &expectedFailureTestingT{
 		t:    t,

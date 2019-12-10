@@ -65,7 +65,7 @@ func TestNodeRegister(t *testing.T) {
 				Body:    body,
 			}
 			_, err := client.Default.Node.RegisterNode(&params)
-			assert.Equal(t, err.(pmmapitests.ErrorResponse).Code(), 409)
+			pmmapitests.AssertAPIErrorContains(t, err, 409, codes.AlreadyExists, "already exists")
 		})
 
 		t.Run("Reregister with different node name (force)", func(t *testing.T) {
