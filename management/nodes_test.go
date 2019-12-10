@@ -43,7 +43,33 @@ func TestNodeRegister(t *testing.T) {
 			}
 		})
 
-		t.Run("Reregister with different node name", func(t *testing.T) {
+		t.Run("Reregister with different node name (no force - should fail)", func(t *testing.T) {
+			nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
+			nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
+				NodeName: nodeName,
+				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+				Address:  "node-address",
+				Region:   "region",
+			})
+			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer removePMMAgentWithSubAgents(t, pmmAgentID)
+
+			body := node.RegisterNodeBody{
+				NodeName: nodeName,
+				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+				Address:  "node-address",
+				Region:   "region",
+			}
+			params := node.RegisterNodeParams{
+				Context: pmmapitests.Context,
+				Body:    body,
+			}
+			_, err := client.Default.Node.RegisterNode(&params)
+			assert.Equal(t, err.(pmmapitests.ErrorResponse).Code(), 409)
+
+		})
+
+		t.Run("Reregister with different node name (force)", func(t *testing.T) {
 			nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
 			nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
 				NodeName: nodeName,
