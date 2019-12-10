@@ -66,7 +66,6 @@ func TestNodeRegister(t *testing.T) {
 			}
 			_, err := client.Default.Node.RegisterNode(&params)
 			assert.Equal(t, err.(pmmapitests.ErrorResponse).Code(), 409)
-
 		})
 
 		t.Run("Reregister with different node name (force)", func(t *testing.T) {
@@ -87,7 +86,6 @@ func TestNodeRegister(t *testing.T) {
 			})
 			defer pmmapitests.RemoveNodes(t, nodeID)
 			defer removePMMAgentWithSubAgents(t, pmmAgentID)
-
 		})
 
 		t.Run("With all fields", func(t *testing.T) {
