@@ -1,6 +1,7 @@
 package management
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -65,7 +66,8 @@ func TestNodeRegister(t *testing.T) {
 				Body:    body,
 			}
 			_, err := client.Default.Node.RegisterNode(&params)
-			pmmapitests.AssertAPIErrorContains(t, err, 409, codes.AlreadyExists, "already exists")
+			wantErr := fmt.Sprintf("Node with name %q already exists.", nodeName)
+			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, wantErr)
 		})
 
 		t.Run("Reregister with different node name (force)", func(t *testing.T) {
@@ -77,15 +79,29 @@ func TestNodeRegister(t *testing.T) {
 				Region:   "region",
 			})
 
-			nodeID, pmmAgentID = registerGenericNode(t, node.RegisterNodeBody{
-				NodeName:   nodeName + "_new",
+			assert.NotEmpty(t, nodeID)
+			assert.NotEmpty(t, pmmAgentID)
+
+			body := node.RegisterNodeBody{
+				NodeName:   nodeName,
 				NodeType:   pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 				Address:    "node-address",
 				Region:     "region",
 				Reregister: true,
-			})
-			defer pmmapitests.RemoveNodes(t, nodeID)
-			defer removePMMAgentWithSubAgents(t, pmmAgentID)
+			}
+			params := node.RegisterNodeParams{
+				Context: pmmapitests.Context,
+				Body:    body,
+			}
+			node, err := client.Default.Node.RegisterNode(&params)
+			assert.NoError(t, err)
+
+			defer pmmapitests.RemoveNodes(t, node.Payload.GenericNode.NodeID)
+			defer pmmapitests.RemoveAgents(t, node.Payload.PMMAgent.AgentID)
+			nodeExporterAgentID, ok := assertNodeExporterCreated(t, node.Payload.PMMAgent.AgentID)
+			if ok {
+				defer pmmapitests.RemoveAgents(t, nodeExporterAgentID)
+			}
 		})
 
 		t.Run("With all fields", func(t *testing.T) {
