@@ -44,7 +44,7 @@ func TestNodeRegister(t *testing.T) {
 			}
 		})
 
-		t.Run("Reregister with different node name (no force - should fail)", func(t *testing.T) {
+		t.Run("Reregister with same node name (no re-register - should fail)", func(t *testing.T) {
 			nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
 			nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
 				NodeName: nodeName,
@@ -70,7 +70,66 @@ func TestNodeRegister(t *testing.T) {
 			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, wantErr)
 		})
 
-		t.Run("Reregister with different node name (force)", func(t *testing.T) {
+		t.Run("Reregister with same node name (re-register)", func(t *testing.T) {
+			nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
+			nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
+				NodeName: nodeName,
+				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+				Address:  "node-address",
+				Region:   "region",
+			})
+			assert.NotEmpty(t, nodeID)
+			assert.NotEmpty(t, pmmAgentID)
+
+			body := node.RegisterNodeBody{
+				NodeName:   nodeName,
+				NodeType:   pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+				Address:    "node-address",
+				Region:     "region",
+				Reregister: true,
+			}
+			params := node.RegisterNodeParams{
+				Context: pmmapitests.Context,
+				Body:    body,
+			}
+			node, err := client.Default.Node.RegisterNode(&params)
+			assert.NoError(t, err)
+
+			defer pmmapitests.RemoveNodes(t, node.Payload.GenericNode.NodeID)
+			defer pmmapitests.RemoveAgents(t, node.Payload.PMMAgent.AgentID)
+			nodeExporterAgentID, ok := assertNodeExporterCreated(t, node.Payload.PMMAgent.AgentID)
+			if ok {
+				defer pmmapitests.RemoveAgents(t, nodeExporterAgentID)
+			}
+		})
+
+		t.Run("Reregister with different node name (no re-register - should fail)", func(t *testing.T) {
+			nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
+			nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
+				NodeName: nodeName,
+				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+				Address:  "node-address",
+				Region:   "region",
+			})
+			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer removePMMAgentWithSubAgents(t, pmmAgentID)
+
+			body := node.RegisterNodeBody{
+				NodeName: nodeName + "_new",
+				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+				Address:  "node-address",
+				Region:   "region",
+			}
+			params := node.RegisterNodeParams{
+				Context: pmmapitests.Context,
+				Body:    body,
+			}
+			_, err := client.Default.Node.RegisterNode(&params)
+			wantErr := fmt.Sprintf("Node with instance %q and region %q already exists.", body.Address, body.Region)
+			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, wantErr)
+		})
+
+		t.Run("Reregister with different node name (re-register)", func(t *testing.T) {
 			nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
 			nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
 				NodeName: nodeName,
@@ -83,7 +142,7 @@ func TestNodeRegister(t *testing.T) {
 			assert.NotEmpty(t, pmmAgentID)
 
 			body := node.RegisterNodeBody{
-				NodeName:   nodeName,
+				NodeName:   nodeName + "_new",
 				NodeType:   pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 				Address:    "node-address",
 				Region:     "region",
