@@ -233,6 +233,52 @@ func TestAddMongoDB(t *testing.T) {
 		}, *serviceOK.Payload)
 	})
 
+	t.Run("With the same name", func(t *testing.T) {
+		nodeName := pmmapitests.TestString(t, "node-for-the-same-name")
+		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+		})
+		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer removePMMAgentWithSubAgents(t, pmmAgentID)
+
+		serviceName := pmmapitests.TestString(t, "service-for-the-same-name")
+
+		params := &mongodb.AddMongoDBParams{
+			Context: pmmapitests.Context,
+			Body: mongodb.AddMongoDBBody{
+				NodeID:      nodeID,
+				PMMAgentID:  pmmAgentID,
+				ServiceName: serviceName,
+				Address:     "10.10.10.10",
+				Port:        27017,
+
+				SkipConnectionCheck: true,
+			},
+		}
+		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
+		require.NoError(t, err)
+		require.NotNil(t, addMongoDBOK)
+		require.NotNil(t, addMongoDBOK.Payload.Service)
+		serviceID := addMongoDBOK.Payload.Service.ServiceID
+		defer pmmapitests.RemoveServices(t, serviceID)
+		defer removeServiceAgents(t, serviceID)
+
+		params = &mongodb.AddMongoDBParams{
+			Context: pmmapitests.Context,
+			Body: mongodb.AddMongoDBBody{
+				NodeID:      nodeID,
+				PMMAgentID:  pmmAgentID,
+				ServiceName: serviceName,
+				Address:     "11.11.11.11",
+				Port:        27017,
+			},
+		}
+		addMongoDBOK, err = client.Default.MongoDB.AddMongoDB(params)
+		require.Nil(t, addMongoDBOK)
+		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Service with name %q already exists.`, serviceName)
+	})
+
 	t.Run("With add_node block", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
@@ -261,6 +307,24 @@ func TestAddMongoDB(t *testing.T) {
 			},
 		}
 		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
+
+		params = &mongodb.AddMongoDBParams{
+			Context: pmmapitests.Context,
+			Body: mongodb.AddMongoDBBody{
+				AddNode: &mongodb.AddMongoDBParamsBodyAddNode{
+					NodeType: pointer.ToString(mongodb.AddMongoDBParamsBodyAddNodeNodeTypeREMOTERDSNODE),
+					NodeName: nodeNameAddNode,
+				},
+				PMMAgentID:  pmmAgentID,
+				ServiceName: serviceName,
+				Address:     "10.10.10.10",
+				Port:        27017,
+
+				SkipConnectionCheck: true,
+			},
+		}
+		addMongoDBOK, err = client.Default.MongoDB.AddMongoDB(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 
 		params = &mongodb.AddMongoDBParams{
@@ -327,52 +391,6 @@ func TestAddMongoDB(t *testing.T) {
 			},
 		}, *listAgents.Payload)
 		defer removeAllAgentsInList(t, listAgents)
-	})
-
-	t.Run("With the same name", func(t *testing.T) {
-		nodeName := pmmapitests.TestString(t, "node-for-the-same-name")
-		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
-			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
-		})
-		defer pmmapitests.RemoveNodes(t, nodeID)
-		defer removePMMAgentWithSubAgents(t, pmmAgentID)
-
-		serviceName := pmmapitests.TestString(t, "service-for-the-same-name")
-
-		params := &mongodb.AddMongoDBParams{
-			Context: pmmapitests.Context,
-			Body: mongodb.AddMongoDBBody{
-				NodeID:      nodeID,
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
-
-				SkipConnectionCheck: true,
-			},
-		}
-		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
-		require.NoError(t, err)
-		require.NotNil(t, addMongoDBOK)
-		require.NotNil(t, addMongoDBOK.Payload.Service)
-		serviceID := addMongoDBOK.Payload.Service.ServiceID
-		defer pmmapitests.RemoveServices(t, serviceID)
-		defer removeServiceAgents(t, serviceID)
-
-		params = &mongodb.AddMongoDBParams{
-			Context: pmmapitests.Context,
-			Body: mongodb.AddMongoDBBody{
-				NodeID:      nodeID,
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "11.11.11.11",
-				Port:        27017,
-			},
-		}
-		addMongoDBOK, err = client.Default.MongoDB.AddMongoDB(params)
-		require.Nil(t, addMongoDBOK)
-		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Service with name %q already exists.`, serviceName)
 	})
 
 	t.Run("With Wrong Node Type", func(t *testing.T) {
