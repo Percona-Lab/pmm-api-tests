@@ -174,7 +174,6 @@ func TestAddMongoDB(t *testing.T) {
 	})
 
 	t.Run("With labels", func(t *testing.T) {
-
 		nodeName := pmmapitests.TestString(t, "node-name-for-all-fields")
 		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
 			NodeName: nodeName,
