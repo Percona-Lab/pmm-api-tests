@@ -281,6 +281,58 @@ func TestSettings(t *testing.T) {
 					assert.Equal(t, "864000s", res.Payload.Settings.DataRetention)
 					assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
 				})
+
+				t.Run("Set Alert Manager Rules", func(t *testing.T) {
+					defer teardown(t)
+					body := server.ChangeSettingsBody{
+						AlertManagerAddress: "localhost:1234",
+						AlertManagerRules: `groups:
+- name: example
+  rules:
+  - alert: HighRequestLatency
+    expr: job:request_latency_seconds:mean5m{job="myjob"} > 0.5
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      summary: High request latency`,
+					}
+
+					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body:    body,
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+					assert.Equal(t, res.Payload.Settings.AlertManagerAddress, body.AlertManagerAddress)
+					assert.Equal(t, res.Payload.Settings.AlertManagerRules, body.AlertManagerRules)
+				})
+
+				t.Run("Clear Alert Manager Rules", func(t *testing.T) {
+					defer teardown(t)
+					body := server.ChangeSettingsBody{
+						AlertManagerAddress: "localhost:1234",
+						AlertManagerRules: `groups:
+- name: example
+  rules:
+  - alert: HighRequestLatency
+    expr: job:request_latency_seconds:mean5m{job="myjob"} > 0.5
+    for: 10m
+    labels:
+      severity: page
+    annotations:
+      summary: High request latency`,
+						ClearAlertManagerAddress: true,
+						ClearAlerManagerRules:    true,
+					}
+
+					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body:    body,
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+					assert.Equal(t, res.Payload.Settings.AlertManagerAddress, "")
+					assert.Equal(t, res.Payload.Settings.AlertManagerRules, "")
+				})
 			})
 
 			t.Run("grpc-gateway", func(t *testing.T) {

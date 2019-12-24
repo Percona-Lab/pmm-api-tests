@@ -182,8 +182,8 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:5d2064987784fb7baa1befad9e6535b8b9b9f08cce89aa8c1b2363e50d707ad2"
+  branch = "PMM-5064_alert_manager_initial_support"
+  digest = "1:9185fc12e89d6dc06ffb1b72bb55a7b7877d7c271b8c81d0ac55db686689344b"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -204,7 +204,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "3926907b6196bcf6a5acc2e96249a2a5fe73e910"
+  revision = "c953a0c986a1d6dd3f42b5f0411cba8c0918b17e"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
