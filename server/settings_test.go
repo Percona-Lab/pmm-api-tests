@@ -321,8 +321,8 @@ func TestSettings(t *testing.T) {
       severity: page
     annotations:
       summary: High request latency`,
-						ClearAlertManagerAddress: true,
-						ClearAlerManagerRules:    true,
+						RemoveAlertManagerAddress: true,
+						RemoveAlertManagerRules:   true,
 					}
 
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
