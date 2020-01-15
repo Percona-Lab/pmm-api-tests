@@ -362,7 +362,6 @@ func TestSettings(t *testing.T) {
 					assert.Equal(t, gets.Payload.Settings.AlertManagerAddress, "")
 					assert.Equal(t, gets.Payload.Settings.AlertManagerRules, "")
 				})
-
 			})
 
 			t.Run("grpc-gateway", func(t *testing.T) {
