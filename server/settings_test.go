@@ -269,6 +269,7 @@ func TestSettings(t *testing.T) {
 					assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
 					assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
 
+					// Check if the values were persisted
 					getRes, err := serverClient.Default.Server.GetSettings(nil)
 					require.NoError(t, err)
 					assert.False(t, getRes.Payload.Settings.TelemetryEnabled)
@@ -305,6 +306,28 @@ func TestSettings(t *testing.T) {
 					require.NoError(t, err)
 					assert.Equal(t, res.Payload.Settings.AlertManagerAddress, body.AlertManagerAddress)
 					assert.Equal(t, res.Payload.Settings.AlertManagerRules, body.AlertManagerRules)
+
+					gets, err := serverClient.Default.Server.GetSettings(nil)
+					require.NoError(t, err)
+					assert.Equal(t, body.AlertManagerAddress, gets.Payload.Settings.AlertManagerAddress)
+					assert.Equal(t, body.AlertManagerRules, gets.Payload.Settings.AlertManagerRules)
+				})
+
+				t.Run("Empty Alert Manager Rules should not remove data", func(t *testing.T) {
+					defer teardown(t)
+					body := server.ChangeSettingsBody{}
+
+					_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body:    body,
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+					// Check if the values were persisted
+					gets, err := serverClient.Default.Server.GetSettings(nil)
+					require.NoError(t, err)
+					// Should have some value (not cleared because the boolean flags to remove were set to false)
+					assert.NotEmpty(t, gets.Payload.Settings.AlertManagerAddress)
+					assert.NotEmpty(t, gets.Payload.Settings.AlertManagerRules)
 				})
 
 				t.Run("Clear Alert Manager Rules", func(t *testing.T) {
@@ -332,7 +355,14 @@ func TestSettings(t *testing.T) {
 					require.NoError(t, err)
 					assert.Equal(t, res.Payload.Settings.AlertManagerAddress, "")
 					assert.Equal(t, res.Payload.Settings.AlertManagerRules, "")
+					// Check if the values were persisted
+					gets, err := serverClient.Default.Server.GetSettings(nil)
+					require.NoError(t, err)
+					// Should have been cleared
+					assert.Equal(t, gets.Payload.Settings.AlertManagerAddress, "")
+					assert.Equal(t, gets.Payload.Settings.AlertManagerRules, "")
 				})
+
 			})
 
 			t.Run("grpc-gateway", func(t *testing.T) {
