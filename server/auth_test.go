@@ -123,10 +123,8 @@ func TestSetup(t *testing.T) {
 			"prometheus/": 303,
 			"qan":         303,
 			"qan/":        303,
-
-			// FIXME
-			"swagger":  303,
-			"swagger/": 303,
+			"swagger":     303,
+			"swagger/":    303,
 
 			"v1/readyz":           200,
 			"v1/AWSInstanceCheck": 405, // only POST is expected
@@ -211,7 +209,7 @@ func TestSwagger(t *testing.T) {
 
 				resp, _ := doRequest(t, client, req)
 				require.NoError(t, err)
-				assert.Equal(t, 401, resp.StatusCode)
+				assert.Equal(t, 200, resp.StatusCode)
 			})
 
 			t.Run("Auth", func(t *testing.T) {
