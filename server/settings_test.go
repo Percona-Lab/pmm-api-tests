@@ -285,9 +285,7 @@ func TestSettings(t *testing.T) {
 
 				t.Run("Set Alert Manager Rules", func(t *testing.T) {
 					defer teardown(t)
-					body := server.ChangeSettingsBody{
-						AlertManagerAddress: "localhost:1234",
-						AlertManagerRules: `groups:
+					alertManagerRules := `groups:
 - name: example
   rules:
   - alert: HighRequestLatency
@@ -296,7 +294,11 @@ func TestSettings(t *testing.T) {
     labels:
       severity: page
     annotations:
-      summary: High request latency`,
+      summary: High request latency`
+					alertManagerAddress := "localhost:1234"
+					body := server.ChangeSettingsBody{
+						AlertManagerAddress: alertManagerAddress,
+						AlertManagerRules:   alertManagerRules,
 					}
 
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -309,25 +311,30 @@ func TestSettings(t *testing.T) {
 
 					gets, err := serverClient.Default.Server.GetSettings(nil)
 					require.NoError(t, err)
-					assert.Equal(t, body.AlertManagerAddress, gets.Payload.Settings.AlertManagerAddress)
-					assert.Equal(t, body.AlertManagerRules, gets.Payload.Settings.AlertManagerRules)
-				})
+					assert.Equal(t, alertManagerAddress, gets.Payload.Settings.AlertManagerAddress)
+					assert.Equal(t, alertManagerRules, gets.Payload.Settings.AlertManagerRules)
 
-				t.Run("Empty Alert Manager Rules should not remove data", func(t *testing.T) {
-					defer teardown(t)
-					body := server.ChangeSettingsBody{}
+					t.Run("Empty Alert Manager Rules should not remove data", func(t *testing.T) {
+						defer teardown(t)
+						body := server.ChangeSettingsBody{}
 
-					_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-						Body:    body,
-						Context: pmmapitests.Context,
+						_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+							Body:    body,
+							Context: pmmapitests.Context,
+						})
+						require.NoError(t, err)
+						// Check if the values were persisted
+						gets, err := serverClient.Default.Server.GetSettings(nil)
+						require.NoError(t, err)
+						// Should have some value (not cleared because the boolean flags to remove were set to false)
+						assert.NotEmpty(t, gets.Payload.Settings.AlertManagerAddress)
+						assert.NotEmpty(t, gets.Payload.Settings.AlertManagerRules)
+
+						gets, err = serverClient.Default.Server.GetSettings(nil)
+						require.NoError(t, err)
+						assert.Equal(t, alertManagerAddress, gets.Payload.Settings.AlertManagerAddress)
+						assert.Equal(t, alertManagerRules, gets.Payload.Settings.AlertManagerRules)
 					})
-					require.NoError(t, err)
-					// Check if the values were persisted
-					gets, err := serverClient.Default.Server.GetSettings(nil)
-					require.NoError(t, err)
-					// Should have some value (not cleared because the boolean flags to remove were set to false)
-					assert.NotEmpty(t, gets.Payload.Settings.AlertManagerAddress)
-					assert.NotEmpty(t, gets.Payload.Settings.AlertManagerRules)
 				})
 
 				t.Run("Clear Alert Manager Rules", func(t *testing.T) {
