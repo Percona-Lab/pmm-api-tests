@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"testing"
 
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
@@ -44,8 +45,10 @@ func TestSettings(t *testing.T) {
 							Mr: "5s",
 							Lr: "60s",
 						},
-						DataRetention: "720h",
-						AWSPartitions: []string{"aws"},
+						DataRetention:           "720h",
+						AWSPartitions:           []string{"aws"},
+						RemoveAlertManagerURL:   true,
+						RemoveAlertManagerRules: true,
 					},
 					Context: pmmapitests.Context,
 				})
@@ -59,6 +62,8 @@ func TestSettings(t *testing.T) {
 				assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
 				assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
 				assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
+				assert.Empty(t, res.Payload.Settings.AlertManagerURL)
+				assert.Empty(t, res.Payload.Settings.AlertManagerRules)
 			}
 
 			defer teardown(t)
@@ -282,10 +287,54 @@ func TestSettings(t *testing.T) {
 					assert.Equal(t, "864000s", res.Payload.Settings.DataRetention)
 					assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
 				})
+			})
 
-				t.Run("Set Alert Manager Rules", func(t *testing.T) {
+			t.Run("AlertManager", func(t *testing.T) {
+				t.Run("SetInvalid", func(t *testing.T) {
 					defer teardown(t)
-					alertManagerRules := `groups:
+
+					url := "http://localhost:1234/"
+					rules := `invalid rules`
+
+					_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							AlertManagerURL:   url,
+							AlertManagerRules: rules,
+						},
+						Context: pmmapitests.Context,
+					})
+					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Invalid Alert Manager rules.`)
+
+					gets, err := serverClient.Default.Server.GetSettings(nil)
+					require.NoError(t, err)
+					assert.Empty(t, gets.Payload.Settings.AlertManagerURL)
+					assert.Empty(t, gets.Payload.Settings.AlertManagerRules)
+				})
+
+				t.Run("SetAndRemoveInvalid", func(t *testing.T) {
+					defer teardown(t)
+
+					_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							AlertManagerURL:       "invalid url",
+							RemoveAlertManagerURL: true,
+						},
+						Context: pmmapitests.Context,
+					})
+					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both alert_manager_url and remove_alert_manager_url are present.`)
+
+					gets, err := serverClient.Default.Server.GetSettings(nil)
+					require.NoError(t, err)
+					assert.Empty(t, gets.Payload.Settings.AlertManagerURL)
+					assert.Empty(t, gets.Payload.Settings.AlertManagerRules)
+				})
+
+				t.Run("SetValid", func(t *testing.T) {
+					defer teardown(t)
+
+					url := "http://localhost:1234/"
+					rules := strings.TrimSpace(`
+groups:
 - name: example
   rules:
   - alert: HighRequestLatency
@@ -294,80 +343,39 @@ func TestSettings(t *testing.T) {
     labels:
       severity: page
     annotations:
-      summary: High request latency`
-					alertManagerURL := "http://localhost:1234/"
-					body := server.ChangeSettingsBody{
-						AlertManagerURL:   alertManagerURL,
-						AlertManagerRules: alertManagerRules,
-					}
+      summary: High request latency
+					`) + "\n"
 
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-						Body:    body,
+						Body: server.ChangeSettingsBody{
+							AlertManagerURL:   url,
+							AlertManagerRules: rules,
+						},
 						Context: pmmapitests.Context,
 					})
 					require.NoError(t, err)
-					assert.Equal(t, res.Payload.Settings.AlertManagerURL, body.AlertManagerURL)
-					assert.Equal(t, res.Payload.Settings.AlertManagerRules, body.AlertManagerRules)
+					assert.Equal(t, url, res.Payload.Settings.AlertManagerURL)
+					assert.Equal(t, rules, res.Payload.Settings.AlertManagerRules)
 
 					gets, err := serverClient.Default.Server.GetSettings(nil)
 					require.NoError(t, err)
-					assert.Equal(t, alertManagerURL, gets.Payload.Settings.AlertManagerURL)
-					assert.Equal(t, alertManagerRules, gets.Payload.Settings.AlertManagerRules)
+					assert.Equal(t, url, gets.Payload.Settings.AlertManagerURL)
+					assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
 
-					t.Run("Empty Alert Manager Rules should not remove data", func(t *testing.T) {
+					t.Run("EmptyShouldNotRemove", func(t *testing.T) {
 						defer teardown(t)
-						body := server.ChangeSettingsBody{}
 
 						_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-							Body:    body,
+							Body:    server.ChangeSettingsBody{},
 							Context: pmmapitests.Context,
 						})
 						require.NoError(t, err)
-						// Check if the values were persisted
-						gets, err := serverClient.Default.Server.GetSettings(nil)
-						require.NoError(t, err)
-						// Should have some value (not cleared because the boolean flags to remove were set to false)
-						assert.NotEmpty(t, gets.Payload.Settings.AlertManagerURL)
-						assert.NotEmpty(t, gets.Payload.Settings.AlertManagerRules)
 
 						gets, err = serverClient.Default.Server.GetSettings(nil)
 						require.NoError(t, err)
-						assert.Equal(t, alertManagerURL, gets.Payload.Settings.AlertManagerURL)
-						assert.Equal(t, alertManagerRules, gets.Payload.Settings.AlertManagerRules)
+						assert.Equal(t, url, gets.Payload.Settings.AlertManagerURL)
+						assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
 					})
-				})
-
-				t.Run("Clear Alert Manager Rules", func(t *testing.T) {
-					defer teardown(t)
-					body := server.ChangeSettingsBody{
-						AlertManagerURL: "https://localhost:1234/",
-						AlertManagerRules: `groups:
-- name: example
-  rules:
-  - alert: HighRequestLatency
-    expr: job:request_latency_seconds:mean5m{job="myjob"} > 0.5
-    for: 10m
-    labels:
-      severity: page
-    annotations:
-      summary: High request latency`,
-						RemoveAlertManagerURL:   true,
-						RemoveAlertManagerRules: true,
-					}
-
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-						Body:    body,
-						Context: pmmapitests.Context,
-					})
-					require.NoError(t, err)
-					assert.Equal(t, res.Payload.Settings.AlertManagerURL, "")
-					assert.Equal(t, res.Payload.Settings.AlertManagerRules, "")
-					// Check if the values were persisted
-					gets, err := serverClient.Default.Server.GetSettings(nil)
-					require.NoError(t, err)
-					// Should have been cleared
-					assert.Equal(t, gets.Payload.Settings.AlertManagerURL, "")
-					assert.Equal(t, gets.Payload.Settings.AlertManagerRules, "")
 				})
 			})
 
