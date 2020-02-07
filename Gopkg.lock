@@ -182,7 +182,7 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-5064_alert_manager_initial_support"
+  branch = "PMM-2.0"
   digest = "1:92c8a316ff812c935e298e481d680a606ab8105a7784f432ab7a7df8e8aed7ce"
   name = "github.com/percona/pmm"
   packages = [
@@ -204,7 +204,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "97d63c915394299773a5303181e10b590262068f"
+  revision = "62c3a2fe46f50aa04138964dbf79edd057823ffc"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
