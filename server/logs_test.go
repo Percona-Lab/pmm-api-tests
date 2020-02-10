@@ -2,9 +2,12 @@ package server
 
 import (
 	"archive/zip"
+	"bytes"
+	"context"
+	serverClient "github.com/percona/pmm/api/serverpb/json/client"
+	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"io"
 	"io/ioutil"
-	"net/http"
 	"path/filepath"
 	"testing"
 
@@ -13,26 +16,20 @@ import (
 )
 
 func TestDownloadLogs(t *testing.T) {
-	url := "http://localhost:7772/logs.zip"
 
-	req, err := http.NewRequest("GET", url, nil)
-	assert.NoError(t, err)
-
-	req.Header.Set("Accept", "application/zip")
-
-	client := &http.Client{}
-
-	resp, err := client.Do(req)
-	assert.NoError(t, err)
-
-	defer resp.Body.Close() //nolint:errcheck
+	buffer := bytes.NewBuffer(nil)
+	logs, err := serverClient.Default.Server.Logs(&server.LogsParams{
+		Context: context.TODO(),
+	}, buffer)
+	require.NoError(t, err)
+	require.NotNil(t, logs)
 
 	zipfile, err := ioutil.TempFile("", "*-test.zip")
 	assert.NoError(t, err)
 
 	defer zipfile.Close() //nolint:errcheck
 
-	_, err = io.Copy(zipfile, resp.Body)
+	_, err = io.Copy(zipfile, buffer)
 	require.NoError(t, err)
 
 	reader, err := zip.OpenReader(zipfile.Name())

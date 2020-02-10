@@ -182,8 +182,8 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:5d2064987784fb7baa1befad9e6535b8b9b9f08cce89aa8c1b2363e50d707ad2"
+  branch = "PMM-5816-logs-zip-endpoint-in-swagger"
+  digest = "1:2c02016894f44d1126377da8c5e4d5f6ecf153d18ee4ddf63148a6813282ba95"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -204,7 +204,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "3926907b6196bcf6a5acc2e96249a2a5fe73e910"
+  revision = "5fbc98dfe82869ed5afa37fb7603be0650c88bb6"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
