@@ -4,13 +4,13 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"io"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
 
+	serverClient "github.com/percona/pmm/api/serverpb/json/client"
+	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
