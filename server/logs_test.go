@@ -16,7 +16,6 @@ import (
 )
 
 func TestDownloadLogs(t *testing.T) {
-
 	buffer := bytes.NewBuffer(nil)
 	logs, err := serverClient.Default.Server.Logs(&server.LogsParams{
 		Context: context.TODO(),
