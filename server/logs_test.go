@@ -29,9 +29,15 @@ func TestDownloadLogs(t *testing.T) {
 		"clickhouse-server.err.log",
 		"clickhouse-server.log",
 		"clickhouse-server.startup.log",
+		"client/list.txt",
+		"client/pmm-admin-version.txt",
+		"client/pmm-agent-config.yaml",
+		"client/pmm-agent-version.txt",
+		"client/status.json",
 		"cron.log",
 		"dashboard-upgrade.log",
 		"grafana.log",
+		"installed.json",
 		"nginx.access.log",
 		"nginx.conf",
 		"nginx.error.log",
@@ -56,10 +62,12 @@ func TestDownloadLogs(t *testing.T) {
 		"supervisord.log",
 		"systemctl_status.log",
 	}
+
 	actual := make([]string, len(zipR.File))
 	for i, file := range zipR.File {
 		actual[i] = file.Name
 	}
+
 	sort.Strings(actual)
 	assert.Equal(t, expected, actual)
 }
