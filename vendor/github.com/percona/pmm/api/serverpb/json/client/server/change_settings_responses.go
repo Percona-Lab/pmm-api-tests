@@ -8,6 +8,7 @@ package server
 import (
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -84,7 +85,7 @@ func NewChangeSettingsDefault(code int) *ChangeSettingsDefault {
 
 /*ChangeSettingsDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type ChangeSettingsDefault struct {
 	_statusCode int
@@ -136,6 +137,18 @@ type ChangeSettingsBody struct {
 
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
+
+	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	AlertManagerURL string `json:"alert_manager_url,omitempty"`
+
+	// remove alert manager url
+	RemoveAlertManagerURL bool `json:"remove_alert_manager_url,omitempty"`
+
+	// alert manager rules
+	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
+
+	// remove alert manager rules
+	RemoveAlertManagerRules bool `json:"remove_alert_manager_rules,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -191,23 +204,60 @@ func (o *ChangeSettingsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeSettingsDefaultBody ErrorResponse is a message returned on HTTP error.
+/*ChangeSettingsDefaultBody change settings default body
 swagger:model ChangeSettingsDefaultBody
 */
 type ChangeSettingsDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this change settings default body
 func (o *ChangeSettingsDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeSettingsDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ChangeSettings default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -307,6 +357,12 @@ type ChangeSettingsOKBodySettings struct {
 
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
+
+	// Prometheus AlertManager URL (e.g., https://username:password@1.2.3.4/path).
+	AlertManagerURL string `json:"alert_manager_url,omitempty"`
+
+	// alert manager rules
+	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`

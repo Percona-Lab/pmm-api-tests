@@ -6,6 +6,7 @@ package nodes
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -85,7 +87,7 @@ func NewListNodesDefault(code int) *ListNodesDefault {
 
 /*ListNodesDefault handles this case with default header values.
 
-An error response.
+An unexpected error response
 */
 type ListNodesDefault struct {
 	_statusCode int
@@ -233,23 +235,154 @@ func (o *GenericItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListNodesDefaultBody ErrorResponse is a message returned on HTTP error.
+/*ListNodesBody list nodes body
+swagger:model ListNodesBody
+*/
+type ListNodesBody struct {
+
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE]
+	NodeType *string `json:"node_type,omitempty"`
+}
+
+// Validate validates this list nodes body
+func (o *ListNodesBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateNodeType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var listNodesBodyTypeNodeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		listNodesBodyTypeNodeTypePropEnum = append(listNodesBodyTypeNodeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// ListNodesBodyNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
+	ListNodesBodyNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
+
+	// ListNodesBodyNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
+	ListNodesBodyNodeTypeGENERICNODE string = "GENERIC_NODE"
+
+	// ListNodesBodyNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
+	ListNodesBodyNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+
+	// ListNodesBodyNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
+	ListNodesBodyNodeTypeREMOTENODE string = "REMOTE_NODE"
+
+	// ListNodesBodyNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
+	ListNodesBodyNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
+)
+
+// prop value enum
+func (o *ListNodesBody) validateNodeTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, listNodesBodyTypeNodeTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ListNodesBody) validateNodeType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.NodeType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateNodeTypeEnum("body"+"."+"node_type", "body", *o.NodeType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListNodesBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListNodesBody) UnmarshalBinary(b []byte) error {
+	var res ListNodesBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListNodesDefaultBody list nodes default body
 swagger:model ListNodesDefaultBody
 */
 type ListNodesDefaultBody struct {
 
-	// code
-	Code int32 `json:"code,omitempty"`
-
 	// error
 	Error string `json:"error,omitempty"`
 
+	// code
+	Code int32 `json:"code,omitempty"`
+
 	// message
 	Message string `json:"message,omitempty"`
+
+	// details
+	Details []*DetailsItems0 `json:"details"`
 }
 
 // Validate validates this list nodes default body
 func (o *ListNodesDefaultBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateDetails(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListNodesDefaultBody) validateDetails(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Details) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Details); i++ {
+		if swag.IsZero(o.Details[i]) { // not required
+			continue
+		}
+
+		if o.Details[i] != nil {
+			if err := o.Details[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("ListNodes default" + "." + "details" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
