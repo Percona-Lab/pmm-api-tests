@@ -52,7 +52,7 @@ func TestServices(t *testing.T) {
 			ServiceName: pmmapitests.TestString(t, "Some MySQL Service on remote Node"),
 		})
 		postgreSQLServiceID := postgreSQLService.Postgresql.ServiceID
-		defer pmmapitests.RemoveServices(t, remoteServiceID)
+		defer pmmapitests.RemoveServices(t, postgreSQLServiceID)
 
 		res, err := client.Default.Services.ListServices(&services.ListServicesParams{Context: pmmapitests.Context})
 		assert.NoError(t, err)
