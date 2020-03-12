@@ -68,6 +68,8 @@ func TestAddRds(t *testing.T) {
 				TLSSkipVerify:             false,
 				DisableQueryExamples:      false,
 				TablestatsGroupTableLimit: 2000,
+				DisableBasicMetrics:       true,
+				DisableEnhancedMetrics:    true,
 			},
 			Context: pmmapitests.Context,
 		}
