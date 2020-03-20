@@ -7,6 +7,7 @@ import (
 
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/actions"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
@@ -40,28 +41,40 @@ func TestRunExplain(t *testing.T) {
 }
 
 func TestRunMongoDBExplain(t *testing.T) {
-	t.Skip("agent in dev-container is not fully implemented yet")
+	// When we have an pmm-agent in dev-container and we can remove this skip, please remove the t.Logf at the end
+	// of this test and replace it with a proper test that checks the results.
+	t.Skip("pmm-agent in dev-container is not fully implemented yet")
 
 	explainActionOK, err := client.Default.Actions.StartMongoDBExplainAction(&actions.StartMongoDBExplainActionParams{
 		Context: pmmapitests.Context,
 		Body: actions.StartMongoDBExplainActionBody{
-			ServiceID: "/service_id/f594a0e5-e0c7-4b72-bbca-a931a6279acf",
+			ServiceID: "/service_id/b0d1e266-20ae-4b36-998b-c9492f96677f",
 			Database:  "test",
-			Query:     "{ quantity: { $gt: 50 } }",
+			Query:     `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
 		},
 	})
 	require.NoError(t, err)
 	require.NotEmpty(t, explainActionOK.Payload.ActionID)
 
-	time.Sleep(2 * time.Second)
+	var actionOK *actions.GetActionOK
 
-	actionOK, err := client.Default.Actions.GetAction(&actions.GetActionParams{
-		Context: pmmapitests.Context,
-		Body: actions.GetActionBody{
-			ActionID: explainActionOK.Payload.ActionID,
-		},
-	})
-	require.NoError(t, err)
-	require.Empty(t, actionOK.Payload.Error)
-	fmt.Println(actionOK.Payload.Output)
+	for i := 0; i < 6; i++ {
+		var err error
+		actionOK, err = client.Default.Actions.GetAction(&actions.GetActionParams{
+			Context: pmmapitests.Context,
+			Body: actions.GetActionBody{
+				ActionID: explainActionOK.Payload.ActionID,
+			},
+		})
+		require.NoError(t, err)
+		require.Empty(t, actionOK.Payload.Error)
+
+		if actionOK.Payload.Done {
+			break
+		}
+
+		time.Sleep(500 * time.Millisecond)
+	}
+	assert.True(t, actionOK.Payload.Done)
+	t.Logf("Result: %+v", actionOK.Payload)
 }
