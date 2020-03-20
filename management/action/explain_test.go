@@ -1,6 +1,7 @@
 package action
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -48,8 +49,7 @@ func TestRunMongoDBExplain(t *testing.T) {
 	explainActionOK, err := client.Default.Actions.StartMongoDBExplainAction(&actions.StartMongoDBExplainActionParams{
 		Context: pmmapitests.Context,
 		Body: actions.StartMongoDBExplainActionBody{
-			ServiceID: "/service_id/b0d1e266-20ae-4b36-998b-c9492f96677f",
-			Database:  "test",
+			ServiceID: "/service_id/2402bf45-19c2-4bee-931a-307b26ed5300",
 			Query:     `{"ns":"test.coll","op":"query","query":{"k":{"$lte":{"$numberInt":"1"}}}}`,
 		},
 	})
@@ -76,5 +76,27 @@ func TestRunMongoDBExplain(t *testing.T) {
 		time.Sleep(500 * time.Millisecond)
 	}
 	assert.True(t, actionOK.Payload.Done)
-	t.Logf("Result: %+v", actionOK.Payload)
+
+	want := map[string]interface{}{
+		"winningPlan": map[string]interface{}{
+			"stage": "EOF",
+		},
+		"rejectedPlans": []interface{}{},
+		"plannerVersion": map[string]interface{}{
+			"$numberInt": "1",
+		},
+		"namespace":      "test.coll",
+		"indexFilterSet": bool(false),
+		"parsedQuery": map[string]interface{}{
+			"k": map[string]interface{}{
+				"$lte": map[string]interface{}{
+					"$numberInt": "1",
+				},
+			},
+		},
+	}
+	m := make(map[string]interface{})
+	err = json.Unmarshal([]byte(actionOK.Payload.Output), &m)
+	assert.NoError(t, err)
+	assert.Equal(t, m["queryPlanner"], want)
 }
