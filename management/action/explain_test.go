@@ -2,7 +2,6 @@ package action
 
 import (
 	"encoding/json"
-	"fmt"
 	"testing"
 	"time"
 
@@ -38,7 +37,7 @@ func TestRunExplain(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.Empty(t, actionOK.Payload.Error)
-	fmt.Println(actionOK.Payload.Output)
+	t.Log(actionOK.Payload.Output)
 }
 
 func TestRunMongoDBExplain(t *testing.T) {
