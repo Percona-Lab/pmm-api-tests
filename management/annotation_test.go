@@ -19,9 +19,8 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		resp, err := client.Default.Annotation.AddAnnotation(params)
+		_, err := client.Default.Annotation.AddAnnotation(params)
 		require.NoError(t, err)
-		require.Equal(t, resp.Payload.Message, "Annotation added")
 	})
 
 	t.Run("Add Empty Annotation", func(t *testing.T) {
