@@ -6,6 +6,7 @@ import (
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/annotation"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
@@ -32,6 +33,6 @@ func TestAddAnnotation(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		_, err := client.Default.Annotation.AddAnnotation(params)
-		require.Error(t, err)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Text: value '' must not be an empty string")
 	})
 }
