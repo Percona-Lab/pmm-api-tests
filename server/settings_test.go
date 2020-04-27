@@ -24,6 +24,7 @@ func TestSettings(t *testing.T) {
 		res, err := serverClient.Default.Server.GetSettings(nil)
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.TelemetryEnabled)
+		assert.False(t, res.Payload.Settings.SttEnabled)
 		expected := &server.GetSettingsOKBodySettingsMetricsResolutions{
 			Hr: "5s",
 			Mr: "10s",
@@ -41,6 +42,7 @@ func TestSettings(t *testing.T) {
 				bodySettings := res.Payload.Settings
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
+						EnableStt:       bodySettings.SttEnabled,
 						EnableTelemetry: bodySettings.TelemetryEnabled,
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 							Hr: bodySettings.MetricsResolutions.Hr,
@@ -71,6 +73,147 @@ func TestSettings(t *testing.T) {
 			}
 
 			defer teardown(t)
+
+			t.Run("InvalidBothEnableAndDisableSTT", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EnableStt:  true,
+						DisableStt: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Enable STT and disable STT cannot be both true`)
+				assert.Empty(t, res)
+			})
+
+			t.Run("EnableSTTAndEnableTelemetry", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EnableStt:       true,
+						EnableTelemetry: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				assert.True(t, res.Payload.Settings.SttEnabled)
+				assert.True(t, res.Payload.Settings.TelemetryEnabled)
+				assert.Empty(t, err)
+			})
+
+			t.Run("EnableSTTAndDisableTelemetry", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EnableStt:        true,
+						DisableTelemetry: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Cannot enable STT while telemetry is disabled`)
+				assert.Empty(t, res)
+			})
+
+			t.Run("DisableSTTAndEnableTelemetry", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						DisableStt:      true,
+						EnableTelemetry: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				assert.False(t, res.Payload.Settings.SttEnabled)
+				assert.True(t, res.Payload.Settings.TelemetryEnabled)
+				assert.Empty(t, err)
+			})
+
+			t.Run("DisableSTTAndDisableTelemetry", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						DisableStt:       true,
+						DisableTelemetry: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				assert.False(t, res.Payload.Settings.SttEnabled)
+				assert.False(t, res.Payload.Settings.TelemetryEnabled)
+				assert.Empty(t, err)
+			})
+
+			t.Run("EnableSTTWhileTelemetryEnabled", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EnableStt: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				assert.True(t, res.Payload.Settings.SttEnabled)
+				assert.Empty(t, err)
+			})
+
+			t.Run("DisableSTTWhileItIsDisabled", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						DisableStt: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				assert.False(t, res.Payload.Settings.SttEnabled)
+				assert.Empty(t, err)
+			})
+			t.Run("STTEnabledState", func(t *testing.T) {
+				defer teardown(t)
+
+				serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EnableStt: true,
+					},
+					Context: pmmapitests.Context,
+				})
+
+				require.NoError(t, err)
+				assert.True(t, res.Payload.Settings.SttEnabled)
+				assert.Empty(t, err)
+
+				t.Run("EnableSTTWhileItIsEnabled", func(t *testing.T) {
+					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							EnableStt: true,
+						},
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+					assert.True(t, res.Payload.Settings.SttEnabled)
+					assert.Empty(t, err)
+				})
+
+				t.Run("DisableTelemetryWhileSTTEnabled", func(t *testing.T) {
+					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							DisableTelemetry: true,
+						},
+						Context: pmmapitests.Context,
+					})
+					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `cannot disable telemetry while STT is enabled`)
+					assert.Empty(t, res)
+				})
+			})
 
 			t.Run("InvalidBothEnableAndDisable", func(t *testing.T) {
 				defer teardown(t)
