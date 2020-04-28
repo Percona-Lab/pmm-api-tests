@@ -24,7 +24,6 @@ func TestSettings(t *testing.T) {
 		res, err := serverClient.Default.Server.GetSettings(nil)
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.TelemetryEnabled)
-		assert.False(t, res.Payload.Settings.SttEnabled)
 		expected := &server.GetSettingsOKBodySettingsMetricsResolutions{
 			Hr: "5s",
 			Mr: "10s",
@@ -153,15 +152,42 @@ func TestSettings(t *testing.T) {
 			t.Run("EnableSTTWhileTelemetryEnabled", func(t *testing.T) {
 				defer teardown(t)
 
+				// Ensure Telemetry is enabled
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EnableTelemetry: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				assert.True(t, res.Payload.Settings.TelemetryEnabled)
+
+				res, err = serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						EnableStt: true,
 					},
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
+
 				assert.True(t, res.Payload.Settings.SttEnabled)
 				assert.Empty(t, err)
+
+				resg, err := serverClient.Default.Server.GetSettings(&server.GetSettingsParams{
+					Body:    server.GetSettingsDefaultBody{},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
+
+				// Restore the STT state to false
+				res, err = serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EnableStt: false,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
 			})
 
 			t.Run("DisableSTTWhileItIsDisabled", func(t *testing.T) {
@@ -180,7 +206,7 @@ func TestSettings(t *testing.T) {
 			t.Run("STTEnabledState", func(t *testing.T) {
 				defer teardown(t)
 
-				serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						EnableStt: true,
 					},
