@@ -113,7 +113,7 @@ func TestSettings(t *testing.T) {
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Cannot enable STT while telemetry is disabled`)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Cannot enable STT while disabling telemetry`)
 				assert.Empty(t, res)
 			})
 
@@ -239,6 +239,20 @@ func TestSettings(t *testing.T) {
 					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `cannot disable telemetry while STT is enabled`)
 					assert.Empty(t, res)
 				})
+			})
+
+			t.Run("DisableSTTWhileItIsDisabled", func(t *testing.T) {
+				defer teardown(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						DisableStt: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				assert.False(t, res.Payload.Settings.SttEnabled)
+				assert.Empty(t, err)
 			})
 
 			t.Run("InvalidBothEnableAndDisable", func(t *testing.T) {
