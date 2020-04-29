@@ -24,6 +24,7 @@ func TestSettings(t *testing.T) {
 		res, err := serverClient.Default.Server.GetSettings(nil)
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.TelemetryEnabled)
+		assert.False(t, res.Payload.Settings.SttEnabled)
 		expected := &server.GetSettingsOKBodySettingsMetricsResolutions{
 			Hr: "5s",
 			Mr: "10s",
@@ -59,6 +60,7 @@ func TestSettings(t *testing.T) {
 				})
 				require.NoError(t, err)
 				assert.Equal(t, bodySettings.TelemetryEnabled, res.Payload.Settings.TelemetryEnabled)
+				assert.Equal(t, bodySettings.SttEnabled, res.Payload.Settings.SttEnabled)
 				expected := &server.ChangeSettingsOKBodySettingsMetricsResolutions{
 					Hr: bodySettings.MetricsResolutions.Hr,
 					Mr: bodySettings.MetricsResolutions.Mr,
@@ -101,6 +103,11 @@ func TestSettings(t *testing.T) {
 				assert.True(t, res.Payload.Settings.SttEnabled)
 				assert.True(t, res.Payload.Settings.TelemetryEnabled)
 				assert.Empty(t, err)
+
+				resg, err := serverClient.Default.Server.GetSettings(nil)
+				require.NoError(t, err)
+				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
+				assert.True(t, resg.Payload.Settings.SttEnabled)
 			})
 
 			t.Run("EnableSTTAndDisableTelemetry", func(t *testing.T) {
@@ -131,6 +138,11 @@ func TestSettings(t *testing.T) {
 				assert.False(t, res.Payload.Settings.SttEnabled)
 				assert.True(t, res.Payload.Settings.TelemetryEnabled)
 				assert.Empty(t, err)
+
+				resg, err := serverClient.Default.Server.GetSettings(nil)
+				require.NoError(t, err)
+				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
+				assert.False(t, resg.Payload.Settings.SttEnabled)
 			})
 
 			t.Run("DisableSTTAndDisableTelemetry", func(t *testing.T) {
@@ -147,6 +159,11 @@ func TestSettings(t *testing.T) {
 				assert.False(t, res.Payload.Settings.SttEnabled)
 				assert.False(t, res.Payload.Settings.TelemetryEnabled)
 				assert.Empty(t, err)
+
+				resg, err := serverClient.Default.Server.GetSettings(nil)
+				require.NoError(t, err)
+				assert.False(t, resg.Payload.Settings.TelemetryEnabled)
+				assert.False(t, resg.Payload.Settings.SttEnabled)
 			})
 
 			t.Run("EnableSTTWhileTelemetryEnabled", func(t *testing.T) {
@@ -173,21 +190,10 @@ func TestSettings(t *testing.T) {
 				assert.True(t, res.Payload.Settings.SttEnabled)
 				assert.Empty(t, err)
 
-				resg, err := serverClient.Default.Server.GetSettings(&server.GetSettingsParams{
-					Body:    server.GetSettingsDefaultBody{},
-					Context: pmmapitests.Context,
-				})
+				resg, err := serverClient.Default.Server.GetSettings(nil)
 				require.NoError(t, err)
 				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
-
-				// Restore the STT state to false
-				res, err = serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						EnableStt: false,
-					},
-					Context: pmmapitests.Context,
-				})
-				require.NoError(t, err)
+				assert.True(t, resg.Payload.Settings.SttEnabled)
 			})
 
 			t.Run("DisableSTTWhileItIsDisabled", func(t *testing.T) {
@@ -202,6 +208,11 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				assert.False(t, res.Payload.Settings.SttEnabled)
 				assert.Empty(t, err)
+
+				resg, err := serverClient.Default.Server.GetSettings(nil)
+				require.NoError(t, err)
+				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
+				assert.False(t, resg.Payload.Settings.SttEnabled)
 			})
 			t.Run("STTEnabledState", func(t *testing.T) {
 				defer teardown(t)
@@ -217,6 +228,11 @@ func TestSettings(t *testing.T) {
 				assert.True(t, res.Payload.Settings.SttEnabled)
 				assert.Empty(t, err)
 
+				resg, err := serverClient.Default.Server.GetSettings(nil)
+				require.NoError(t, err)
+				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
+				assert.True(t, resg.Payload.Settings.SttEnabled)
+
 				t.Run("EnableSTTWhileItIsEnabled", func(t *testing.T) {
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
@@ -227,6 +243,11 @@ func TestSettings(t *testing.T) {
 					require.NoError(t, err)
 					assert.True(t, res.Payload.Settings.SttEnabled)
 					assert.Empty(t, err)
+
+					resg, err := serverClient.Default.Server.GetSettings(nil)
+					require.NoError(t, err)
+					assert.True(t, resg.Payload.Settings.TelemetryEnabled)
+					assert.True(t, resg.Payload.Settings.SttEnabled)
 				})
 
 				t.Run("DisableTelemetryWhileSTTEnabled", func(t *testing.T) {
@@ -253,6 +274,11 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				assert.False(t, res.Payload.Settings.SttEnabled)
 				assert.Empty(t, err)
+
+				resg, err := serverClient.Default.Server.GetSettings(nil)
+				require.NoError(t, err)
+				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
+				assert.False(t, resg.Payload.Settings.SttEnabled)
 			})
 
 			t.Run("InvalidBothEnableAndDisable", func(t *testing.T) {
