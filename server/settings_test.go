@@ -42,6 +42,7 @@ func TestSettings(t *testing.T) {
 				bodySettings := res.Payload.Settings
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
+						DisableStt:      !bodySettings.SttEnabled,
 						EnableStt:       bodySettings.SttEnabled,
 						EnableTelemetry: bodySettings.TelemetryEnabled,
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
@@ -217,7 +218,7 @@ func TestSettings(t *testing.T) {
 			t.Run("STTEnabledState", func(t *testing.T) {
 				defer teardown(t)
 
-				_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						EnableStt: true,
 					},
