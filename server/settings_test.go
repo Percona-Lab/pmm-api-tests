@@ -35,50 +35,44 @@ func TestSettings(t *testing.T) {
 		assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
 
 		t.Run("ChangeSettings", func(t *testing.T) {
-			teardown := func(t *testing.T) {
+			restoreDefaults := func(t *testing.T) {
 				t.Helper()
 
-				require.NoError(t, err)
-				bodySettings := res.Payload.Settings
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						DisableStt:       !bodySettings.SttEnabled,
-						EnableStt:        bodySettings.SttEnabled,
-						DisableTelemetry: !bodySettings.TelemetryEnabled,
-						EnableTelemetry:  bodySettings.TelemetryEnabled,
+						DisableStt:      true,
+						EnableTelemetry: true,
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
-							Hr: bodySettings.MetricsResolutions.Hr,
-							Mr: bodySettings.MetricsResolutions.Mr,
-							Lr: bodySettings.MetricsResolutions.Lr,
+							Hr: "5s",
+							Mr: "10s",
+							Lr: "60s",
 						},
-						DataRetention:           bodySettings.DataRetention,
-						AWSPartitions:           bodySettings.AWSPartitions,
-						AlertManagerURL:         bodySettings.AlertManagerURL,
-						RemoveAlertManagerURL:   bodySettings.AlertManagerURL == "",
-						AlertManagerRules:       bodySettings.AlertManagerRules,
-						RemoveAlertManagerRules: bodySettings.AlertManagerRules == "",
+						DataRetention:           "2592000s",
+						AWSPartitions:           []string{"aws"},
+						RemoveAlertManagerURL:   true,
+						RemoveAlertManagerRules: true,
 					},
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.Equal(t, bodySettings.TelemetryEnabled, res.Payload.Settings.TelemetryEnabled)
-				assert.Equal(t, bodySettings.SttEnabled, res.Payload.Settings.SttEnabled)
+				assert.Equal(t, true, res.Payload.Settings.TelemetryEnabled)
+				assert.Equal(t, false, res.Payload.Settings.SttEnabled)
 				expected := &server.ChangeSettingsOKBodySettingsMetricsResolutions{
-					Hr: bodySettings.MetricsResolutions.Hr,
-					Mr: bodySettings.MetricsResolutions.Mr,
-					Lr: bodySettings.MetricsResolutions.Lr,
+					Hr: "5s",
+					Mr: "10s",
+					Lr: "60s",
 				}
 				assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
-				assert.Equal(t, bodySettings.DataRetention, res.Payload.Settings.DataRetention)
-				assert.Equal(t, bodySettings.AWSPartitions, res.Payload.Settings.AWSPartitions)
-				assert.Equal(t, bodySettings.AlertManagerURL, res.Payload.Settings.AlertManagerURL)
-				assert.Equal(t, bodySettings.AlertManagerRules, res.Payload.Settings.AlertManagerRules)
+				assert.Equal(t, "2592000s", res.Payload.Settings.DataRetention)
+				assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
+				assert.Equal(t, "", res.Payload.Settings.AlertManagerURL)
+				assert.Equal(t, "", res.Payload.Settings.AlertManagerRules)
 			}
 
-			defer teardown(t)
+			defer restoreDefaults(t)
 
 			t.Run("InvalidBothEnableAndDisableSTT", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -87,12 +81,12 @@ func TestSettings(t *testing.T) {
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Enable STT and disable STT cannot be both true`)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_stt and disable_stt are present.`)
 				assert.Empty(t, res)
 			})
 
 			t.Run("EnableSTTAndEnableTelemetry", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -113,7 +107,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("EnableSTTAndDisableTelemetry", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -122,12 +116,12 @@ func TestSettings(t *testing.T) {
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Cannot enable STT while disabling telemetry`)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Cannot enable STT while disabling telemetry.`)
 				assert.Empty(t, res)
 			})
 
 			t.Run("DisableSTTAndEnableTelemetry", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -148,7 +142,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DisableSTTAndDisableTelemetry", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -169,7 +163,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("EnableSTTWhileTelemetryEnabled", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				// Ensure Telemetry is enabled
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -199,7 +193,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DisableSTTWhileItIsDisabled", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -217,7 +211,7 @@ func TestSettings(t *testing.T) {
 				assert.False(t, resg.Payload.Settings.SttEnabled)
 			})
 			t.Run("STTEnabledState", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -259,13 +253,13 @@ func TestSettings(t *testing.T) {
 						},
 						Context: pmmapitests.Context,
 					})
-					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `cannot disable telemetry while STT is enabled`)
+					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Cannot disable telemetry while STT is enabled.`)
 					assert.Empty(t, res)
 				})
 			})
 
 			t.Run("TelemetryDisabledState", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -290,7 +284,7 @@ func TestSettings(t *testing.T) {
 						},
 						Context: pmmapitests.Context,
 					})
-					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `cannot enable STT while telemetry is disabled`)
+					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Cannot enable STT while telemetry is disabled.`)
 					assert.Empty(t, res)
 
 					resg, err := serverClient.Default.Server.GetSettings(nil)
@@ -300,6 +294,8 @@ func TestSettings(t *testing.T) {
 				})
 
 				t.Run("EnableTelemetryWhileItIsDisabled", func(t *testing.T) {
+					defer restoreDefaults(t)
+
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
 							EnableTelemetry: true,
@@ -317,7 +313,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("InvalidBothEnableAndDisable", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -331,7 +327,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("InvalidPartition", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -344,7 +340,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("TooManyPartitions", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -357,7 +353,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("HRInvalid", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -372,7 +368,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("HRTooSmall", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -387,7 +383,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("HRFractional", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -402,7 +398,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DataRetentionInvalid", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -415,7 +411,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DataRetentionInvalidToSmall", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -428,7 +424,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("DataRetentionFractional", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -441,7 +437,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("InvalidSSHKey", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -454,7 +450,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("NoAdminUserForSSH", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				sshKey := "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClY/8sz3w03vA2bY6mBFgUzrvb2FIoHw8ZjUXGGClJzJg5HC3jW1m5df7TOIkx0bt6Da2UOhuCvS4o27IT1aiHXVFydppp6ghQRB6saiiW2TKlQ7B+mXatwVaOIkO381kEjgijAs0LJnNRGpqQW0ZEAxVMz4a8puaZmVNicYSVYs4kV3QZsHuqn7jHbxs5NGAO+uRRSjcuPXregsyd87RAUHkGmNrwNFln/XddMzdGMwqZOuZWuxIXBqSrSX927XGHAJlUaOmLz5etZXHzfAY1Zxfu39r66Sx95bpm3JBmc/Ewfr8T2WL0cqynkpH+3QQBCjweTHzBE+lpXHdR2se1 qsandbox"
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -468,7 +464,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("OK", func(t *testing.T) {
-				defer teardown(t)
+				defer restoreDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
@@ -506,7 +502,7 @@ func TestSettings(t *testing.T) {
 				assert.Equal(t, []string{"aws", "aws-cn"}, res.Payload.Settings.AWSPartitions)
 
 				t.Run("DefaultsAreNotRestored", func(t *testing.T) {
-					defer teardown(t)
+					defer restoreDefaults(t)
 
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body:    server.ChangeSettingsBody{},
@@ -539,7 +535,7 @@ func TestSettings(t *testing.T) {
 
 			t.Run("AlertManager", func(t *testing.T) {
 				t.Run("SetInvalid", func(t *testing.T) {
-					defer teardown(t)
+					defer restoreDefaults(t)
 
 					url := "http://localhost:1234/"
 					rules := `invalid rules`
@@ -560,7 +556,7 @@ func TestSettings(t *testing.T) {
 				})
 
 				t.Run("SetAndRemoveInvalid", func(t *testing.T) {
-					defer teardown(t)
+					defer restoreDefaults(t)
 
 					_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
@@ -578,7 +574,7 @@ func TestSettings(t *testing.T) {
 				})
 
 				t.Run("SetValid", func(t *testing.T) {
-					defer teardown(t)
+					defer restoreDefaults(t)
 
 					url := "http://localhost:1234/"
 					rules := strings.TrimSpace(`
@@ -611,7 +607,7 @@ groups:
 					assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
 
 					t.Run("EmptyShouldNotRemove", func(t *testing.T) {
-						defer teardown(t)
+						defer restoreDefaults(t)
 
 						_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 							Body:    server.ChangeSettingsBody{},
@@ -658,7 +654,7 @@ groups:
 				} {
 					change, get := change, get
 					t.Run(change, func(t *testing.T) {
-						defer teardown(t)
+						defer restoreDefaults(t)
 
 						var p params
 						p.Settings.MetricsResolutions.LR = change
