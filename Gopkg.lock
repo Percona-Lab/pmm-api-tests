@@ -183,7 +183,7 @@
 
 [[projects]]
   branch = "PMM-5257-ProxySQL-socket-connection"
-  digest = "1:cbbec38538b182816205f1e707a65d34183c32b29bf6fe1366597fb54f56fb16"
+  digest = "1:1aaa43c55ae709b8a8d5ca4604f62320a87b64887592ba45ad5807a1ddd39896"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -205,7 +205,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "be3c7d763984e88245a7afe75aabc5da1cffb650"
+  revision = "c8600293a874e7740b7c9dcd8070d35ea1223bac"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
