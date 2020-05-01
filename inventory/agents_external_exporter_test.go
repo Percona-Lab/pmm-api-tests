@@ -30,8 +30,8 @@ func TestExternalExporter(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		ExternalExporter := addExternalExporter(t, agents.AddExternalExporterBody{
-			ServiceID:    serviceID,
 			RunsOnNodeID: genericNodeID,
+			ServiceID:    serviceID,
 			ListenPort:   12345,
 			CustomLabels: map[string]string{
 				"custom_label_for_external_exporter": "external_exporter",
@@ -50,6 +50,8 @@ func TestExternalExporter(t *testing.T) {
 				AgentID:      agentID,
 				ServiceID:    serviceID,
 				RunsOnNodeID: genericNodeID,
+				Scheme:       "http",
+				MetricPath:   "/metrics",
 				ListenPort:   12345,
 				CustomLabels: map[string]string{
 					"custom_label_for_external_exporter": "external_exporter",
