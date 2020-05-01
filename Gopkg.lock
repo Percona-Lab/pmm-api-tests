@@ -182,8 +182,8 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-5777-inventory-add-external-exporter"
-  digest = "1:103077072e53c04a6a2f5955403ebaba914f9afd6ce1c1c42fbc00ad7116ad49"
+  branch = "PMM-2.0"
+  digest = "1:db774f2a5f56ee7f0d48089284d0047196d5c5e3e9cb76f148e96d093bb02f96"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -205,7 +205,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "54ba8dc58bdd98db51d9db08d95c62fff45aa9b7"
+  revision = "6850b2cc947045740f78538674b11eb92da32179"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
