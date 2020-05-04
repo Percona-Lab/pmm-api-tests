@@ -325,6 +325,7 @@
     "github.com/go-openapi/runtime/client",
     "github.com/jstemmer/go-junit-report",
     "github.com/percona/pmm/api/alertmanager/amclient",
+    "github.com/percona/pmm/api/alertmanager/amclient/alert",
     "github.com/percona/pmm/api/inventorypb/json/client",
     "github.com/percona/pmm/api/inventorypb/json/client/agents",
     "github.com/percona/pmm/api/inventorypb/json/client/nodes",
