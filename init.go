@@ -163,11 +163,13 @@ func init() {
 	}
 
 	transport := Transport(BaseURL, *serverInsecureTLSF)
+	alertmanagerTransport := httptransport.New("127.0.0.1", "/alertmanager/api/v2", []string{"http"})
+	alertmanagerTransport.DefaultAuthentication = httptransport.BasicAuth("admin", "admin")
 	transport.Consumers["application/zip"] = runtime.ByteStreamConsumer()
 	inventoryClient.Default = inventoryClient.New(transport, nil)
 	managementClient.Default = managementClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
-	amclient.Default.SetTransport(httptransport.New("127.0.0.1", "/alertmanager/api/v2", []string{"http"}))
+	amclient.Default = amclient.New(alertmanagerTransport, nil)
 
 	// do not run tests if server is not available
 	_, err = serverClient.Default.Server.Readiness(nil)
