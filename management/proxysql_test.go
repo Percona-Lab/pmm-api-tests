@@ -509,8 +509,8 @@ func TestAddProxySQL(t *testing.T) {
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
-				Port:        6033,
-				Socket:      "/tmp/proxysql.sock",
+				Port:        6032,
+				Socket:      "/tmp/proxysql_admin.sock",
 			},
 		}
 		addProxySQLOK, err := client.Default.ProxySQL.AddProxySQL(params)

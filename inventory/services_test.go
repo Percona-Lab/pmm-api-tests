@@ -861,8 +861,8 @@ func TestProxySQLService(t *testing.T) {
 			Body: services.AddProxySQLServiceBody{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
-				Port:        6033,
-				Socket:      "/tmp/proxysql.sock",
+				Port:        6032,
+				Socket:      "/tmp/proxysql_admin.sock",
 				ServiceName: pmmapitests.TestString(t, "ProxySQL Service with address and socket conflict"),
 			},
 			Context: pmmapitests.Context,
@@ -885,8 +885,8 @@ func TestProxySQLService(t *testing.T) {
 			Body: services.AddProxySQLServiceBody{
 				NodeID:      genericNodeID,
 				ServiceName: pmmapitests.TestString(t, "ProxySQL Service with port and socket"),
-				Port:        6033,
-				Socket:      "/tmp/proxysql.sock",
+				Port:        6032,
+				Socket:      "/tmp/proxysql_admin.sock",
 			},
 			Context: pmmapitests.Context,
 		}
