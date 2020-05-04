@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
+	"github.com/percona/pmm/api/alertmanager/amclient"
 	"io"
 	"io/ioutil"
 	"math/rand"
@@ -166,6 +167,7 @@ func init() {
 	inventoryClient.Default = inventoryClient.New(transport, nil)
 	managementClient.Default = managementClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
+	amclient.Default.SetTransport(httptransport.New("127.0.0.1", "/alertmanager/api/v2", []string{"http"}))
 
 	// do not run tests if server is not available
 	_, err = serverClient.Default.Server.Readiness(nil)
