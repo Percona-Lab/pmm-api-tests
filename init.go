@@ -163,8 +163,8 @@ func init() {
 	}
 
 	transport := Transport(BaseURL, *serverInsecureTLSF)
-	alertmanagerTransport := httptransport.New("127.0.0.1:9093", "/alertmanager/api/v2", []string{"http"})
-	alertmanagerTransport.DefaultAuthentication = httptransport.BasicAuth("admin", "admin")
+	alertmanagerTransport := Transport(BaseURL, *serverInsecureTLSF)
+	alertmanagerTransport.BasePath = "/alertmanager/api/v2"
 	transport.Consumers["application/zip"] = runtime.ByteStreamConsumer()
 	inventoryClient.Default = inventoryClient.New(transport, nil)
 	managementClient.Default = managementClient.New(transport, nil)
