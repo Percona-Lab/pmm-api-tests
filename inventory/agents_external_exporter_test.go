@@ -51,7 +51,7 @@ func TestExternalExporter(t *testing.T) {
 				ServiceID:    serviceID,
 				RunsOnNodeID: genericNodeID,
 				Scheme:       "http",
-				MetricPath:   "/metrics",
+				MetricsPath:  "/metrics",
 				ListenPort:   12345,
 				CustomLabels: map[string]string{
 					"custom_label_for_external_exporter": "external_exporter",
@@ -84,7 +84,7 @@ func TestExternalExporter(t *testing.T) {
 			Username:     "username",
 			Password:     "password",
 			Scheme:       "https",
-			MetricPath:   "/metrics-hr",
+			MetricsPath:  "/metrics-hr",
 			ListenPort:   12345,
 			CustomLabels: map[string]string{
 				"custom_label_external_exporter": "external_exporter",
@@ -105,7 +105,7 @@ func TestExternalExporter(t *testing.T) {
 				RunsOnNodeID: genericNodeID,
 				Username:     "username",
 				Scheme:       "https",
-				MetricPath:   "/metrics-hr",
+				MetricsPath:  "/metrics-hr",
 				ListenPort:   12345,
 				CustomLabels: map[string]string{
 					"custom_label_external_exporter": "external_exporter",
@@ -132,7 +132,7 @@ func TestExternalExporter(t *testing.T) {
 				RunsOnNodeID: genericNodeID,
 				Username:     "username",
 				Scheme:       "https",
-				MetricPath:   "/metrics-hr",
+				MetricsPath:  "/metrics-hr",
 				ListenPort:   12345,
 				Disabled:     true,
 			},
@@ -158,7 +158,7 @@ func TestExternalExporter(t *testing.T) {
 				RunsOnNodeID: genericNodeID,
 				Username:     "username",
 				Scheme:       "https",
-				MetricPath:   "/metrics-hr",
+				MetricsPath:  "/metrics-hr",
 				ListenPort:   12345,
 				Disabled:     false,
 				CustomLabels: map[string]string{
