@@ -75,7 +75,7 @@ func TestAddExternal(t *testing.T) {
 					ListenPort:   9104,
 					RunsOnNodeID: nodeID,
 					Scheme:       "http",
-					MetricPath:   "/metrics",
+					MetricsPath:  "/metrics",
 				},
 			},
 		}, *listAgents.Payload)
@@ -98,7 +98,7 @@ func TestAddExternal(t *testing.T) {
 				Username:       "username",
 				Password:       "password",
 				Scheme:         "https",
-				MetricPath:     "/metrics-path",
+				MetricsPath:    "/metrics-path",
 				ListenPort:     9250,
 				NodeID:         nodeID,
 				Environment:    "some-environment",

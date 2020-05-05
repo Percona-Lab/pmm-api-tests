@@ -183,7 +183,7 @@
 
 [[projects]]
   branch = "PMM-5728-management-add-external"
-  digest = "1:9722c8e012e48bca3e57281f1ceb1dd87ea6a0de96af0f5f765b979829309f2a"
+  digest = "1:1673b62ac0b6204c62924d684734375f92ca9584c0fee9803187aeb74dc241e4"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -206,7 +206,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "bf814918d12bb89f187719980fd3ca8c8e586ecf"
+  revision = "a079a2562c83397d6472f93c7ddada46b3a81cdf"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
