@@ -182,7 +182,7 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-5728-management-add-external"
+  branch = "PMM-2.0"
   digest = "1:1673b62ac0b6204c62924d684734375f92ca9584c0fee9803187aeb74dc241e4"
   name = "github.com/percona/pmm"
   packages = [
@@ -206,7 +206,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "b24d3508d39b6bb21a213dfa26265b48650b0cde"
+  revision = "af481455337d1a474207e1906fc3b64d51a29f6f"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
