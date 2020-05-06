@@ -6,6 +6,11 @@ import (
 	"fmt"
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
+	serverClient "github.com/percona/pmm/api/serverpb/json/client"
+	"github.com/percona/pmm/api/serverpb/json/client/server"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
@@ -13,12 +18,6 @@ import (
 	"strings"
 	"testing"
 	"time"
-
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
@@ -108,30 +107,6 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
 				assert.True(t, resg.Payload.Settings.SttEnabled)
-
-				//Verify Failed checks alerts count in alertmanager
-
-				t.Run("VerifyAlertmanagerCheckAlerts", func(t *testing.T) {
-					activeAlerts := true
-					silencedAlerts := false
-					alertsCount := 0
-					expectedAlertsCount := 2
-					for i := 0; i < 60; i++ {
-						res, err := amclient.Default.Alert.GetAlerts(&alert.GetAlertsParams{
-							Active:   &activeAlerts,
-							Silenced: &silencedAlerts,
-							Context:  pmmapitests.Context,
-						})
-						require.NoError(t, err)
-						if len(res.Payload) != 0 {
-							alertsCount = len(res.Payload)
-							break
-						}
-						time.Sleep(1 * time.Second)
-					}
-					msg := fmt.Sprintf("expected to see %v alerts", expectedAlertsCount)
-					assert.Equal(t, expectedAlertsCount, alertsCount, msg)
-				})
 			})
 
 			t.Run("EnableSTTAndDisableTelemetry", func(t *testing.T) {
@@ -218,6 +193,40 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
 				assert.True(t, resg.Payload.Settings.SttEnabled)
+			})
+
+			//Verify Failed checks alerts count in alertmanager
+			t.Run("VerifyAlertmanagerCheckAlerts", func(t *testing.T) {
+				defer restoreDefaults(t)
+				// Enabling Telemetry
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EnableTelemetry: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				assert.True(t, res.Payload.Settings.TelemetryEnabled)
+
+				activeAlerts := true
+				silencedAlerts := false
+				alertsCount := 0
+				expectedAlertsCount := 2
+				for i := 0; i < 60; i++ {
+					res, err := amclient.Default.Alert.GetAlerts(&alert.GetAlertsParams{
+						Active:   &activeAlerts,
+						Silenced: &silencedAlerts,
+						Context:  pmmapitests.Context,
+					})
+					require.NoError(t, err)
+					if len(res.Payload) != 0 {
+						alertsCount = len(res.Payload)
+						break
+					}
+					time.Sleep(1 * time.Second)
+				}
+				msg := fmt.Sprintf("expected to see %v alerts", expectedAlertsCount)
+				assert.Equal(t, expectedAlertsCount, alertsCount, msg)
 			})
 
 			t.Run("DisableSTTWhileItIsDisabled", func(t *testing.T) {
