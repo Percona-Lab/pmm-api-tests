@@ -196,7 +196,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			//Verify Failed checks alerts count in alertmanager
-			t.Run("VerifyAlertmanagerCheckAlerts", func(t *testing.T) {
+			t.Run("VerifyCorrectNumberOfFailedChecksInAlertmanager", func(t *testing.T) {
 				defer restoreDefaults(t)
 				// Enabling Telemetry
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
