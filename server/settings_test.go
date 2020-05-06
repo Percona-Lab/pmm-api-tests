@@ -201,7 +201,7 @@ func TestSettings(t *testing.T) {
 				// Enabling Telemetry
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableTelemetry: true,
+						EnableStt: true,
 					},
 					Context: pmmapitests.Context,
 				})
