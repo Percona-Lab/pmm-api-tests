@@ -212,7 +212,7 @@ func TestSettings(t *testing.T) {
 				silencedAlerts := false
 				alertsCount := 0
 				expectedAlertsCount := 2
-				for i := 0; i < 60; i++ {
+				for i := 0; i < 120; i++ {
 					res, err := amclient.Default.Alert.GetAlerts(&alert.GetAlertsParams{
 						Active:   &activeAlerts,
 						Silenced: &silencedAlerts,
