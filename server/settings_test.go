@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
@@ -196,7 +195,7 @@ func TestSettings(t *testing.T) {
 				assert.True(t, resg.Payload.Settings.SttEnabled)
 			})
 
-			//Verify Failed checks alerts count in alertmanager
+			// Verify Failed checks alerts in Alertmanager
 			t.Run("VerifyFailedChecksInAlertmanager", func(t *testing.T) {
 				defer restoreDefaults(t)
 				// Enabling STT
@@ -213,7 +212,7 @@ func TestSettings(t *testing.T) {
 				silencedAlerts := false
 				alertsCount := 0
 
-				//120 sec ping for failed checks alerts to appear in alertmanager
+				// 120 sec ping for failed checks alerts to appear in alertmanager
 				for i := 0; i < 120; i++ {
 					res, err := amclient.Default.Alert.GetAlerts(&alert.GetAlertsParams{
 						Active:   &activeAlerts,
@@ -223,17 +222,20 @@ func TestSettings(t *testing.T) {
 					require.NoError(t, err)
 					if len(res.Payload) != 0 {
 						for _, v := range res.Payload {
-							//verify that there is description in response
+							// Verify that there is description in response
 							if _, ok := v.Annotations["description"]; !ok {
 								assert.True(t, false, "Description not met in response")
+								break
 							}
-							//verify that there is summary in response
+							// Verify that there is summary in response
 							if _, ok := v.Annotations["summary"]; !ok {
 								assert.True(t, false, "Summary not met in response")
+								break
 							}
-							//verify summary is not empty
+							// Verify summary is not empty
 							if v.Annotations["summary"] == "" {
 								assert.True(t, false, "Summary is empty")
+								break
 							}
 						}
 						alertsCount = len(res.Payload)
@@ -241,9 +243,8 @@ func TestSettings(t *testing.T) {
 					}
 					time.Sleep(1 * time.Second)
 				}
-				msg := fmt.Sprint("No alerts met")
 
-				assert.True(t, alertsCount > 0, msg)
+				assert.True(t, alertsCount > 0, "No alerts met")
 			})
 
 			t.Run("DisableSTTWhileItIsDisabled", func(t *testing.T) {
