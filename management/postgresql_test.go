@@ -459,12 +459,14 @@ func TestAddPostgreSQL(t *testing.T) {
 		params := &postgresql.AddPostgreSQLParams{
 			Context: pmmapitests.Context,
 			Body: postgresql.AddPostgreSQLBody{
+				PMMAgentID:  pmmAgentID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
+				Username:    "username",
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Address: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		assert.Nil(t, addPostgreSQLOK)
 	})
 
@@ -483,11 +485,13 @@ func TestAddPostgreSQL(t *testing.T) {
 			Body: postgresql.AddPostgreSQLBody{
 				NodeID:      nodeID,
 				ServiceName: serviceName,
+				PMMAgentID:  pmmAgentID,
+				Username:    "username",
 				Address:     "10.10.10.10",
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Port: value '0' must be greater than '0'")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
 		assert.Nil(t, addPostgreSQLOK)
 	})
 
