@@ -518,6 +518,34 @@ func TestAddPostgreSQL(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmAgentId: value '' must not be an empty string")
 		assert.Nil(t, addPostgreSQLOK)
 	})
+
+	t.Run("Address And Socket Conflict.", func(t *testing.T) {
+		nodeName := pmmapitests.TestString(t, "node-name")
+		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+		})
+		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer removePMMAgentWithSubAgents(t, pmmAgentID)
+
+		serviceName := pmmapitests.TestString(t, "service-name")
+		params := &postgresql.AddPostgreSQLParams{
+			Context: pmmapitests.Context,
+			Body: postgresql.AddPostgreSQLBody{
+				PMMAgentID:  pmmAgentID,
+				Username:    "username",
+				Password:    "password",
+				NodeID:      nodeID,
+				ServiceName: serviceName,
+				Address:     "10.10.10.10",
+				Port:        5432,
+				Socket:      "/var/run/postgresql",
+			},
+		}
+		addProxySQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
+		assert.Nil(t, addProxySQLOK)
+	})
 }
 
 func TestRemovePostgreSQL(t *testing.T) {
