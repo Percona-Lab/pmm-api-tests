@@ -456,10 +456,11 @@ func TestAddMongoDB(t *testing.T) {
 			Body: mongodb.AddMongoDBBody{
 				NodeID:      nodeID,
 				ServiceName: serviceName,
+				PMMAgentID:  pmmAgentID,
 			},
 		}
 		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Address: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		assert.Nil(t, addMongoDBOK)
 	})
 
@@ -479,10 +480,11 @@ func TestAddMongoDB(t *testing.T) {
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				Address:     "10.10.10.10",
+				PMMAgentID:  pmmAgentID,
 			},
 		}
 		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Port: value '0' must be greater than '0'")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
 		assert.Nil(t, addMongoDBOK)
 	})
 
@@ -508,6 +510,34 @@ func TestAddMongoDB(t *testing.T) {
 		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmAgentId: value '' must not be an empty string")
 		assert.Nil(t, addMongoDBOK)
+	})
+
+	t.Run("Address And Socket Conflict.", func(t *testing.T) {
+		nodeName := pmmapitests.TestString(t, "node-name")
+		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+		})
+		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer removePMMAgentWithSubAgents(t, pmmAgentID)
+
+		serviceName := pmmapitests.TestString(t, "service-name")
+		params := &mongodb.AddMongoDBParams{
+			Context: pmmapitests.Context,
+			Body: mongodb.AddMongoDBBody{
+				PMMAgentID:  pmmAgentID,
+				Username:    "username",
+				Password:    "password",
+				NodeID:      nodeID,
+				ServiceName: serviceName,
+				Address:     "10.10.10.10",
+				Port:        27017,
+				Socket:      "/tmp/mongodb-27017.sock",
+			},
+		}
+		addProxySQLOK, err := client.Default.MongoDB.AddMongoDB(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
+		assert.Nil(t, addProxySQLOK)
 	})
 }
 

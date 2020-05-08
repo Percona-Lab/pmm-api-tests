@@ -182,8 +182,8 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:1673b62ac0b6204c62924d684734375f92ca9584c0fee9803187aeb74dc241e4"
+  branch = "PMM-5256-MongoDB-socket-conn"
+  digest = "1:f6fdbd109f24a7c2e273ba9df09b0162e55183d3e2475691ed5f39c83e96c540"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -206,7 +206,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "af481455337d1a474207e1906fc3b64d51a29f6f"
+  revision = "da9c00edc51b4de99db5985f374aab5869d255f7"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
