@@ -196,7 +196,7 @@ func TestSettings(t *testing.T) {
 			})
 
 			//Verify Failed checks alerts count in alertmanager
-			t.Run("VerifyCorrectNumberOfFailedChecksInAlertmanager", func(t *testing.T) {
+			t.Run("VerifyFailedChecksInAlertmanager", func(t *testing.T) {
 				defer restoreDefaults(t)
 				// Enabling STT
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -211,7 +211,8 @@ func TestSettings(t *testing.T) {
 				activeAlerts := true
 				silencedAlerts := false
 				alertsCount := 0
-				expectedAlertsCount := 2
+
+				//120 sec ping for failed checks alerts to appear in alertmanager
 				for i := 0; i < 120; i++ {
 					res, err := amclient.Default.Alert.GetAlerts(&alert.GetAlertsParams{
 						Active:   &activeAlerts,
@@ -220,13 +221,28 @@ func TestSettings(t *testing.T) {
 					})
 					require.NoError(t, err)
 					if len(res.Payload) != 0 {
+						for _, v := range res.Payload {
+							//verify that there is description in response
+							if _, ok := v.Annotations["description"]; !ok {
+								assert.True(t, false, "Description not met in response")
+							}
+							//verify that there is summary in response
+							if _, ok := v.Annotations["summary"]; !ok {
+								assert.True(t, false, "Summary not met in response")
+							}
+							//verify summary is not empty
+							if v.Annotations["summary"] == "" {
+								assert.True(t, false, "Summary is empty")
+							}
+						}
 						alertsCount = len(res.Payload)
 						break
 					}
 					time.Sleep(1 * time.Second)
 				}
-				msg := fmt.Sprintf("expected to see %v alerts", expectedAlertsCount)
-				assert.Equal(t, expectedAlertsCount, alertsCount, msg)
+				msg := fmt.Sprint("No alerts met")
+
+				assert.True(t, alertsCount > 0, msg)
 			})
 
 			t.Run("DisableSTTWhileItIsDisabled", func(t *testing.T) {
