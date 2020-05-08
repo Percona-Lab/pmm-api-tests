@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	"github.com/percona/pmm/api/alertmanager/amclient"
 	"io"
 	"io/ioutil"
 	"math/rand"
@@ -18,6 +17,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
+	"github.com/percona/pmm/api/alertmanager/amclient"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
