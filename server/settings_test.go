@@ -220,31 +220,24 @@ func TestSettings(t *testing.T) {
 						Context:  pmmapitests.Context,
 					})
 					require.NoError(t, err)
-					if len(res.Payload) != 0 {
-						for _, v := range res.Payload {
-							// Verify that there is description in response
-							if _, ok := v.Annotations["description"]; !ok {
-								assert.True(t, false, "Description not met in response")
-								break
-							}
-							// Verify that there is summary in response
-							if _, ok := v.Annotations["summary"]; !ok {
-								assert.True(t, false, "Summary not met in response")
-								break
-							}
-							// Verify summary is not empty
-							if v.Annotations["summary"] == "" {
-								assert.True(t, false, "Summary is empty")
-								break
-							}
-						}
-						alertsCount = len(res.Payload)
-						break
+					if len(res.Payload) == 0 {
+						time.Sleep(1 * time.Second)
+						continue
 					}
-					time.Sleep(1 * time.Second)
+					for _, v := range res.Payload {
+						// Verify that there is description in response
+						_, ok := v.Annotations["description"]
+						assert.True(t, ok, "Description not met in response")
+						// Verify that there is summary in response
+						_, ok = v.Annotations["summary"]
+						assert.True(t, ok, "Summary not met in response")
+						// Verify summary is not empty
+						assert.NotEmpty(t, v.Annotations["summary"], "Summary is empty")
+					}
+					alertsCount = len(res.Payload)
+					break
 				}
-
-				assert.True(t, alertsCount > 0, "No alerts met")
+				assert.Greater(t, alertsCount, 0, "No alerts met")
 			})
 
 			t.Run("DisableSTTWhileItIsDisabled", func(t *testing.T) {
