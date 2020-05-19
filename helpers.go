@@ -132,7 +132,7 @@ func RemoveServices(t TestingT, serviceIDs ...string) {
 		params := &services.RemoveServiceParams{
 			Body: services.RemoveServiceBody{
 				ServiceID: serviceID,
-				//Force:     true,
+				Force:     true,
 			},
 			Context: context.Background(),
 		}
@@ -156,6 +156,24 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 	}
+}
+
+func AddGenericNode(t TestingT, nodeName string) *nodes.AddGenericNodeOKBodyGeneric {
+	t.Helper()
+
+	params := &nodes.AddGenericNodeParams{
+		Body: nodes.AddGenericNodeBody{
+			NodeName: nodeName,
+			Address:  "10.10.10.10",
+		},
+		Context: Context,
+	}
+	res, err := client.Default.Nodes.AddGenericNode(params)
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+	require.NotNil(t, res.Payload)
+	require.NotNil(t, res.Payload.Generic)
+	return res.Payload.Generic
 }
 
 func AddRemoteNode(t TestingT, nodeName string) *nodes.AddRemoteNodeOKBody {

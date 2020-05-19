@@ -11,24 +11,6 @@ import (
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
-func addGenericNode(t pmmapitests.TestingT, nodeName string) *nodes.AddGenericNodeOKBodyGeneric {
-	t.Helper()
-
-	params := &nodes.AddGenericNodeParams{
-		Body: nodes.AddGenericNodeBody{
-			NodeName: nodeName,
-			Address:  "10.10.10.10",
-		},
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Nodes.AddGenericNode(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	require.NotNil(t, res.Payload)
-	require.NotNil(t, res.Payload.Generic)
-	return res.Payload.Generic
-}
-
 func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteRDSNodeOKBody {
 	t.Helper()
 
@@ -181,6 +163,18 @@ func addProxySQLExporter(t pmmapitests.TestingT, body agents.AddProxySQLExporter
 	t.Helper()
 
 	res, err := client.Default.Agents.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
+		Body:    body,
+		Context: pmmapitests.Context,
+	})
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+	return res.Payload
+}
+
+func addExternalExporter(t pmmapitests.TestingT, body agents.AddExternalExporterBody) *agents.AddExternalExporterOKBody {
+	t.Helper()
+
+	res, err := client.Default.Agents.AddExternalExporter(&agents.AddExternalExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})
