@@ -783,7 +783,7 @@ func TestPostgreSQLService(t *testing.T) {
 		}
 	})
 
-	t.Run("AddEpmtyAddressAndSocket", func(t *testing.T) {
+	t.Run("AddEmptyAddressAndSocket", func(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
