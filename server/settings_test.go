@@ -208,9 +208,8 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				assert.True(t, res.Payload.Settings.TelemetryEnabled)
 
-				activeAlerts := true
-				silencedAlerts := false
-				alertsCount := 0
+				activeAlerts, silencedAlerts := true, false
+				var alertsCount int
 
 				// 120 sec ping for failed checks alerts to appear in alertmanager
 				for i := 0; i < 120; i++ {
