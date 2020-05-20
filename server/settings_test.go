@@ -195,9 +195,13 @@ func TestSettings(t *testing.T) {
 				assert.True(t, resg.Payload.Settings.SttEnabled)
 			})
 
-			// Verify Failed checks alerts in Alertmanager
 			t.Run("VerifyFailedChecksInAlertmanager", func(t *testing.T) {
+				if !pmmapitests.RunSTTTests {
+					t.Skip("skipping STT tests")
+				}
+
 				defer restoreDefaults(t)
+
 				// Enabling STT
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
