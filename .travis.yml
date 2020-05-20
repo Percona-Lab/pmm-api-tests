@@ -35,7 +35,7 @@ install:
 
 before_script:
   # static analyze
-  - bin/golangci-lint run -c=.golangci.yml --out-format=line-number | REVIEWDOG_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check -name='Required checks'
+  - bin/golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
 
 script:
   - make init build
