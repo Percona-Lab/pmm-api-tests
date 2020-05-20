@@ -1,7 +1,19 @@
 ---
 linters-settings:
+  depguard:
+    list-type: blacklist
+    include-go-root: true
+    packages:
+      # use "github.com/pkg/errors" instead
+      - errors
+      # use "github.com/golang/protobuf/proto" instead
+      - github.com/gogo/protobuf/proto
+
+  goimports:
+    local-prefixes: github.com/Percona-Lab/pmm-api-tests
+
   lll:
-    line-length: 140
+    line-length: 170
     tab-width: 4
 
   unused:
