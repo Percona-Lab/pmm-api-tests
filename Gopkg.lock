@@ -183,7 +183,7 @@
 
 [[projects]]
   branch = "SAAS-67-stt-api"
-  digest = "1:2b196ec314f5d817de3e10f20c3ee5274d7614f61b0ed91f159e4e7785eeda4f"
+  digest = "1:bacc077e6b2da739c0a14da5313746627344b4b9898918f2a1456e4fc236071b"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventorypb/json/client",
@@ -206,7 +206,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "867ff30cc00c0f6b1881f4092649e3c2b02c5302"
+  revision = "842370cd0a9048ed5349a9ac1e651635ac8f0855"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
