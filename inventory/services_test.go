@@ -920,7 +920,7 @@ func TestProxySQLService(t *testing.T) {
 	t.Run("AddAddressSocketConflict", func(t *testing.T) {
 		t.Parallel()
 
-		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
@@ -944,7 +944,7 @@ func TestProxySQLService(t *testing.T) {
 	t.Run("AddPortWithNoAddress", func(t *testing.T) {
 		t.Parallel()
 
-		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
@@ -967,7 +967,7 @@ func TestProxySQLService(t *testing.T) {
 	t.Run("AddEpmtyAddressAndSocket", func(t *testing.T) {
 		t.Parallel()
 
-		genericNodeID := addGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
