@@ -212,30 +212,37 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				assert.True(t, res.Payload.Settings.TelemetryEnabled)
 
-				activeAlerts, silencedAlerts := true, false
-				var alertsCount int
-
 				// 120 sec ping for failed checks alerts to appear in alertmanager
+				var alertsCount int
 				for i := 0; i < 120; i++ {
 					res, err := amclient.Default.Alert.GetAlerts(&alert.GetAlertsParams{
-						Active:   &activeAlerts,
-						Silenced: &silencedAlerts,
-						Context:  pmmapitests.Context,
+						Filter:  []string{"stt_check=1"},
+						Context: pmmapitests.Context,
 					})
 					require.NoError(t, err)
 					if len(res.Payload) == 0 {
 						time.Sleep(1 * time.Second)
 						continue
 					}
+
 					for _, v := range res.Payload {
-						// Verify that there is description in response
-						_, ok := v.Annotations["description"]
-						assert.True(t, ok, "Description not met in response")
-						// Verify that there is summary in response
-						_, ok = v.Annotations["summary"]
-						assert.True(t, ok, "Summary not met in response")
-						// Verify summary is not empty
-						assert.NotEmpty(t, v.Annotations["summary"], "Summary is empty")
+						t.Logf("%+v", v)
+
+						assert.Contains(t, v.Annotations, "summary")
+
+						assert.Equal(t, "1", v.Labels["stt_check"])
+
+						assert.Contains(t, v.Labels, "agent_id")
+						assert.Contains(t, v.Labels, "agent_type")
+						assert.Contains(t, v.Labels, "alert_id")
+						assert.Contains(t, v.Labels, "alertname")
+						assert.Contains(t, v.Labels, "node_id")
+						assert.Contains(t, v.Labels, "node_name")
+						assert.Contains(t, v.Labels, "node_type")
+						assert.Contains(t, v.Labels, "service_id")
+						assert.Contains(t, v.Labels, "service_name")
+						assert.Contains(t, v.Labels, "service_type")
+						assert.Contains(t, v.Labels, "severity")
 					}
 					alertsCount = len(res.Payload)
 					break
@@ -261,6 +268,7 @@ func TestSettings(t *testing.T) {
 				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
 				assert.False(t, resg.Payload.Settings.SttEnabled)
 			})
+
 			t.Run("STTEnabledState", func(t *testing.T) {
 				defer restoreDefaults(t)
 
