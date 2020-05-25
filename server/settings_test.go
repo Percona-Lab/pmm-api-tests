@@ -167,7 +167,7 @@ func TestSettings(t *testing.T) {
 					t.Skip("skipping STT tests")
 				}
 
-				defer restoreDefaults(t)
+				defer restoreSettingsDefaults(t)
 
 				// Enabling STT
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
