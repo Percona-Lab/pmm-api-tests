@@ -182,7 +182,7 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-5243-PostgreSQL-socket-conn"
+  branch = "PMM-2.0"
   digest = "1:8c4302b889f07b4aed27561103102be14f814bda691477f555836976212c797d"
   name = "github.com/percona/pmm"
   packages = [
@@ -213,7 +213,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "3bd7b3dfe53cafe2046e37ab8f45b36c836ce705"
+  revision = "2bd5206ec72308de837f1ab909cf5334292c93c6"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
