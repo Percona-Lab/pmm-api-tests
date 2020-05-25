@@ -183,7 +183,7 @@
 
 [[projects]]
   branch = "SAAS-67-stt-api"
-  digest = "1:14a3715ed096a091f7b8ffc251d309b7a5d906b86898a287af234c81dc128559"
+  digest = "1:b8583ca55523e47495b40d388b5e56c734a6f3a5edc0b56ae0b63cd3dc19d209"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
