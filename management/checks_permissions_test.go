@@ -17,22 +17,22 @@ import (
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
-const grafanaHost = "localhost"
+const pmmAddr = "localhost:443"
 
-func createUserWithRole(t *testing.T, login, role string) error {
-	userID, err := createUser(t, login)
+func createUserWithRole(login, role string) error {
+	userID, err := createUser(login)
 	if err != nil {
 		return err
 	}
 
-	if err = setRole(t, userID, role); err != nil {
+	if err = setRole(userID, role); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createUser(t *testing.T, login string) (int, error) {
+func createUser(login string) (int, error) {
 	// https://grafana.com/docs/http_api/admin/#global-users
 	data, err := json.Marshal(map[string]string{
 		"name":     login,
@@ -42,8 +42,8 @@ func createUser(t *testing.T, login string) (int, error) {
 	})
 
 	u := url.URL{
-		Scheme: "http",
-		Host:   grafanaHost,
+		Scheme: "https",
+		Host:   pmmAddr,
 		Path:   "/graph/api/admin/users",
 		User:   url.UserPassword("admin", "admin"),
 	}
@@ -78,15 +78,15 @@ func createUser(t *testing.T, login string) (int, error) {
 	return int(m["id"].(float64)), nil
 }
 
-func setRole(t *testing.T, userID int, role string) error {
+func setRole(userID int, role string) error {
 	// https://grafana.com/docs/http_api/org/#updates-the-given-user
 	data, err := json.Marshal(map[string]string{
 		"role": role,
 	})
 
 	u := url.URL{
-		Scheme: "http",
-		Host:   grafanaHost,
+		Scheme: "https",
+		Host:   pmmAddr,
 		Path:   "/graph/api/org/users/" + strconv.Itoa(userID),
 		User:   url.UserPassword("admin", "admin"),
 	}
@@ -115,26 +115,38 @@ func setRole(t *testing.T, userID int, role string) error {
 }
 
 func TestPermissions(t *testing.T) {
-	viewer := "viewer" + strconv.FormatInt(time.Now().Unix(), 10)
-	admin := "admin" + strconv.FormatInt(time.Now().Unix(), 10)
+	ts := strconv.FormatInt(time.Now().Unix(), 10)
+	none := "none-" + ts
+	viewer := "viewer-" + ts
+	editor := "editor-" + ts
+	admin := "admin-" + ts
 
-	err := createUserWithRole(t, viewer, "Viewer")
+	_, err := createUser(none)
 	require.NoError(t, err)
 
-	err = createUserWithRole(t, admin, "Admin")
+	err = createUserWithRole(viewer, "Viewer")
+	require.NoError(t, err)
+
+	err = createUserWithRole(editor, "Editor")
+	require.NoError(t, err)
+
+	err = createUserWithRole(admin, "Admin")
 	require.NoError(t, err)
 
 	tests := []struct {
+		name       string
 		login      string
 		statusCode int
 	}{
-		{login: viewer, statusCode: http.StatusUnauthorized},
-		{login: admin, statusCode: http.StatusOK},
+		{name: "default", login: none, statusCode: http.StatusUnauthorized},
+		{name: "viewer", login: viewer, statusCode: http.StatusUnauthorized},
+		{name: "editor", login: editor, statusCode: http.StatusUnauthorized},
+		{name: "admin", login: admin, statusCode: http.StatusOK},
 	}
 
 	for _, test := range tests {
 		test := test
-		t.Run("get settings", func(t *testing.T) {
+		t.Run("get settings/"+test.name, func(t *testing.T) {
 			// make a BaseURL without authentication
 			u, err := url.Parse(pmmapitests.BaseURL.String())
 			require.NoError(t, err)
@@ -144,24 +156,18 @@ func TestPermissions(t *testing.T) {
 			resp, err := http.Post(u.String(), "", nil)
 			require.NoError(t, err)
 			assert.Equal(t, test.statusCode, resp.StatusCode)
-			// b,err := ioutil.ReadAll(resp.Body)
-			// require.NoError(t, err)
-			// t.Log(string(b))
 		})
 
-		t.Run("get alerts", func(t *testing.T) {
+		t.Run("get alerts/"+test.name, func(t *testing.T) {
 			// make a BaseURL without authentication
 			u, err := url.Parse(pmmapitests.BaseURL.String())
 			require.NoError(t, err)
 			u.User = url.UserPassword(test.login, test.login)
-			u.Path = "/v1/Settings/Get"
+			u.Path = "/alertmanager/api/v2/alerts"
 
-			resp, err := http.Post(u.String(), "", nil)
+			resp, err := http.Get(u.String())
 			require.NoError(t, err)
 			assert.Equal(t, test.statusCode, resp.StatusCode)
-			// b,err := ioutil.ReadAll(resp.Body)
-			// require.NoError(t, err)
-			// t.Log(string(b))
 		})
 	}
 
