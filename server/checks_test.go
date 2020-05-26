@@ -3,7 +3,7 @@ package server
 import (
 	"testing"
 
-	checksClient "github.com/percona/pmm/api/managementpb/json/client"
+	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +31,7 @@ func TestStartChecks(t *testing.T) {
 		assert.True(t, res.Payload.Settings.TelemetryEnabled)
 		assert.Empty(t, err)
 
-		resp, err := checksClient.Default.SecurityChecks.StartSecurityChecks(nil)
+		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 	})
@@ -51,7 +51,7 @@ func TestStartChecks(t *testing.T) {
 		assert.True(t, res.Payload.Settings.TelemetryEnabled)
 		assert.Empty(t, err)
 
-		resp, err := checksClient.Default.SecurityChecks.StartSecurityChecks(nil)
+		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `STT is disabled.`)
 		assert.Nil(t, resp)
 	})
