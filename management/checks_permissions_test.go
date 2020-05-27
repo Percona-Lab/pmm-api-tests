@@ -40,6 +40,9 @@ func createUser(login string) (int, error) {
 		"login":    login,
 		"password": login,
 	})
+	if err != nil {
+		return 0, err
+	}
 
 	u := url.URL{
 		Scheme: "https",
@@ -83,6 +86,9 @@ func setRole(userID int, role string) error {
 	data, err := json.Marshal(map[string]string{
 		"role": role,
 	})
+	if err != nil {
+		return err
+	}
 
 	u := url.URL{
 		Scheme: "https",
@@ -155,6 +161,8 @@ func TestPermissions(t *testing.T) {
 
 			resp, err := http.Post(u.String(), "", nil)
 			require.NoError(t, err)
+			defer resp.Body.Close() //nolint:errcheck
+
 			assert.Equal(t, test.statusCode, resp.StatusCode)
 		})
 
@@ -167,8 +175,9 @@ func TestPermissions(t *testing.T) {
 
 			resp, err := http.Get(u.String())
 			require.NoError(t, err)
+			defer resp.Body.Close() //nolint:errcheck
+
 			assert.Equal(t, test.statusCode, resp.StatusCode)
 		})
 	}
-
 }
