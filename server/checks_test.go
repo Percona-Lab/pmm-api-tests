@@ -55,5 +55,4 @@ func TestStartChecks(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `STT is disabled.`)
 		assert.Nil(t, resp)
 	})
-
 }
