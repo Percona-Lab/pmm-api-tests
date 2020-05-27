@@ -183,9 +183,16 @@
 
 [[projects]]
   branch = "PMM-5256-MongoDB-socket-conn"
-  digest = "1:f6fdbd109f24a7c2e273ba9df09b0162e55183d3e2475691ed5f39c83e96c540"
+  digest = "1:29a7b48bb085943d12a64eff4637334cd8e004a6b43fcc6d235ac79395799384"
   name = "github.com/percona/pmm"
   packages = [
+    "api/alertmanager/amclient",
+    "api/alertmanager/amclient/alert",
+    "api/alertmanager/amclient/alertgroup",
+    "api/alertmanager/amclient/general",
+    "api/alertmanager/amclient/receiver",
+    "api/alertmanager/amclient/silence",
+    "api/alertmanager/ammodels",
     "api/inventorypb/json/client",
     "api/inventorypb/json/client/agents",
     "api/inventorypb/json/client/nodes",
@@ -206,7 +213,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "da9c00edc51b4de99db5985f374aab5869d255f7"
+  revision = "048f6582b79ce3ed6ad5d0c69655695c027a8417"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -318,6 +325,8 @@
     "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",
     "github.com/jstemmer/go-junit-report",
+    "github.com/percona/pmm/api/alertmanager/amclient",
+    "github.com/percona/pmm/api/alertmanager/amclient/alert",
     "github.com/percona/pmm/api/inventorypb/json/client",
     "github.com/percona/pmm/api/inventorypb/json/client/agents",
     "github.com/percona/pmm/api/inventorypb/json/client/nodes",
