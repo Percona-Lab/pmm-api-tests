@@ -8,8 +8,10 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
@@ -21,17 +23,7 @@ import (
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
-func doRequest(t testing.TB, client *http.Client, req *http.Request) (*http.Response, []byte) {
-	resp, err := client.Do(req)
-	require.NoError(t, err)
-
-	defer resp.Body.Close() //nolint:errcheck
-
-	b, err := ioutil.ReadAll(resp.Body)
-	require.NoError(t, err)
-
-	return resp, b
-}
+const pmmAddr = "localhost:443"
 
 func TestAuth(t *testing.T) {
 	t.Run("AuthErrors", func(t *testing.T) {
@@ -228,4 +220,131 @@ func TestSwagger(t *testing.T) {
 			})
 		})
 	}
+}
+
+func TestPermissionsForSTTChecksPage(t *testing.T) {
+	ts := strconv.FormatInt(time.Now().Unix(), 10)
+	none := "none-" + ts
+	viewer := "viewer-" + ts
+	editor := "editor-" + ts
+	admin := "admin-" + ts
+
+	createUser(t, none)
+	createUserWithRole(t, viewer, "Viewer")
+	createUserWithRole(t, editor, "Editor")
+	createUserWithRole(t, admin, "Admin")
+
+	tests := []struct {
+		name       string
+		login      string
+		statusCode int
+	}{
+		{name: "default", login: none, statusCode: http.StatusUnauthorized},
+		{name: "viewer", login: viewer, statusCode: http.StatusUnauthorized},
+		{name: "editor", login: editor, statusCode: http.StatusUnauthorized},
+		{name: "admin", login: admin, statusCode: http.StatusOK},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run("get settings/"+test.name, func(t *testing.T) {
+			// make a BaseURL without authentication
+			u, err := url.Parse(pmmapitests.BaseURL.String())
+			require.NoError(t, err)
+			u.User = url.UserPassword(test.login, test.login)
+			u.Path = "/v1/Settings/Get"
+
+			resp, err := http.Post(u.String(), "", nil)
+			require.NoError(t, err)
+			defer resp.Body.Close() //nolint:errcheck
+
+			assert.Equal(t, test.statusCode, resp.StatusCode)
+		})
+
+		t.Run("get alerts/"+test.name, func(t *testing.T) {
+			// make a BaseURL without authentication
+			u, err := url.Parse(pmmapitests.BaseURL.String())
+			require.NoError(t, err)
+			u.User = url.UserPassword(test.login, test.login)
+			u.Path = "/alertmanager/api/v2/alerts"
+
+			resp, err := http.Get(u.String())
+			require.NoError(t, err)
+			defer resp.Body.Close() //nolint:errcheck
+
+			assert.Equal(t, test.statusCode, resp.StatusCode)
+		})
+	}
+}
+
+func doRequest(t testing.TB, client *http.Client, req *http.Request) (*http.Response, []byte) {
+	resp, err := client.Do(req)
+	require.NoError(t, err)
+
+	defer resp.Body.Close() //nolint:errcheck
+
+	b, err := ioutil.ReadAll(resp.Body)
+	require.NoError(t, err)
+
+	return resp, b
+}
+
+func createUserWithRole(t *testing.T, login, role string) {
+	userID := createUser(t, login)
+	setRole(t, userID, role)
+}
+
+func createUser(t *testing.T, login string) int {
+	// https://grafana.com/docs/http_api/admin/#global-users
+	data, err := json.Marshal(map[string]string{
+		"name":     login,
+		"email":    login + "@percona.invalid",
+		"login":    login,
+		"password": login,
+	})
+	require.NoError(t, err)
+
+	u := url.URL{
+		Scheme: "https",
+		Host:   pmmAddr,
+		Path:   "/graph/api/admin/users",
+		User:   url.UserPassword("admin", "admin"),
+	}
+
+	req, err := http.NewRequest(http.MethodPost, u.String(), bytes.NewReader(data))
+	require.NoError(t, err)
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	resp, b := doRequest(t, http.DefaultClient, req)
+	require.Equal(t, http.StatusOK, resp.StatusCode, fmt.Sprintf("failed to create user, status code: %d, response: %s", resp.StatusCode, b))
+
+	var m map[string]interface{}
+	err = json.Unmarshal(b, &m)
+	require.NoError(t, err)
+
+	return int(m["id"].(float64))
+}
+
+func setRole(t *testing.T, userID int, role string) {
+	// https://grafana.com/docs/http_api/org/#updates-the-given-user
+	data, err := json.Marshal(map[string]string{
+		"role": role,
+	})
+	require.NoError(t, err)
+
+	u := url.URL{
+		Scheme: "https",
+		Host:   pmmAddr,
+		Path:   "/graph/api/org/users/" + strconv.Itoa(userID),
+		User:   url.UserPassword("admin", "admin"),
+	}
+
+	req, err := http.NewRequest(http.MethodPatch, u.String(), bytes.NewReader(data))
+	require.NoError(t, err)
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+	resp, b := doRequest(t, http.DefaultClient, req)
+
+	require.Equal(t, http.StatusOK, resp.StatusCode, fmt.Sprintf("failed to set role for user, status code: %d, response: %s", resp.StatusCode, b))
 }
