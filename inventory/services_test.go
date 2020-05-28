@@ -670,6 +670,39 @@ func TestMongoDBService(t *testing.T) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
 		}
 	})
+
+	t.Run("Socket", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		require.NotEmpty(t, genericNodeID)
+
+		serviceName := pmmapitests.TestString(t, "Mongo with Socket Service")
+		params := &services.AddMongoDBServiceParams{
+			Body: services.AddMongoDBServiceBody{
+				NodeID:      genericNodeID,
+				ServiceName: serviceName,
+				Socket:      "/tmp/mongodb-27017.sock",
+			},
+			Context: pmmapitests.Context,
+		}
+		res, err := client.Default.Services.AddMongoDBService(params)
+		assert.NoError(t, err)
+		require.NotNil(t, res)
+		serviceID := res.Payload.Mongodb.ServiceID
+		defer pmmapitests.RemoveServices(t, serviceID)
+		assert.Equal(t, &services.AddMongoDBServiceOK{
+			Payload: &services.AddMongoDBServiceOKBody{
+				Mongodb: &services.AddMongoDBServiceOKBodyMongodb{
+					ServiceID:   serviceID,
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Socket:      "/tmp/mongodb-27017.sock",
+				},
+			},
+		}, res)
+	})
 }
 
 func TestPostgreSQLService(t *testing.T) {
