@@ -23,8 +23,6 @@ import (
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
-const pmmAddr = "localhost:443"
-
 func TestAuth(t *testing.T) {
 	t.Run("AuthErrors", func(t *testing.T) {
 		for user, code := range map[*url.Userinfo]int{
@@ -295,6 +293,10 @@ func createUserWithRole(t *testing.T, login, role string) {
 }
 
 func createUser(t *testing.T, login string) int {
+	u, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	u.Path = "/graph/api/admin/users"
+
 	// https://grafana.com/docs/http_api/admin/#global-users
 	data, err := json.Marshal(map[string]string{
 		"name":     login,
@@ -303,13 +305,6 @@ func createUser(t *testing.T, login string) int {
 		"password": login,
 	})
 	require.NoError(t, err)
-
-	u := url.URL{
-		Scheme: "https",
-		Host:   pmmAddr,
-		Path:   "/graph/api/admin/users",
-		User:   url.UserPassword("admin", "admin"),
-	}
 
 	req, err := http.NewRequest(http.MethodPost, u.String(), bytes.NewReader(data))
 	require.NoError(t, err)
@@ -327,18 +322,15 @@ func createUser(t *testing.T, login string) int {
 }
 
 func setRole(t *testing.T, userID int, role string) {
+	u, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	u.Path = "/graph/api/org/users/" + strconv.Itoa(userID)
+
 	// https://grafana.com/docs/http_api/org/#updates-the-given-user
 	data, err := json.Marshal(map[string]string{
 		"role": role,
 	})
 	require.NoError(t, err)
-
-	u := url.URL{
-		Scheme: "https",
-		Host:   pmmAddr,
-		Path:   "/graph/api/org/users/" + strconv.Itoa(userID),
-		User:   url.UserPassword("admin", "admin"),
-	}
 
 	req, err := http.NewRequest(http.MethodPatch, u.String(), bytes.NewReader(data))
 	require.NoError(t, err)
