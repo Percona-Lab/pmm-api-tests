@@ -483,4 +483,18 @@ func TestRemoveNode(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field NodeId: value '' must not be an empty string")
 		assert.Nil(t, removeResp)
 	})
+
+	t.Run("PMM Server", func(t *testing.T) {
+		t.Parallel()
+
+		removeResp, err := client.Default.Nodes.RemoveNode(&nodes.RemoveNodeParams{
+			Body: nodes.RemoveNodeBody{
+				NodeID: "pmm-server",
+				Force:  true,
+			},
+			Context: context.Background(),
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "Removing pmm-server node prevents remote monitoring.")
+		assert.Nil(t, removeResp)
+	})
 }
