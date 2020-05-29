@@ -182,7 +182,7 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-5256-MongoDB-socket-conn"
+  branch = "PMM-2.0"
   digest = "1:29a7b48bb085943d12a64eff4637334cd8e004a6b43fcc6d235ac79395799384"
   name = "github.com/percona/pmm"
   packages = [
@@ -213,7 +213,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "048f6582b79ce3ed6ad5d0c69655695c027a8417"
+  revision = "08b8f17f58f21d2173bc255df8e02f7272ed4c9d"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
