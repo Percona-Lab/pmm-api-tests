@@ -227,10 +227,17 @@ func TestPermissionsForSTTChecksPage(t *testing.T) {
 	editor := "editor-" + ts
 	admin := "admin-" + ts
 
-	createUser(t, none)
-	createUserWithRole(t, viewer, "Viewer")
-	createUserWithRole(t, editor, "Editor")
-	createUserWithRole(t, admin, "Admin")
+	noneID := createUser(t, none)
+	defer deleteUser(t, noneID)
+
+	viewerID := createUserWithRole(t, viewer, "Viewer")
+	defer deleteUser(t, viewerID)
+
+	editorID := createUserWithRole(t, editor, "Editor")
+	defer deleteUser(t, editorID)
+
+	adminID := createUserWithRole(t, admin, "Admin")
+	defer deleteUser(t, adminID)
 
 	tests := []struct {
 		name       string
@@ -287,9 +294,25 @@ func doRequest(t testing.TB, client *http.Client, req *http.Request) (*http.Resp
 	return resp, b
 }
 
-func createUserWithRole(t *testing.T, login, role string) {
+func createUserWithRole(t *testing.T, login, role string) int {
 	userID := createUser(t, login)
 	setRole(t, userID, role)
+
+	return userID
+}
+
+func deleteUser(t *testing.T, userID int) {
+	u, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	u.Path = "/graph/api/admin/users/" + strconv.Itoa(userID)
+
+	req, err := http.NewRequest(http.MethodDelete, u.String(), nil)
+	require.NoError(t, err)
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	resp, b := doRequest(t, http.DefaultClient, req)
+	require.Equal(t, http.StatusOK, resp.StatusCode, fmt.Sprintf("failed to delete user, status code: %d, response: %s", resp.StatusCode, b))
 }
 
 func createUser(t *testing.T, login string) int {
