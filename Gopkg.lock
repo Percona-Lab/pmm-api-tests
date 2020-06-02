@@ -182,7 +182,7 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "SAAS-67-stt-api"
+  branch = "PMM-2.0"
   digest = "1:bb507515d3e97dd1c43af2045b36d0254dddc37c4e801f3f7577b9e24162fda1"
   name = "github.com/percona/pmm"
   packages = [
@@ -214,7 +214,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "863bb67d67182bb81bcfdfeabcc832295ee6863a"
+  revision = "541bf266167a665a07fbc25d2cb824cf0d1b200d"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
