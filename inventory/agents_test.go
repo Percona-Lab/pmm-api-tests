@@ -418,7 +418,7 @@ func TestPMMAgent(t *testing.T) {
 			},
 			Context: context.Background(),
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "Removing pmm-agent on PMM Server prevents remote monitoring.")
+		pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "pmm-agent on PMM Server can't be removed.")
 		assert.Nil(t, removeResp)
 	})
 }

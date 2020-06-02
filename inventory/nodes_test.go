@@ -494,7 +494,7 @@ func TestRemoveNode(t *testing.T) {
 			},
 			Context: context.Background(),
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "Removing pmm-server node prevents remote monitoring.")
+		pmmapitests.AssertAPIErrorf(t, err, 403, codes.PermissionDenied, "PMM Server node can't be removed.")
 		assert.Nil(t, removeResp)
 	})
 }
