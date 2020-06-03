@@ -356,5 +356,5 @@ func setRole(t *testing.T, userID int, role string) {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	resp, b := doRequest(t, http.DefaultClient, req)
 
-	require.Equal(t, http.StatusOK, resp.StatusCode, fmt.Sprintf("failed to set role for user, status code: %d, response: %s", resp.StatusCode, b))
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, status code: %d, response: %s", resp.StatusCode, b)
 }
