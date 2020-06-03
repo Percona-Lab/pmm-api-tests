@@ -32,3 +32,8 @@ issues:
   exclude:
     # gas: Duplicated errcheck checks
     - 'G104: Errors unhandled'
+  exclude-rules:
+  # Exclude some linters from running on tests files.
+    - path: _test\.go
+      linters:
+        - unused

@@ -679,7 +679,7 @@ groups:
 						t.Logf("URI: %s", uri)
 						resp, err := http.Get(uri.String())
 						require.NoError(t, err)
-						defer resp.Body.Close()
+						defer resp.Body.Close() //nolint:errcheck
 						b, err := ioutil.ReadAll(resp.Body)
 						require.NoError(t, err)
 						err = json.Unmarshal(b, &prometheusRulesResponse)
@@ -784,7 +784,7 @@ groups:
 						}
 						b, err = ioutil.ReadAll(resp.Body)
 						assert.NoError(t, err)
-						err = resp.Body.Close() //nolint:errcheck
+						err = resp.Body.Close()
 						assert.NoError(t, err)
 
 						if get == "" {
