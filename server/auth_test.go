@@ -246,14 +246,14 @@ func TestPermissionsForSTTChecksPage(t *testing.T) {
 		login      string
 		statusCode int
 	}{
-		{name: "settings-default", url: "/v1/Settings/Get", method: http.MethodPost, login: none, statusCode: http.StatusUnauthorized},
-		{name: "settings-viewer", url: "/v1/Settings/Get", method: http.MethodPost, login: viewer, statusCode: http.StatusUnauthorized},
-		{name: "settings-editor", url: "/v1/Settings/Get", method: http.MethodPost, login: editor, statusCode: http.StatusUnauthorized},
-		{name: "settings-admin", url: "/v1/Settings/Get", method: http.MethodPost, login: admin, statusCode: http.StatusOK},
-		{name: "alerts-default", url: "/alertmanager/api/v2/alerts", method: http.MethodGet, login: none, statusCode: http.StatusUnauthorized},
-		{name: "alerts-viewer", url: "/alertmanager/api/v2/alerts", method: http.MethodGet, login: viewer, statusCode: http.StatusUnauthorized},
-		{name: "alerts-editor", url: "/alertmanager/api/v2/alerts", method: http.MethodGet, login: editor, statusCode: http.StatusUnauthorized},
-		{name: "alerts-admin", url: "/alertmanager/api/v2/alerts", method: http.MethodGet, login: admin, statusCode: http.StatusOK},
+		{name: "settings-default", url: "/v1/Settings/Get", method: "POST", login: none, statusCode: 401},
+		{name: "settings-viewer", url: "/v1/Settings/Get", method: "POST", login: viewer, statusCode: 401},
+		{name: "settings-editor", url: "/v1/Settings/Get", method: "POST", login: editor, statusCode: 401},
+		{name: "settings-admin", url: "/v1/Settings/Get", method: "POST", login: admin, statusCode: 200},
+		{name: "alerts-default", url: "/alertmanager/api/v2/alerts", method: "GET", login: none, statusCode: 401},
+		{name: "alerts-viewer", url: "/alertmanager/api/v2/alerts", method: "GET", login: viewer, statusCode: 401},
+		{name: "alerts-editor", url: "/alertmanager/api/v2/alerts", method: "GET", login: editor, statusCode: 401},
+		{name: "alerts-admin", url: "/alertmanager/api/v2/alerts", method: "GET", login: admin, statusCode: 200},
 	}
 
 	for _, test := range tests {
