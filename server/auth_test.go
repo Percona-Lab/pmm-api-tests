@@ -304,8 +304,6 @@ func deleteUser(t *testing.T, userID int) {
 	req, err := http.NewRequest(http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
-	req.Header.Set("Content-Type", "application/json; charset=utf-8")
-
 	resp, b := doRequest(t, http.DefaultClient, req)
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete user, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -356,5 +354,5 @@ func setRole(t *testing.T, userID int, role string) {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	resp, b := doRequest(t, http.DefaultClient, req)
 
-	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, status code: %d, response: %s", resp.StatusCode, b)
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, response: %s", b)
 }
