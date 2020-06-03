@@ -635,42 +635,8 @@ groups:
 					assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
 
 					t.Run("PrometheusReloaded", func(t *testing.T) {
-						ticker := time.NewTicker(3 * time.Second)
-						timeout := time.NewTimer(15 * time.Second)
-					L:
-						for { // Prometheus needs some time to reload configs.
-							select {
-							case <-ticker.C:
-								uri := pmmapitests.BaseURL.ResolveReference(&url.URL{
-									Path: "prometheus/-/ready",
-								})
-								resp, err := http.Get(uri.String())
-								resp.Body.Close() //nolint:errcheck
-								if err == nil && resp.StatusCode == 200 {
-									break L
-								}
-							case <-timeout.C:
-								break L
-							}
-						}
-						ticker.Stop()
-						timeout.Stop()
-
-						var prometheusRulesResponse struct {
-							Data prometheusApiV1.RulesResult
-						}
-
-						uri := pmmapitests.BaseURL.ResolveReference(&url.URL{
-							Path: "prometheus/api/v1/rules",
-						})
-						t.Logf("URI: %s", uri)
-						resp, err := http.Get(uri.String())
-						require.NoError(t, err)
-						defer resp.Body.Close() //nolint:errcheck
-						b, err := ioutil.ReadAll(resp.Body)
-						require.NoError(t, err)
-						err = json.Unmarshal(b, &prometheusRulesResponse)
-						require.NoError(t, err)
+						ticker := time.NewTicker(1 * time.Second)
+						timeout := time.NewTimer(10 * time.Second)
 
 						expected := prometheusApiV1.RuleGroup{
 							Rules: prometheusApiV1.Rules{
@@ -688,17 +654,45 @@ groups:
 							Interval: 60,
 							Name:     "example",
 						}
-
 						var found bool
-						for _, group := range prometheusRulesResponse.Data.Groups {
-							if group.Name == "example" {
-								found = true
-								expectedRule := expected.Rules[0].(prometheusApiV1.AlertingRule)
-								expectedRule.Health = group.Rules[0].(prometheusApiV1.AlertingRule).Health
-								expected.Rules[0] = expectedRule
-								assert.Equal(t, expected, group)
+					L:
+						for { // Prometheus needs some time to reload configs.
+							select {
+							case <-ticker.C:
+								var prometheusRulesResponse struct {
+									Data prometheusApiV1.RulesResult
+								}
+
+								uri := pmmapitests.BaseURL.ResolveReference(&url.URL{
+									Path: "prometheus/api/v1/rules",
+								})
+								resp, err := http.Get(uri.String())
+								if err != nil {
+									continue
+								}
+								b, err := ioutil.ReadAll(resp.Body)
+								resp.Body.Close() //nolint:errcheck
+								require.NoError(t, err)
+								err = json.Unmarshal(b, &prometheusRulesResponse)
+								require.NoError(t, err)
+
+								for _, group := range prometheusRulesResponse.Data.Groups {
+									if group.Name == "example" {
+										found = true
+										expectedRule := expected.Rules[0].(prometheusApiV1.AlertingRule)
+										expectedRule.Health = group.Rules[0].(prometheusApiV1.AlertingRule).Health
+										expected.Rules[0] = expectedRule
+										assert.Equal(t, expected, group)
+										break L
+									}
+								}
+							case <-timeout.C:
+								break L
 							}
 						}
+						ticker.Stop()
+						timeout.Stop()
+
 						assert.True(t, found)
 					})
 
