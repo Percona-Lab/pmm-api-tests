@@ -24,6 +24,8 @@ linters-settings:
 
 linters:
   enable-all: true
+  disable:
+    - gomodguard        # we don't use go modules
 
 issues:
   exclude-use-default: false

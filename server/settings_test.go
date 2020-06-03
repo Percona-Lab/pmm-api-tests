@@ -559,16 +559,52 @@ func TestSettings(t *testing.T) {
 				})
 			})
 
-			t.Run("AlertManager", func(t *testing.T) {
+			t.Run("AlertingRules", func(t *testing.T) {
+				type annotations struct {
+					Summary string `json:"summary"`
+				}
+				type labels struct {
+					Alertname string `json:"alertname"`
+					Severity  string `json:"severity"`
+				}
+				type alerts struct {
+					ActiveAt    time.Time   `json:"activeAt"`
+					Annotations annotations `json:"annotations"`
+					Labels      labels      `json:"labels"`
+					State       string      `json:"state"`
+					Value       string      `json:"value"`
+				}
+				type alertingRules struct {
+					Alerts      []alerts    `json:"alerts,omitempty"`
+					Annotations annotations `json:"annotations,omitempty"`
+					Duration    int         `json:"duration,omitempty"`
+					Health      string      `json:"health"`
+					Labels      labels      `json:"labels,omitempty"`
+					Name        string      `json:"name"`
+					Query       string      `json:"query"`
+					Type        string      `json:"type"`
+				}
+				type alertGroup struct {
+					Rules    []alertingRules `json:"rules"`
+					File     string          `json:"file"`
+					Interval int             `json:"interval"`
+					Name     string          `json:"name"`
+				}
+				type prometheusResponse struct {
+					Data struct {
+						Groups []alertGroup `json:"groups"`
+					} `json:"data"`
+					Status string `json:"status"`
+				}
 				t.Run("SetInvalid", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 
-					url := "http://localhost:1234/"
+					alertManagerURL := "http://localhost:1234/"
 					rules := `invalid rules`
 
 					_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							AlertManagerURL:   url,
+							AlertManagerURL:   alertManagerURL,
 							AlertManagerRules: rules,
 						},
 						Context: pmmapitests.Context,
@@ -602,7 +638,7 @@ func TestSettings(t *testing.T) {
 				t.Run("SetValid", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 
-					url := "http://localhost:1234/"
+					alertManagerURL := "http://localhost:1234/"
 					rules := strings.TrimSpace(`
 groups:
 - name: example
@@ -618,19 +654,64 @@ groups:
 
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							AlertManagerURL:   url,
+							AlertManagerURL:   alertManagerURL,
 							AlertManagerRules: rules,
 						},
 						Context: pmmapitests.Context,
 					})
 					require.NoError(t, err)
-					assert.Equal(t, url, res.Payload.Settings.AlertManagerURL)
+					assert.Equal(t, alertManagerURL, res.Payload.Settings.AlertManagerURL)
 					assert.Equal(t, rules, res.Payload.Settings.AlertManagerRules)
 
 					gets, err := serverClient.Default.Server.GetSettings(nil)
 					require.NoError(t, err)
-					assert.Equal(t, url, gets.Payload.Settings.AlertManagerURL)
+					assert.Equal(t, alertManagerURL, gets.Payload.Settings.AlertManagerURL)
 					assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
+
+					t.Run("PrometheusReloaded", func(t *testing.T) {
+						time.Sleep(3 * time.Second) // Prometheus needs some time to reload configs.
+
+						var prometheusRulesResponse prometheusResponse
+
+						uri := pmmapitests.BaseURL.ResolveReference(&url.URL{
+							Path: "prometheus/api/v1/rules",
+						})
+						t.Logf("URI: %s", uri)
+						resp, err := http.Get(uri.String())
+						require.NoError(t, err)
+						defer resp.Body.Close()
+						b, err := ioutil.ReadAll(resp.Body)
+						require.NoError(t, err)
+						err = json.Unmarshal(b, &prometheusRulesResponse)
+						require.NoError(t, err)
+
+						expected := alertGroup{
+							Rules: []alertingRules{
+								{
+									Alerts:      []alerts{},
+									Annotations: annotations{"High request latency"},
+									Duration:    600,
+									Health:      "unknown",
+									Labels:      labels{Severity: "page"},
+									Name:        "HighRequestLatency",
+									Query:       `job:request_latency_seconds:mean5m{job="myjob"} > 0.5`,
+									Type:        "alerting",
+								},
+							},
+							File:     "/srv/prometheus/rules/pmm.rules.yml",
+							Interval: 60,
+							Name:     "example",
+						}
+
+						var found bool
+						for _, group := range prometheusRulesResponse.Data.Groups {
+							if group.Name == "example" {
+								found = true
+								assert.Equal(t, expected, group)
+							}
+						}
+						assert.True(t, found)
+					})
 
 					t.Run("EmptyShouldNotRemove", func(t *testing.T) {
 						defer restoreSettingsDefaults(t)
@@ -643,7 +724,7 @@ groups:
 
 						gets, err = serverClient.Default.Server.GetSettings(nil)
 						require.NoError(t, err)
-						assert.Equal(t, url, gets.Payload.Settings.AlertManagerURL)
+						assert.Equal(t, alertManagerURL, gets.Payload.Settings.AlertManagerURL)
 						assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
 					})
 				})
@@ -703,7 +784,8 @@ groups:
 						}
 						b, err = ioutil.ReadAll(resp.Body)
 						assert.NoError(t, err)
-						resp.Body.Close() //nolint:errcheck
+						err = resp.Body.Close() //nolint:errcheck
+						assert.NoError(t, err)
 
 						if get == "" {
 							assert.Equal(t, 400, resp.StatusCode, "response:\n%s", b)
