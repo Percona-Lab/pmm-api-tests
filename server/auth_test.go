@@ -241,39 +241,34 @@ func TestPermissionsForSTTChecksPage(t *testing.T) {
 
 	tests := []struct {
 		name       string
+		url        string
+		method     string
 		login      string
 		statusCode int
 	}{
-		{name: "default", login: none, statusCode: http.StatusUnauthorized},
-		{name: "viewer", login: viewer, statusCode: http.StatusUnauthorized},
-		{name: "editor", login: editor, statusCode: http.StatusUnauthorized},
-		{name: "admin", login: admin, statusCode: http.StatusOK},
+		{name: "settings-default", url: "/v1/Settings/Get", method: http.MethodPost, login: none, statusCode: http.StatusUnauthorized},
+		{name: "settings-viewer", url: "/v1/Settings/Get", method: http.MethodPost, login: viewer, statusCode: http.StatusUnauthorized},
+		{name: "settings-editor", url: "/v1/Settings/Get", method: http.MethodPost, login: editor, statusCode: http.StatusUnauthorized},
+		{name: "settings-admin", url: "/v1/Settings/Get", method: http.MethodPost, login: admin, statusCode: http.StatusOK},
+		{name: "alerts-default", url: "/alertmanager/api/v2/alerts", method: http.MethodGet, login: none, statusCode: http.StatusUnauthorized},
+		{name: "alerts-viewer", url: "/alertmanager/api/v2/alerts", method: http.MethodGet, login: viewer, statusCode: http.StatusUnauthorized},
+		{name: "alerts-editor", url: "/alertmanager/api/v2/alerts", method: http.MethodGet, login: editor, statusCode: http.StatusUnauthorized},
+		{name: "alerts-admin", url: "/alertmanager/api/v2/alerts", method: http.MethodGet, login: admin, statusCode: http.StatusOK},
 	}
 
 	for _, test := range tests {
 		test := test
-		t.Run("get settings/"+test.name, func(t *testing.T) {
+		t.Run(test.name, func(t *testing.T) {
 			// make a BaseURL without authentication
 			u, err := url.Parse(pmmapitests.BaseURL.String())
 			require.NoError(t, err)
 			u.User = url.UserPassword(test.login, test.login)
-			u.Path = "/v1/Settings/Get"
+			u.Path = test.url
 
-			resp, err := http.Post(u.String(), "", nil)
+			req, err := http.NewRequest(test.method, u.String(), nil)
 			require.NoError(t, err)
-			defer resp.Body.Close() //nolint:errcheck
 
-			assert.Equal(t, test.statusCode, resp.StatusCode)
-		})
-
-		t.Run("get alerts/"+test.name, func(t *testing.T) {
-			// make a BaseURL without authentication
-			u, err := url.Parse(pmmapitests.BaseURL.String())
-			require.NoError(t, err)
-			u.User = url.UserPassword(test.login, test.login)
-			u.Path = "/alertmanager/api/v2/alerts"
-
-			resp, err := http.Get(u.String())
+			resp, err := http.DefaultClient.Do(req)
 			require.NoError(t, err)
 			defer resp.Body.Close() //nolint:errcheck
 
@@ -312,7 +307,7 @@ func deleteUser(t *testing.T, userID int) {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	require.Equal(t, http.StatusOK, resp.StatusCode, fmt.Sprintf("failed to delete user, status code: %d, response: %s", resp.StatusCode, b))
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete user, status code: %d, response: %s", resp.StatusCode, b)
 }
 
 func createUser(t *testing.T, login string) int {
@@ -335,7 +330,7 @@ func createUser(t *testing.T, login string) int {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	require.Equal(t, http.StatusOK, resp.StatusCode, fmt.Sprintf("failed to create user, status code: %d, response: %s", resp.StatusCode, b))
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
 
 	var m map[string]interface{}
 	err = json.Unmarshal(b, &m)
