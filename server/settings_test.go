@@ -15,6 +15,8 @@ import (
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
+	prometheusApiV1 "github.com/prometheus/client_golang/api/prometheus/v1"
+	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -560,42 +562,6 @@ func TestSettings(t *testing.T) {
 			})
 
 			t.Run("AlertingRules", func(t *testing.T) {
-				type annotations struct {
-					Summary string `json:"summary"`
-				}
-				type labels struct {
-					Alertname string `json:"alertname"`
-					Severity  string `json:"severity"`
-				}
-				type alerts struct {
-					ActiveAt    time.Time   `json:"activeAt"`
-					Annotations annotations `json:"annotations"`
-					Labels      labels      `json:"labels"`
-					State       string      `json:"state"`
-					Value       string      `json:"value"`
-				}
-				type alertingRules struct {
-					Alerts      []alerts    `json:"alerts,omitempty"`
-					Annotations annotations `json:"annotations,omitempty"`
-					Duration    int         `json:"duration,omitempty"`
-					Health      string      `json:"health"`
-					Labels      labels      `json:"labels,omitempty"`
-					Name        string      `json:"name"`
-					Query       string      `json:"query"`
-					Type        string      `json:"type"`
-				}
-				type alertGroup struct {
-					Rules    []alertingRules `json:"rules"`
-					File     string          `json:"file"`
-					Interval int             `json:"interval"`
-					Name     string          `json:"name"`
-				}
-				type prometheusResponse struct {
-					Data struct {
-						Groups []alertGroup `json:"groups"`
-					} `json:"data"`
-					Status string `json:"status"`
-				}
 				t.Run("SetInvalid", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 
@@ -669,9 +635,30 @@ groups:
 					assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
 
 					t.Run("PrometheusReloaded", func(t *testing.T) {
-						time.Sleep(3 * time.Second) // Prometheus needs some time to reload configs.
+						ticker := time.NewTicker(3 * time.Second)
+						timeout := time.NewTimer(15 * time.Second)
+					L:
+						for { // Prometheus needs some time to reload configs.
+							select {
+							case <-ticker.C:
+								uri := pmmapitests.BaseURL.ResolveReference(&url.URL{
+									Path: "prometheus/-/ready",
+								})
+								resp, err := http.Get(uri.String())
+								resp.Body.Close() //nolint:errcheck
+								if err == nil && resp.StatusCode == 200 {
+									break L
+								}
+							case <-timeout.C:
+								break L
+							}
+						}
+						ticker.Stop()
+						timeout.Stop()
 
-						var prometheusRulesResponse prometheusResponse
+						var prometheusRulesResponse struct {
+							Data prometheusApiV1.RulesResult
+						}
 
 						uri := pmmapitests.BaseURL.ResolveReference(&url.URL{
 							Path: "prometheus/api/v1/rules",
@@ -685,17 +672,16 @@ groups:
 						err = json.Unmarshal(b, &prometheusRulesResponse)
 						require.NoError(t, err)
 
-						expected := alertGroup{
-							Rules: []alertingRules{
-								{
-									Alerts:      []alerts{},
-									Annotations: annotations{"High request latency"},
+						expected := prometheusApiV1.RuleGroup{
+							Rules: prometheusApiV1.Rules{
+								prometheusApiV1.AlertingRule{
+									Alerts:      []*prometheusApiV1.Alert{},
+									Annotations: model.LabelSet{"summary": "High request latency"},
 									Duration:    600,
-									Health:      "unknown",
-									Labels:      labels{Severity: "page"},
+									Health:      "ok",
+									Labels:      model.LabelSet{"severity": "page"},
 									Name:        "HighRequestLatency",
 									Query:       `job:request_latency_seconds:mean5m{job="myjob"} > 0.5`,
-									Type:        "alerting",
 								},
 							},
 							File:     "/srv/prometheus/rules/pmm.rules.yml",
@@ -707,6 +693,9 @@ groups:
 						for _, group := range prometheusRulesResponse.Data.Groups {
 							if group.Name == "example" {
 								found = true
+								expectedRule := expected.Rules[0].(prometheusApiV1.AlertingRule)
+								expectedRule.Health = group.Rules[0].(prometheusApiV1.AlertingRule).Health
+								expected.Rules[0] = expectedRule
 								assert.Equal(t, expected, group)
 							}
 						}
