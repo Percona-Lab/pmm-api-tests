@@ -23,6 +23,7 @@ import (
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
+	prometheusApi "github.com/prometheus/client_golang/api"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 )
@@ -180,6 +181,7 @@ func init() {
 	managementClient.Default = managementClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
 	amclient.Default = amclient.New(alertmanagerTransport, nil)
+	prometheusApi.DefaultRoundTripper = transport.Transport
 
 	// do not run tests if server is not available
 	_, err = serverClient.Default.Server.Readiness(nil)

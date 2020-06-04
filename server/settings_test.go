@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -15,6 +16,7 @@ import (
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
+	prometheusApi "github.com/prometheus/client_golang/api"
 	prometheusApiV1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
@@ -638,6 +640,15 @@ groups:
 						ticker := time.NewTicker(1 * time.Second)
 						timeout := time.NewTimer(10 * time.Second)
 
+						prometheusBaseURL := pmmapitests.BaseURL.ResolveReference(&url.URL{
+							Path: "prometheus/",
+						})
+						client, err := prometheusApi.NewClient(prometheusApi.Config{
+							Address: prometheusBaseURL.String(),
+						})
+						require.NoError(t, err)
+						api := prometheusApiV1.NewAPI(client)
+
 						expected := prometheusApiV1.RuleGroup{
 							Rules: prometheusApiV1.Rules{
 								prometheusApiV1.AlertingRule{
@@ -654,29 +665,16 @@ groups:
 							Interval: 60,
 							Name:     "example",
 						}
+
 						var found bool
 					L:
 						for { // Prometheus needs some time to reload configs.
 							select {
 							case <-ticker.C:
-								var prometheusRulesResponse struct {
-									Data prometheusApiV1.RulesResult
-								}
-
-								uri := pmmapitests.BaseURL.ResolveReference(&url.URL{
-									Path: "prometheus/api/v1/rules",
-								})
-								resp, err := http.Get(uri.String())
-								if err != nil {
-									continue
-								}
-								b, err := ioutil.ReadAll(resp.Body)
-								resp.Body.Close() //nolint:errcheck
-								require.NoError(t, err)
-								err = json.Unmarshal(b, &prometheusRulesResponse)
+								result, err := api.Rules(context.TODO())
 								require.NoError(t, err)
 
-								for _, group := range prometheusRulesResponse.Data.Groups {
+								for _, group := range result.Groups {
 									if group.Name == "example" {
 										found = true
 										expectedRule := expected.Rules[0].(prometheusApiV1.AlertingRule)
