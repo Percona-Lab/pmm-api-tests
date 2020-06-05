@@ -637,9 +637,6 @@ groups:
 					assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
 
 					t.Run("PrometheusReloaded", func(t *testing.T) {
-						ticker := time.NewTicker(1 * time.Second)
-						timeout := time.NewTimer(10 * time.Second)
-
 						prometheusBaseURL := pmmapitests.BaseURL.ResolveReference(&url.URL{
 							Path: "prometheus/",
 						})
@@ -647,7 +644,6 @@ groups:
 							Address: prometheusBaseURL.String(),
 						})
 						require.NoError(t, err)
-						api := prometheusApiV1.NewAPI(client)
 
 						expected := prometheusApiV1.RuleGroup{
 							Rules: prometheusApiV1.Rules{
@@ -655,7 +651,7 @@ groups:
 									Alerts:      []*prometheusApiV1.Alert{},
 									Annotations: model.LabelSet{"summary": "High request latency"},
 									Duration:    600,
-									Health:      "ok",
+									Health:      "unknown",
 									Labels:      model.LabelSet{"severity": "page"},
 									Name:        "HighRequestLatency",
 									Query:       `job:request_latency_seconds:mean5m{job="myjob"} > 0.5`,
@@ -666,32 +662,23 @@ groups:
 							Name:     "example",
 						}
 
-						var found bool
-					L:
-						for { // Prometheus needs some time to reload configs.
-							select {
-							case <-ticker.C:
-								result, err := api.Rules(context.TODO())
-								require.NoError(t, err)
+						// Prometheus needs some time to reload configs.
+						ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+						defer cancel()
 
-								for _, group := range result.Groups {
-									if group.Name == "example" {
-										found = true
-										expectedRule := expected.Rules[0].(prometheusApiV1.AlertingRule)
-										expectedRule.Health = group.Rules[0].(prometheusApiV1.AlertingRule).Health
-										expected.Rules[0] = expectedRule
-										assert.Equal(t, expected, group)
-										break L
-									}
+						api := prometheusApiV1.NewAPI(client)
+						for {
+							// Get rules using API client.
+							result, err := api.Rules(ctx)
+							require.NoError(t, err) // that could be a ctx timeout
+
+							for _, group := range result.Groups {
+								if group.Name == "example" {
+									assert.Equal(t, expected, group)
+									return
 								}
-							case <-timeout.C:
-								break L
 							}
 						}
-						ticker.Stop()
-						timeout.Stop()
-
-						assert.True(t, found)
 					})
 
 					t.Run("EmptyShouldNotRemove", func(t *testing.T) {
