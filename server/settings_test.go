@@ -651,7 +651,6 @@ groups:
 									Alerts:      []*prometheusApiV1.Alert{},
 									Annotations: model.LabelSet{"summary": "High request latency"},
 									Duration:    600,
-									Health:      "unknown",
 									Labels:      model.LabelSet{"severity": "page"},
 									Name:        "HighRequestLatency",
 									Query:       `job:request_latency_seconds:mean5m{job="myjob"} > 0.5`,
@@ -668,12 +667,14 @@ groups:
 
 						api := prometheusApiV1.NewAPI(client)
 						for {
-							// Get rules using API client.
 							result, err := api.Rules(ctx)
 							require.NoError(t, err) // that could be a ctx timeout
 
 							for _, group := range result.Groups {
 								if group.Name == "example" {
+									expectedRule := expected.Rules[0].(prometheusApiV1.AlertingRule)
+									expectedRule.Health = group.Rules[0].(prometheusApiV1.AlertingRule).Health
+									expected.Rules[0] = expectedRule
 									assert.Equal(t, expected, group)
 									return
 								}
