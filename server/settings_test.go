@@ -27,6 +27,8 @@ import (
 )
 
 func TestSettings(t *testing.T) {
+	alertManagerURL := "http://localhost:1234/"
+
 	t.Run("GetSettings", func(t *testing.T) {
 		res, err := serverClient.Default.Server.GetSettings(nil)
 		require.NoError(t, err)
@@ -567,7 +569,6 @@ func TestSettings(t *testing.T) {
 				t.Run("SetInvalid", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 
-					alertManagerURL := "http://localhost:1234/"
 					rules := `invalid rules`
 
 					_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -606,7 +607,6 @@ func TestSettings(t *testing.T) {
 				t.Run("SetValid", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 
-					alertManagerURL := "http://localhost:1234/"
 					rules := strings.TrimSpace(`
 groups:
 - name: example
@@ -666,9 +666,19 @@ groups:
 						defer cancel()
 
 						api := prometheusApiV1.NewAPI(client)
+						waitCount := 0
 						for {
 							result, err := api.Rules(ctx)
 							require.NoError(t, err) // that could be a ctx timeout
+
+							if len(result.Groups) == 0 || result.Groups[0].Rules[0].(prometheusApiV1.AlertingRule).Health != "ok" {
+								waitCount++
+								if waitCount < 5 {
+									time.Sleep(time.Second)
+									continue
+								}
+								t.Error("Timeout waiting for Prometheus to be up")
+							}
 
 							for _, group := range result.Groups {
 								if group.Name == "example" {
