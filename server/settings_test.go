@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
@@ -669,6 +670,7 @@ groups:
 						waitCount := 0
 						for {
 							result, err := api.Rules(ctx)
+							fmt.Printf("Error: %+v", err)
 							require.NoError(t, err) // that could be a ctx timeout
 							// Health is not reliable. It might return ok but many times it returns unknown even after a lot of retries
 							if len(result.Groups) == 0 || (result.Groups[0].Rules[0].(prometheusApiV1.AlertingRule).Health != "ok" &&
