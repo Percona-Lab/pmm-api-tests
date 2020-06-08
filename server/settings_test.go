@@ -670,14 +670,16 @@ groups:
 						for {
 							result, err := api.Rules(ctx)
 							require.NoError(t, err) // that could be a ctx timeout
-
-							if len(result.Groups) == 0 || result.Groups[0].Rules[0].(prometheusApiV1.AlertingRule).Health != "ok" {
+							// Health is not reliable. It might return ok but many times it returns unknown even after a lot of retries
+							if len(result.Groups) == 0 || (result.Groups[0].Rules[0].(prometheusApiV1.AlertingRule).Health != "ok" &&
+								result.Groups[0].Rules[0].(prometheusApiV1.AlertingRule).Health != "unknown") {
 								waitCount++
 								if waitCount < 5 {
-									time.Sleep(time.Second)
+									time.Sleep(1 * time.Second)
 									continue
 								}
 								t.Error("Timeout waiting for Prometheus to be up")
+								return
 							}
 
 							for _, group := range result.Groups {
