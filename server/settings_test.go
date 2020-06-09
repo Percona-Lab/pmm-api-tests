@@ -666,24 +666,17 @@ groups:
 						defer cancel()
 
 						api := prometheusApiV1.NewAPI(client)
-						waitCount := 0
 						for {
 							result, err := api.Rules(ctx)
 							// Health is not reliable. It might return ok but many times it returns unknown even after a lot of retries
 							// Error 503 is Prometheus is not available yet
-							if (err != nil && strings.Contains(err.Error(), "503")) ||
-								len(result.Groups) == 0 || (result.Groups[0].Rules[0].(prometheusApiV1.AlertingRule).Health != "ok" &&
-								result.Groups[0].Rules[0].(prometheusApiV1.AlertingRule).Health != "unknown") {
-								waitCount++
-								if waitCount < 5 {
-									time.Sleep(1 * time.Second)
-									continue
-								}
-								t.Error("Timeout waiting for Prometheus to be up")
-								return
+							if e, ok := err.(*prometheusApiV1.Error); ok && e.Type == prometheusApiV1.ErrServer {
+								t.Errorf("%s: %s", e.Error(), e.Detail)
+								time.Sleep(1 * time.Second)
+								continue
 							}
-
 							require.NoError(t, err) // that could be a ctx timeout
+
 							for _, group := range result.Groups {
 								if group.Name == "example" {
 									expectedRule := expected.Rules[0].(prometheusApiV1.AlertingRule)
@@ -692,6 +685,10 @@ groups:
 									assert.Equal(t, expected, group)
 									return
 								}
+							}
+							if len(result.Groups) == 0 || (result.Groups[0].Rules[0].(prometheusApiV1.AlertingRule).Health != "ok" &&
+								result.Groups[0].Rules[0].(prometheusApiV1.AlertingRule).Health != "unknown") {
+								time.Sleep(1 * time.Second)
 							}
 						}
 					})
