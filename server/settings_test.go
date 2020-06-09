@@ -668,13 +668,6 @@ groups:
 						api := prometheusApiV1.NewAPI(client)
 						for {
 							result, err := api.Rules(ctx)
-							// Health is not reliable. It might return ok but many times it returns unknown even after a lot of retries
-							// Error 503 is Prometheus is not available yet
-							if e, ok := err.(*prometheusApiV1.Error); ok && e.Type == prometheusApiV1.ErrServer {
-								t.Errorf("%s: %s", e.Error(), e.Detail)
-								time.Sleep(1 * time.Second)
-								continue
-							}
 							require.NoError(t, err) // that could be a ctx timeout
 
 							for _, group := range result.Groups {
@@ -686,6 +679,7 @@ groups:
 									return
 								}
 							}
+							time.Sleep(1 * time.Second)
 						}
 					})
 
