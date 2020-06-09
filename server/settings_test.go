@@ -686,10 +686,6 @@ groups:
 									return
 								}
 							}
-							if len(result.Groups) == 0 || (result.Groups[0].Rules[0].(prometheusApiV1.AlertingRule).Health != "ok" &&
-								result.Groups[0].Rules[0].(prometheusApiV1.AlertingRule).Health != "unknown") {
-								time.Sleep(1 * time.Second)
-							}
 						}
 					})
 
