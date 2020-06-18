@@ -182,8 +182,8 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:bb507515d3e97dd1c43af2045b36d0254dddc37c4e801f3f7577b9e24162fda1"
+  branch = "PMM-5563-annotation-service-node"
+  digest = "1:1419bfdef55060daa7c81a40f1955f5840e39f3f0809ad01d7c7d86770fff89e"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -214,7 +214,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "541bf266167a665a07fbc25d2cb824cf0d1b200d"
+  revision = "c9226ad60249343a82fe37824c0b45c22227a2eb"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
