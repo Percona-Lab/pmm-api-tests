@@ -92,17 +92,6 @@ func TestAddAnnotation(t *testing.T) {
 		assert.NoError(t, err)
 		require.NotNil(t, resService)
 		serviceID := resService.Payload.Mysql.ServiceID
-		assert.Equal(t, &services.AddMySQLServiceOK{
-			Payload: &services.AddMySQLServiceOKBody{
-				Mysql: &services.AddMySQLServiceOKBodyMysql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        3306,
-					ServiceName: serviceName,
-				},
-			},
-		}, resService)
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		paramsAdd := &annotation.AddAnnotationParams{
