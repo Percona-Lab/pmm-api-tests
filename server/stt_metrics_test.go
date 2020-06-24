@@ -36,49 +36,22 @@ func TestSTTMetrics(t *testing.T) {
 				len:        7,
 				metricType: "vector",
 				expectedValues: []string{
-					`pmm_managed_checks_alerts_generated_total
-					{check_type="MONGODB_BUILDINFO", 
-					instance="pmm-server", job="pmm-managed", 
-					service_type="mongodb"} => 0`,
-					`pmm_managed_checks_alerts_generated_total
-					{check_type="MONGODB_GETCMDLINEOPTS", 
-					instance="pmm-server", job="pmm-managed", 
-					service_type="mongodb"} => 0`,
-					`pmm_managed_checks_alerts_generated_total
-					{check_type="MONGODB_GETPARAMETER", 
-					instance="pmm-server", job="pmm-managed", 
-					service_type="mongodb"} => 0`,
-					`pmm_managed_checks_alerts_generated_total
-					{check_type="MYSQL_SELECT", 
-					instance="pmm-server", job="pmm-managed", 
-					service_type="mysql"} => 0`,
-					`pmm_managed_checks_alerts_generated_total
-					{check_type="MYSQL_SHOW", 
-					instance="pmm-server", job="pmm-managed", 
-					service_type="mysql"} => 0`,
-					`pmm_managed_checks_alerts_generated_total
-					{check_type="POSTGRESQL_SELECT", 
-					instance="pmm-server", job="pmm-managed", 
-					service_type="postgresql"} => 0`,
-					`pmm_managed_checks_alerts_generated_total
-					{check_type="POSTGRESQL_SHOW", 
-					instance="pmm-server", job="pmm-managed", 
-					service_type="postgresql"} => 0`},
+					`pmm_managed_checks_alerts_generated_total{check_type="MONGODB_BUILDINFO", instance="pmm-server", job="pmm-managed", service_type="mongodb"} => 0`,
+					`pmm_managed_checks_alerts_generated_total{check_type="MONGODB_GETCMDLINEOPTS", instance="pmm-server", job="pmm-managed", service_type="mongodb"} => 0`,
+					`pmm_managed_checks_alerts_generated_total{check_type="MONGODB_GETPARAMETER", instance="pmm-server", job="pmm-managed", service_type="mongodb"} => 0`,
+					`pmm_managed_checks_alerts_generated_total{check_type="MYSQL_SELECT", instance="pmm-server", job="pmm-managed", service_type="mysql"} => 0`,
+					`pmm_managed_checks_alerts_generated_total{check_type="MYSQL_SHOW", instance="pmm-server", job="pmm-managed", service_type="mysql"} => 0`,
+					`pmm_managed_checks_alerts_generated_total{check_type="POSTGRESQL_SELECT", instance="pmm-server", job="pmm-managed", service_type="postgresql"} => 0`,
+					`pmm_managed_checks_alerts_generated_total{check_type="POSTGRESQL_SHOW", instance="pmm-server", job="pmm-managed", service_type="postgresql"} => 0`},
 			},
 			{
 				query:      "pmm_managed_checks_scripts_executed_total",
 				len:        3,
 				metricType: "vector",
-				expectedValues: []string{`
-				pmm_managed_checks_scripts_executed_total
-				{instance="pmm-server", job="pmm-managed", 
-				service_type="mongodb"} => 0`,
-					`pmm_managed_checks_scripts_executed_total
-				{instance="pmm-server", job="pmm-managed", 
-				service_type="mysql"} => 0`,
-					`pmm_managed_checks_scripts_executed_total
-				{instance="pmm-server", job="pmm-managed", 
-				service_type="postgresql"} => 0`},
+				expectedValues: []string{
+					`pmm_managed_checks_scripts_executed_total{instance="pmm-server", job="pmm-managed", service_type="mongodb"} => 0`,
+					`pmm_managed_checks_scripts_executed_total{instance="pmm-server", job="pmm-managed", service_type="mysql"} => 0`,
+					`pmm_managed_checks_scripts_executed_total{instance="pmm-server", job="pmm-managed", service_type="postgresql"} => 0`},
 			},
 		}
 
