@@ -27,13 +27,11 @@ func TestSTTMetrics(t *testing.T) {
 
 		testCases := []struct {
 			query          string
-			len            int
 			metricType     string
 			expectedValues []string
 		}{
 			{
 				query:      "pmm_managed_checks_alerts_generated_total",
-				len:        7,
 				metricType: "vector",
 				expectedValues: []string{
 					`pmm_managed_checks_alerts_generated_total{check_type="MONGODB_BUILDINFO", instance="pmm-server", job="pmm-managed", service_type="mongodb"} => 0`,
@@ -46,7 +44,6 @@ func TestSTTMetrics(t *testing.T) {
 			},
 			{
 				query:      "pmm_managed_checks_scripts_executed_total",
-				len:        3,
 				metricType: "vector",
 				expectedValues: []string{
 					`pmm_managed_checks_scripts_executed_total{instance="pmm-server", job="pmm-managed", service_type="mongodb"} => 0`,
@@ -68,7 +65,7 @@ func TestSTTMetrics(t *testing.T) {
 
 			require.NoError(t, err)
 			assert.NotEmpty(t, result)
-			assert.Len(t, result, tc.len)
+			assert.Len(t, result, len(tc.expectedValues))
 			assert.Equal(t, tc.metricType, result.Type().String())
 			assert.Equal(t, tc.expectedValues, actualValues)
 		}
