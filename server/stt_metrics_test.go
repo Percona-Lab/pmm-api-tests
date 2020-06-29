@@ -17,7 +17,7 @@ import (
 
 func TestSTTMetrics(t *testing.T) {
 	t.Run("StartSTTChecksAndRecordMetrics", func(t *testing.T) {
-		// Remove this once the test environment has been setup properly
+		// TODO: Remove this once the test environment has been setup properly
 		t.Skip("Skip STT Metrics test")
 
 		client, err := api.NewClient(api.Config{
