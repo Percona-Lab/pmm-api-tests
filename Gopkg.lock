@@ -206,7 +206,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "PMM-5563-annotation-service-node"
+  branch = "PMM-2.0"
   digest = "1:1a86a74bc80c0a3a8468a4b3b7183f3a94ae95f213313317743e2fe3d6f81070"
   name = "github.com/percona/pmm"
   packages = [
@@ -238,7 +238,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "f3a25c75f11f3b1bbe308a4c70ebbe571953e710"
+  revision = "042d284a1a070ac55d755b3e2236d88b08297358"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
