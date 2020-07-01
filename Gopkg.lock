@@ -53,12 +53,12 @@
   version = "v0.19.7"
 
 [[projects]]
-  digest = "1:e6de5e1d94268a61cd4672452b1d39c576c0e796ff677ada73d94f259253c038"
+  digest = "1:6a736893297649605f8a7ecc69c662eed252f21fa3c34809088e5d44735bcb02"
   name = "github.com/go-openapi/errors"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "9b273e805998abc751853b4e1574d66e5df888b4"
-  version = "v0.19.3"
+  revision = "7f2246786dd6ea01e5e7fe8e0229a53ea48bc6c4"
+  version = "v0.19.6"
 
 [[projects]]
   digest = "1:3758c86e787dfe5792a23430f34636106a16da914446724399c9c12f121a225d"
@@ -85,7 +85,7 @@
   version = "v0.19.4"
 
 [[projects]]
-  digest = "1:b84759b936cd41335ea7beb8999e7f6fa911d5759db5359adef5702ef9b865ee"
+  digest = "1:9053e2b14127688620ee65e125a22c560decd55377134107bc96834c3a447b5a"
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
@@ -98,16 +98,16 @@
     "security",
   ]
   pruneopts = "NUT"
-  revision = "d5a301537e5208a4b0c720f36ba75c0fa802c7df"
-  version = "v0.19.11"
+  revision = "095c1f4bf69916ab8880bf248ceb2771b448bcb8"
+  version = "v0.19.19"
 
 [[projects]]
-  digest = "1:da2ad0356c603997317f60dfa8c571df6c60411b4359846b8b9ed735b62e913f"
+  digest = "1:f2b0d8f80e685a259d98ac64994d3d4a6b9b858c4c76fee0ab8cac1b7b78923a"
   name = "github.com/go-openapi/spec"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "dce82e4362c708e636da7feb0831bd29efb5cd97"
-  version = "v0.19.6"
+  revision = "1a91a85df30408d932152159dc7aac569a39cac9"
+  version = "v0.19.8"
 
 [[projects]]
   digest = "1:0c6d85eccd1cdefa1826b4f7ad874b5ee626dc1ac2746742d9d2fd0faf8704e1"
@@ -126,12 +126,12 @@
   version = "v0.19.7"
 
 [[projects]]
-  digest = "1:9fbbc1c4406ca7512b30c1e5a0c23d155e3cb34da63c207577fa49841377f8c7"
+  digest = "1:2e35ee61c5e4d43f0503a7c6895aff9ba0c3995798e89c2b4d99895f025c7921"
   name = "github.com/go-openapi/validate"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "0ce7161a56d25c4021e6a4b5c18418ed46909b35"
-  version = "v0.19.6"
+  revision = "b4358e2166e999e752797fead269fb411dc700f7"
+  version = "v0.19.10"
 
 [[projects]]
   digest = "1:91358b3a314c1ddfd4d6445ca9c1fb846842c31c153e626730594b3c95f73f4a"
@@ -140,6 +140,14 @@
   pruneopts = "NUT"
   revision = "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a"
   version = "v1.8.0"
+
+[[projects]]
+  digest = "1:db3c1b3d1e843b1aecfb29f4922b6496b4fc494518e9016bb531c14573b14278"
+  name = "github.com/json-iterator/go"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "a1ca0830781e007c66b225121d2cdb3a649421f6"
+  version = "v1.1.10"
 
 [[projects]]
   digest = "1:2aee2c81817d3334cf3e85e99ffe9515315b4cb35e90b45ae2164c3b68fd7dcf"
@@ -182,8 +190,24 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-5563-annotation-service-node"
-  digest = "1:1419bfdef55060daa7c81a40f1955f5840e39f3f0809ad01d7c7d86770fff89e"
+  digest = "1:2f42fa12d6911c7b7659738758631bec870b7e9b4c6be5444f963cdcfccc191f"
+  name = "github.com/modern-go/concurrent"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "bacd9c7ef1dd9b15be4a9909b8ac7a4e313eec94"
+  version = "1.0.3"
+
+[[projects]]
+  digest = "1:c6aca19413b13dc59c220ad7430329e2ec454cc310bc6d8de2c7e2b93c18a0f6"
+  name = "github.com/modern-go/reflect2"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "4b7aa43c6742a2c18fdef89dd197aaae7dac7ccd"
+  version = "1.0.1"
+
+[[projects]]
+  branch = "PMM-2.0"
+  digest = "1:12bb110d923a9875785194d90c1aa3f46714ab5c62b9fc6dbe3768a21ba1b459"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -214,7 +238,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "c9226ad60249343a82fe37824c0b45c22227a2eb"
+  revision = "66f71535553c51da5fdb3b04a46f49588ace00d0"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -223,6 +247,25 @@
   pruneopts = "NUT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  digest = "1:c7659849cc81257181511cbf247fd26f6ac0ab92c2e57f971a9c933eca16648a"
+  name = "github.com/prometheus/client_golang"
+  packages = [
+    "api",
+    "api/prometheus/v1",
+  ]
+  pruneopts = "NUT"
+  revision = "b05e50c9298cbadd2b4be3f1527f5c1b178acb55"
+  version = "v1.7.0"
+
+[[projects]]
+  digest = "1:42420f20bc55231c262f4c9a4a526bad737f694d8f980b3eb7ffea95befe8462"
+  name = "github.com/prometheus/common"
+  packages = ["model"]
+  pruneopts = "NUT"
+  revision = "6162074431988128c0a63a91ed22b11685777868"
+  version = "v0.10.0"
 
 [[projects]]
   digest = "1:f4aaa07a6c33f2b354726d0571acbc8ca118837c75709f6353203ae1a3f8eeab"
@@ -346,6 +389,8 @@
     "github.com/percona/pmm/api/serverpb/json/client",
     "github.com/percona/pmm/api/serverpb/json/client/server",
     "github.com/percona/pmm/utils/tlsconfig",
+    "github.com/prometheus/client_golang/api",
+    "github.com/prometheus/client_golang/api/prometheus/v1",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
