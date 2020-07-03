@@ -19,7 +19,7 @@ func TestAlertManager(t *testing.T) {
 	res, err := serverClient.Default.Server.GetSettings(nil)
 	require.NoError(t, err)
 	assert.True(t, res.Payload.Settings.TelemetryEnabled)
-	err := os.Setenv("PERCONA_TEST_ALERTMANAGER_RESEND_INTERVAL", "10s")
+	err = os.Setenv("PERCONA_TEST_ALERTMANAGER_RESEND_INTERVAL", "10s")
 	require.NoError(t, err)
 
 	t.Run("TestEndsAtForFailedChecksAlerts", func(t *testing.T) {
