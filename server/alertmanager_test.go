@@ -5,20 +5,22 @@ import (
 	"testing"
 	"time"
 
-	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
 func TestAlertManager(t *testing.T) {
 	res, err := serverClient.Default.Server.GetSettings(nil)
 	require.NoError(t, err)
 	assert.True(t, res.Payload.Settings.TelemetryEnabled)
-	os.Setenv("PERCONA_TEST_ALERTMANAGER_RESEND_INTERVAL", "10s")
+	err := os.Setenv("PERCONA_TEST_ALERTMANAGER_RESEND_INTERVAL", "10s")
+	require.NoError(t, err)
 
 	t.Run("TestEndsAtForFailedChecksAlerts", func(t *testing.T) {
 		if !pmmapitests.RunSTTTests {
