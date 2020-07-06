@@ -21,9 +21,9 @@ func TestAlertManager(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("TestEndsAtForFailedChecksAlerts", func(t *testing.T) {
-		if !pmmapitests.RunSTTTests {
-			t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
-		}
+		//if !pmmapitests.RunSTTTests {
+		//	t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
+		//}
 
 		defer restoreSettingsDefaults(t)
 
@@ -37,7 +37,7 @@ func TestAlertManager(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.TelemetryEnabled)
 
-		const resendInterval = 30
+		const defaultResendInterval = 30
 
 		// 120 sec ping for failed checks alerts to appear in alertmanager
 		for i := 0; i < 120; i++ {
@@ -53,11 +53,11 @@ func TestAlertManager(t *testing.T) {
 
 			// TODO: Expand this test once we are silencing/removing alerts.
 			for _, v := range res.Payload {
-				delta := time.Duration(3 * resendInterval)
+				delta := time.Duration(3 * defaultResendInterval * time.Second)
 				// Since the `EndsAt` timestamp is always 3 times the
 				// `resendInterval` in the future from `UpdatedAt`
 				// we check whether they lie in that time delta.
-				assert.WithinDuration(t, time.Time(*v.UpdatedAt), time.Time(*v.EndsAt), delta)
+				assert.WithinDuration(t, time.Time(*v.EndsAt), time.Time(*v.UpdatedAt), delta)
 			}
 			assert.Greater(t, len(res.Payload), 0, "No alerts met")
 			break
