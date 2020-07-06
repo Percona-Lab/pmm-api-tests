@@ -21,9 +21,9 @@ func TestAlertManager(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("TestEndsAtForFailedChecksAlerts", func(t *testing.T) {
-		//if !pmmapitests.RunSTTTests {
-		//	t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
-		//}
+		if !pmmapitests.RunSTTTests {
+			t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
+		}
 
 		defer restoreSettingsDefaults(t)
 
