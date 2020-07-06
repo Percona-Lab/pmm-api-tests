@@ -37,7 +37,7 @@ func TestAlertManager(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.TelemetryEnabled)
 
-		const defaultResendInterval = 30
+		const defaultResendInterval = 30 * time.Second
 
 		// 120 sec ping for failed checks alerts to appear in alertmanager
 		for i := 0; i < 120; i++ {
@@ -53,7 +53,7 @@ func TestAlertManager(t *testing.T) {
 
 			// TODO: Expand this test once we are silencing/removing alerts.
 			for _, v := range res.Payload {
-				delta := 3 * defaultResendInterval * time.Second
+				delta := 3 * defaultResendInterval
 				// Since the `EndsAt` timestamp is always 3 times the
 				// `resendInterval` in the future from `UpdatedAt`
 				// we check whether they lie in that time delta.
