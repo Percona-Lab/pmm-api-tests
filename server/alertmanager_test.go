@@ -1,7 +1,6 @@
 package server
 
 import (
-	"os"
 	"testing"
 	"time"
 
@@ -18,8 +17,7 @@ import (
 func TestAlertManager(t *testing.T) {
 	res, err := serverClient.Default.Server.GetSettings(nil)
 	require.NoError(t, err)
-	assert.True(t, res.Payload.Settings.TelemetryEnabled)
-	err = os.Setenv("PERCONA_TEST_ALERTMANAGER_RESEND_INTERVAL", "10s")
+	require.True(t, res.Payload.Settings.TelemetryEnabled)
 	require.NoError(t, err)
 
 	t.Run("TestEndsAtForFailedChecksAlerts", func(t *testing.T) {
@@ -39,10 +37,9 @@ func TestAlertManager(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.TelemetryEnabled)
 
-		const resendInterval = 10
+		const resendInterval = 30
 
 		// 120 sec ping for failed checks alerts to appear in alertmanager
-		var alertsCount int
 		for i := 0; i < 120; i++ {
 			res, err := amclient.Default.Alert.GetAlerts(&alert.GetAlertsParams{
 				Filter:  []string{"stt_check=1"},
@@ -54,8 +51,7 @@ func TestAlertManager(t *testing.T) {
 				continue
 			}
 
-			// TODO: Expand this test once we are silencing
-			// removing alerts.
+			// TODO: Expand this test once we are silencing/removing alerts.
 			for _, v := range res.Payload {
 				delta := time.Duration(3 * resendInterval)
 				// Since the `EndsAt` timestamp is always 3 times the
@@ -63,9 +59,8 @@ func TestAlertManager(t *testing.T) {
 				// we check whether they lie in that time delta.
 				assert.WithinDuration(t, time.Time(*v.UpdatedAt), time.Time(*v.EndsAt), delta)
 			}
-			alertsCount = len(res.Payload)
+			assert.Greater(t, len(res.Payload), 0, "No alerts met")
 			break
 		}
-		assert.Greater(t, alertsCount, 0, "No alerts met")
 	})
 }
