@@ -53,7 +53,7 @@ func TestAlertManager(t *testing.T) {
 
 			// TODO: Expand this test once we are silencing/removing alerts.
 			for _, v := range res.Payload {
-				delta := time.Duration(3 * defaultResendInterval * time.Second)
+				delta := 3 * defaultResendInterval * time.Second
 				// Since the `EndsAt` timestamp is always 3 times the
 				// `resendInterval` in the future from `UpdatedAt`
 				// we check whether they lie in that time delta.
