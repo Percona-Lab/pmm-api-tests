@@ -15,11 +15,6 @@ import (
 )
 
 func TestAlertManager(t *testing.T) {
-	res, err := serverClient.Default.Server.GetSettings(nil)
-	require.NoError(t, err)
-	require.True(t, res.Payload.Settings.TelemetryEnabled)
-	require.NoError(t, err)
-
 	t.Run("TestEndsAtForFailedChecksAlerts", func(t *testing.T) {
 		if !pmmapitests.RunSTTTests {
 			t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
@@ -35,7 +30,7 @@ func TestAlertManager(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.TelemetryEnabled)
+		assert.True(t, res.Payload.Settings.SttEnabled)
 
 		const defaultResendInterval = 30 * time.Second
 
