@@ -46,15 +46,17 @@ func TestAlertManager(t *testing.T) {
 				continue
 			}
 
+			require.NotEmpty(t, res.Payload, "No alerts met")
+
 			// TODO: Expand this test once we are silencing/removing alerts.
+			delta := 3 * defaultResendInterval
 			for _, v := range res.Payload {
-				delta := 3 * defaultResendInterval
 				// Since the `EndsAt` timestamp is always 3 times the
 				// `resendInterval` in the future from `UpdatedAt`
 				// we check whether they lie in that time delta.
 				assert.WithinDuration(t, time.Time(*v.EndsAt), time.Time(*v.UpdatedAt), delta)
+				assert.Greater(t, v.EndsAt, v.UpdatedAt)
 			}
-			assert.Greater(t, len(res.Payload), 0, "No alerts met")
 			break
 		}
 	})
