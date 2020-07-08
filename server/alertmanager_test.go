@@ -32,7 +32,11 @@ func TestAlertManager(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.SttEnabled)
 
-		const defaultResendInterval = 30 * time.Second
+		// sync with pmm-managed
+		const (
+			resolveTimeoutFactor  = 3
+			defaultResendInterval = 2 * time.Second
+		)
 
 		// 120 sec ping for failed checks alerts to appear in alertmanager
 		for i := 0; i < 120; i++ {
@@ -49,12 +53,12 @@ func TestAlertManager(t *testing.T) {
 			require.NotEmpty(t, res.Payload, "No alerts met")
 
 			// TODO: Expand this test once we are silencing/removing alerts.
-			delta := 3 * defaultResendInterval
+			alertTTL := resolveTimeoutFactor * defaultResendInterval
 			for _, v := range res.Payload {
-				// Since the `EndsAt` timestamp is always 3 times the
+				// Since the `EndsAt` timestamp is always resolveTimeoutFactor times the
 				// `resendInterval` in the future from `UpdatedAt`
-				// we check whether they lie in that time delta.
-				assert.WithinDuration(t, time.Time(*v.EndsAt), time.Time(*v.UpdatedAt), delta)
+				// we check whether they lie in that time alertTTL.
+				assert.WithinDuration(t, time.Time(*v.EndsAt), time.Time(*v.UpdatedAt), alertTTL)
 				assert.Greater(t, v.EndsAt, v.UpdatedAt)
 			}
 			break
