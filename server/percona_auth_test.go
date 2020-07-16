@@ -2,6 +2,7 @@ package server
 
 import (
 	"testing"
+	"time"
 
 	"github.com/brianvoe/gofakeit"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
@@ -33,4 +34,8 @@ func TestPerconaAuth(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
+}
+
+func init() {
+	gofakeit.Seed(time.Now().UnixNano())
 }
