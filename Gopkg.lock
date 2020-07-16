@@ -34,6 +34,17 @@
   version = "v10"
 
 [[projects]]
+  digest = "1:3d407aad561cc061f31acbafd2236ab70c7a570cb0b1e4ce8c921cf672a0fd17"
+  name = "github.com/brianvoe/gofakeit"
+  packages = [
+    ".",
+    "data",
+  ]
+  pruneopts = "NUT"
+  revision = "19b40d7d6241163eba8b06ddec1041a36db06c54"
+  version = "v3.20.2"
+
+[[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -206,8 +217,8 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:1a86a74bc80c0a3a8468a4b3b7183f3a94ae95f213313317743e2fe3d6f81070"
+  branch = "SAAS-175-auth-api"
+  digest = "1:4891c48f3f2b10e9ac88565f9e135f373d0b228c2b77d3489c9cf9795c51e34f"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -238,7 +249,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "042d284a1a070ac55d755b3e2236d88b08297358"
+  revision = "c25c053b31f05c7af7aadd817640f67efbacaea3"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -365,6 +376,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/AlekSi/pointer",
+    "github.com/brianvoe/gofakeit",
     "github.com/davecgh/go-spew/spew",
     "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",
