@@ -36,6 +36,6 @@ func TestPerconaAuth(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func init() {
+func init() { //nolint:gochecknoinits
 	gofakeit.Seed(time.Now().UnixNano())
 }
