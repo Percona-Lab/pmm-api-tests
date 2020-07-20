@@ -15,7 +15,7 @@ import (
 func TestPlatformAuth(t *testing.T) {
 	client := serverClient.Default.Server
 	login := gofakeit.Email()
-	password := "Password12345"
+	password := gofakeit.Password(true, true, true, false, false, 14)
 
 	_, err := client.PlatformSignUp(&server.PlatformSignUpParams{
 		Body: server.PlatformSignUpBody{
