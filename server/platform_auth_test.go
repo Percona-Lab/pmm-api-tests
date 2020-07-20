@@ -12,6 +12,8 @@ import (
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
+// Tests in that file cover Percona Platform authentication.
+
 func TestPlatformAuth(t *testing.T) {
 	client := serverClient.Default.Server
 	login := gofakeit.Email()
