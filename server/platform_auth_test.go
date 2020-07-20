@@ -12,13 +12,13 @@ import (
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
-func TestPerconaAuth(t *testing.T) {
+func TestPlatformAuth(t *testing.T) {
 	client := serverClient.Default.Server
 	login := gofakeit.Email()
 	password := "Password12345"
 
-	_, err := client.SignUp(&server.SignUpParams{
-		Body: server.SignUpBody{
+	_, err := client.PlatformSignUp(&server.PlatformSignUpParams{
+		Body: server.PlatformSignUpBody{
 			Email:    login,
 			Password: password,
 		},
@@ -26,8 +26,8 @@ func TestPerconaAuth(t *testing.T) {
 	})
 	require.NoError(t, err)
 
-	_, err = client.SignIn(&server.SignInParams{
-		Body: server.SignInBody{
+	_, err = client.PlatformSignIn(&server.PlatformSignInParams{
+		Body: server.PlatformSignInBody{
 			Email:    login,
 			Password: password,
 		},

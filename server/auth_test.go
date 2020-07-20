@@ -263,13 +263,13 @@ func TestPermissions(t *testing.T) {
 			{userType: "editor", login: editor, statusCode: 401},
 			{userType: "admin", login: admin, statusCode: 200},
 		}},
-		{name: "sign-up", url: "/v1/Auth/SignUp", method: "POST", userCase: []userCase{
+		{name: "platform-sign-up", url: "/v1/Platform/SignUp", method: "POST", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, statusCode: 401},
 			{userType: "editor", login: editor, statusCode: 401},
 			{userType: "admin", login: admin, statusCode: 400}, // We send bad request, but have access to endpoint
 		}},
-		{name: "sign-in", url: "/v1/Auth/SignIn", method: "POST", userCase: []userCase{
+		{name: "platform-sign-in", url: "/v1/Platform/SignIn", method: "POST", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, statusCode: 401},
 			{userType: "editor", login: editor, statusCode: 401},
