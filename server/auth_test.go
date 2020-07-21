@@ -289,7 +289,7 @@ func TestPermissions(t *testing.T) {
 					u.User = url.UserPassword(user.login, user.login)
 					u.Path = test.url
 
-					req, err := http.NewRequest(test.method, u.String(), nil)
+					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
 					require.NoError(t, err)
 
 					resp, err := http.DefaultClient.Do(req)
