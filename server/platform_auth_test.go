@@ -2,7 +2,6 @@ package server
 
 import (
 	"testing"
-	"time"
 
 	"github.com/brianvoe/gofakeit"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
@@ -36,8 +35,4 @@ func TestPlatformAuth(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
-}
-
-func init() { //nolint:gochecknoinits
-	gofakeit.Seed(time.Now().UnixNano())
 }
