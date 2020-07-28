@@ -275,12 +275,6 @@ func TestPermissions(t *testing.T) {
 			{userType: "editor", login: editor, statusCode: 401},
 			{userType: "admin", login: admin, statusCode: 400}, // We send bad request, but have access to endpoint
 		}},
-		{name: "platform-reset-password", url: "/v1/Platform/ResetPassword", method: "POST", userCase: []userCase{
-			{userType: "default", login: none, statusCode: 401},
-			{userType: "viewer", login: viewer, statusCode: 401},
-			{userType: "editor", login: editor, statusCode: 401},
-			{userType: "admin", login: admin, statusCode: 400}, // We send bad request, but have access to endpoint
-		}},
 	}
 
 	for _, test := range tests {
