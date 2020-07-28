@@ -218,7 +218,7 @@
 
 [[projects]]
   branch = "SAAS-175-auth-api"
-  digest = "1:94c6de26dfa5a8f157267104a9a6c1b69cfc6fe8ed604eae7fdffc3b725fce78"
+  digest = "1:3fb7d13ce8ea1ea169eaef1436e820150a4e6ddfe1c817bb47c93c4bbd2ecc1e"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -249,7 +249,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "c3ff56dd58aa231681c6f73bf85b9031392f7383"
+  revision = "b12f9b027b66b3dfc7ab3fdb76f6cb85c5283447"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
