@@ -142,35 +142,4 @@ func TestPlatform(t *testing.T) {
 			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Password: value '' must not be an empty string")
 		})
 	})
-
-	t.Run("password reset", func(t *testing.T) {
-		email := gofakeit.Email()
-		password := gofakeit.Password(true, true, true, false, false, 14)
-
-		_, err := client.PlatformSignUp(&server.PlatformSignUpParams{
-			Body: server.PlatformSignUpBody{
-				Email:    email,
-				Password: password,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-
-		_, err = client.PlatformResetPassword(&server.PlatformResetPasswordParams{
-			Body: server.PlatformResetPasswordBody{
-				Email: email,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-
-		_, err = client.PlatformSignIn(&server.PlatformSignInParams{
-			Body: server.PlatformSignInBody{
-				Email:    email,
-				Password: password,
-			},
-			Context: pmmapitests.Context,
-		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Incorrect username or password.")
-	})
 }
