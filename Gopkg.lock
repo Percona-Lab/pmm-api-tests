@@ -217,7 +217,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "SAAS-237-Check-Results-API"
+  branch = "PMM-2.0"
   digest = "1:ff822d345d3fe7375653b7126238d3b1a475910b7d4f9beab1e3c403eac1ff5c"
   name = "github.com/percona/pmm"
   packages = [
@@ -249,7 +249,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "f17daa4f074b8111ca7c789c7c0e786e5d417850"
+  revision = "53ad2941a42de320587d5a1172c18a0858c58cfc"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
