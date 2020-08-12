@@ -58,42 +58,49 @@ func TestStartChecks(t *testing.T) {
 }
 
 func TestGetSecurityCheckResults(t *testing.T) {
-	if !pmmapitests.RunSTTTests {
-		t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
-	}
+	//if !pmmapitests.RunSTTTests {
+	//	t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
+	//}
 
 	client := serverClient.Default.Server
 
-	t.Run("Check for Check Results without starting security checks", func(t *testing.T) {
+	t.Run("GetSecurityCheckResultsWithDisabledSTT", func(t *testing.T) {
 		defer restoreSettingsDefaults(t)
-		// Since the checks weren't started we expect an empty response along with an err
-		resp, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
-		t.Log(resp, err)
-		require.Error(t, err)
-		assert.Nil(t, resp)
+		// Disabled STT
+		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				DisableStt: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.False(t, res.Payload.Settings.SttEnabled)
+		assert.Empty(t, err)
+
+		results, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `STT is disabled.`)
+		assert.Nil(t, results)
 	})
 
-	t.Run("Check for Check Results after starting security checks", func(t *testing.T) {
+	t.Run("GetSecurityCheckResultsWithEnabledSTT", func(t *testing.T) {
 		defer restoreSettingsDefaults(t)
 		// Enabled STT
 		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
-				EnableStt:       true,
-				EnableTelemetry: true,
+				EnableStt: true,
 			},
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.SttEnabled)
-		assert.True(t, res.Payload.Settings.TelemetryEnabled)
 		assert.Empty(t, err)
 
-		resp, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
+		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 
-		resp, err = managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
+		results, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
 		require.NoError(t, err)
-		assert.NotNil(t, resp)
+		assert.NotEmpty(t, results)
 	})
 }
