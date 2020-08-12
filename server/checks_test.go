@@ -101,6 +101,6 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 		results, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
 		require.NoError(t, err)
-		assert.NotEmpty(t, results)
+		assert.NotNil(t, results)
 	})
 }
