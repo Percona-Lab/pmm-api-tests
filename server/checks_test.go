@@ -58,9 +58,9 @@ func TestStartChecks(t *testing.T) {
 }
 
 func TestGetSecurityCheckResults(t *testing.T) {
-	//if !pmmapitests.RunSTTTests {
-	//	t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
-	//}
+	if !pmmapitests.RunSTTTests {
+		t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
+	}
 
 	client := serverClient.Default.Server
 
