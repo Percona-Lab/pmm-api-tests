@@ -4,18 +4,16 @@ import (
 	"fmt"
 	"testing"
 
-	"google.golang.org/grpc/codes"
-
 	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
 func TestKubernetesServer(t *testing.T) {
-
 	t.Run("Basic", func(t *testing.T) {
 		kubernetesClusterName := pmmapitests.TestString(t, "api-test-cluster")
 		clusters, err := dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
@@ -23,7 +21,7 @@ func TestKubernetesServer(t *testing.T) {
 		require.False(t, containsKubernetesCluster(clusters.Payload.KubernetesClusters, kubernetesClusterName))
 
 		registerKubernetesCluster(t, kubernetesClusterName)
-		defer unregisterKubernetesCluster(t, kubernetesClusterName)
+		defer unregisterKubernetesCluster(kubernetesClusterName)
 
 		clusters, err = dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
 		assert.NoError(t, err)
@@ -32,7 +30,8 @@ func TestKubernetesServer(t *testing.T) {
 
 		unregisterKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 			&kubernetes.UnregisterKubernetesClusterParams{
-				Body: kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: kubernetesClusterName},
+				Body:    kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: kubernetesClusterName},
+				Context: pmmapitests.Context,
 			},
 		)
 		require.NoError(t, err)
@@ -46,15 +45,63 @@ func TestKubernetesServer(t *testing.T) {
 	t.Run("DuplicateClusterName", func(t *testing.T) {
 		kubernetesClusterName := pmmapitests.TestString(t, "api-test-cluster-duplicate")
 		registerKubernetesCluster(t, kubernetesClusterName)
+		defer unregisterKubernetesCluster(kubernetesClusterName)
 		registerKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.RegisterKubernetesCluster(
 			&kubernetes.RegisterKubernetesClusterParams{
 				Body: kubernetes.RegisterKubernetesClusterBody{
 					KubernetesClusterName: kubernetesClusterName,
 					KubeAuth:              &kubernetes.RegisterKubernetesClusterParamsBodyKubeAuth{Kubeconfig: "{}"},
 				},
+				Context: pmmapitests.Context,
 			},
 		)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, fmt.Sprintf("Cluster with Name %q already exists.", kubernetesClusterName))
+		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, fmt.Sprintf("Cluster with Name %q already exists.", kubernetesClusterName))
 		require.Nil(t, registerKubernetesClusterResponse)
+	})
+
+	t.Run("EmptyKubernetesClusterName", func(t *testing.T) {
+		registerKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.RegisterKubernetesCluster(
+			&kubernetes.RegisterKubernetesClusterParams{
+				Body: kubernetes.RegisterKubernetesClusterBody{
+					KubernetesClusterName: "",
+					KubeAuth:              &kubernetes.RegisterKubernetesClusterParamsBodyKubeAuth{Kubeconfig: "{}"},
+				},
+				Context: pmmapitests.Context,
+			},
+		)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field KubernetesClusterName: value '' must not be an empty string")
+		require.Nil(t, registerKubernetesClusterResponse)
+	})
+
+	t.Run("EmptyKubeConfig", func(t *testing.T) {
+		registerKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.RegisterKubernetesCluster(
+			&kubernetes.RegisterKubernetesClusterParams{
+				Body: kubernetes.RegisterKubernetesClusterBody{
+					KubernetesClusterName: "empty-kube-config",
+					KubeAuth:              &kubernetes.RegisterKubernetesClusterParamsBodyKubeAuth{},
+				},
+				Context: pmmapitests.Context,
+			},
+		)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field KubeAuth.Kubeconfig: value '' must not be an empty string")
+		require.Nil(t, registerKubernetesClusterResponse)
+	})
+
+	t.Run("UnregisterNotExistCluster", func(t *testing.T) {
+		unregisterKubernetesClusterOK, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(&kubernetes.UnregisterKubernetesClusterParams{
+			Body:    kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: "not-exist-cluster"},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Cluster with name \"not-exist-cluster\" not found.")
+		require.Nil(t, unregisterKubernetesClusterOK)
+	})
+
+	t.Run("UnregisterEmptyClusterName", func(t *testing.T) {
+		unregisterKubernetesClusterOK, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(&kubernetes.UnregisterKubernetesClusterParams{
+			Body:    kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: ""},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field KubernetesClusterName: value '' must not be an empty string")
+		require.Nil(t, unregisterKubernetesClusterOK)
 	})
 }

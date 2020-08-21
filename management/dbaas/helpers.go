@@ -7,6 +7,8 @@ import (
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
 func registerKubernetesCluster(t *testing.T, kubernetesClusterName string) {
@@ -16,15 +18,17 @@ func registerKubernetesCluster(t *testing.T, kubernetesClusterName string) {
 				KubernetesClusterName: kubernetesClusterName,
 				KubeAuth:              &kubernetes.RegisterKubernetesClusterParamsBodyKubeAuth{Kubeconfig: "{}"},
 			},
+			Context: pmmapitests.Context,
 		},
 	)
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
 }
-func unregisterKubernetesCluster(t *testing.T, kubernetesClusterName string) {
+func unregisterKubernetesCluster(kubernetesClusterName string) {
 	_, _ = dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 		&kubernetes.UnregisterKubernetesClusterParams{
-			Body: kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: kubernetesClusterName},
+			Body:    kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: kubernetesClusterName},
+			Context: pmmapitests.Context,
 		},
 	)
 }
