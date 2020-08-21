@@ -175,5 +175,16 @@ func TestPlatform(t *testing.T) {
 			})
 			require.NoError(t, err)
 		})
+
+		t.Run("no active session", func(t *testing.T) {
+			_, err = client.PlatformSignOut(&server.PlatformSignOutParams{
+				Body: server.PlatformSignInBody{
+					Email:    email,
+					Password: password,
+				},
+				Context: pmmapitests.Context,
+			})
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "No active sessions.")
+		})
 	})
 }

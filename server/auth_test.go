@@ -279,7 +279,7 @@ func TestPermissions(t *testing.T) {
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, statusCode: 401},
 			{userType: "editor", login: editor, statusCode: 401},
-			{userType: "admin", login: admin, statusCode: 500}, // We send bad request, but have access to endpoint
+			{userType: "admin", login: admin, statusCode: 400}, // We send bad request, but have access to endpoint
 		}},
 	}
 
