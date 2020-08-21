@@ -2,7 +2,6 @@ package action
 
 import (
 	"testing"
-	"time"
 
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/actions"
@@ -23,8 +22,6 @@ func TestPTSummary(t *testing.T) {
 	})
 	require.NoError(t, err)
 	require.NotEmpty(t, explainActionOK.Payload.ActionID)
-
-	time.Sleep(2 * time.Second)
 
 	actionOK, err := client.Default.Actions.GetAction(&actions.GetActionParams{
 		Context: pmmapitests.Context,
