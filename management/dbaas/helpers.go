@@ -24,6 +24,7 @@ func registerKubernetesCluster(t *testing.T, kubernetesClusterName string) {
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
 }
+
 func unregisterKubernetesCluster(kubernetesClusterName string) {
 	_, _ = dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 		&kubernetes.UnregisterKubernetesClusterParams{
@@ -32,6 +33,7 @@ func unregisterKubernetesCluster(kubernetesClusterName string) {
 		},
 	)
 }
+
 func containsKubernetesCluster(clusters []*kubernetes.KubernetesClustersItems0, name string) bool {
 	for _, cluster := range clusters {
 		if cluster.KubernetesClusterName == name {
