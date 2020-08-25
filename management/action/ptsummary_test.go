@@ -2,6 +2,7 @@ package action
 
 import (
 	"testing"
+	"time"
 
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/actions"
@@ -23,14 +24,28 @@ func TestPTSummary(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, explainActionOK.Payload.ActionID)
 
-	actionOK, err := client.Default.Actions.GetAction(&actions.GetActionParams{
-		Context: pmmapitests.Context,
-		Body: actions.GetActionBody{
-			ActionID: explainActionOK.Payload.ActionID,
-		},
-	})
-	require.NoError(t, err)
-	require.Empty(t, actionOK.Payload.Error)
-	require.NotEmpty(t, actionOK.Payload.Output)
-	t.Log(actionOK.Payload.Output)
+	var retries int
+	for {
+		actionOK, err := client.Default.Actions.GetAction(&actions.GetActionParams{
+			Context: pmmapitests.Context,
+			Body: actions.GetActionBody{
+				ActionID: explainActionOK.Payload.ActionID,
+			},
+		})
+		require.NoError(t, err)
+
+		if !actionOK.Payload.Done {
+			time.Sleep(1 * time.Second)
+			retries++
+			if retries < 5 {
+				continue
+			}
+		}
+
+		require.True(t, actionOK.Payload.Done)
+		require.Empty(t, actionOK.Payload.Error)
+		require.NotEmpty(t, actionOK.Payload.Output)
+		t.Log(actionOK.Payload.Output)
+		break
+	}
 }
