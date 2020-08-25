@@ -46,6 +46,7 @@ func TestPTSummary(t *testing.T) {
 		require.Empty(t, actionOK.Payload.Error)
 		require.NotEmpty(t, actionOK.Payload.Output)
 		t.Log(actionOK.Payload.Output)
+
 		break
 	}
 }
