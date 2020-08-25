@@ -33,12 +33,3 @@ func unregisterKubernetesCluster(kubernetesClusterName string) (*kubernetes.Unre
 		},
 	)
 }
-
-func containsKubernetesCluster(clusters []*kubernetes.KubernetesClustersItems0, name string) bool {
-	for _, cluster := range clusters {
-		if cluster.KubernetesClusterName == name {
-			return true
-		}
-	}
-	return false
-}
