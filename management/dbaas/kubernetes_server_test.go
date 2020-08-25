@@ -55,7 +55,7 @@ func TestKubernetesServer(t *testing.T) {
 				Context: pmmapitests.Context,
 			},
 		)
-		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, fmt.Sprintf("Cluster with Name %q already exists.", kubernetesClusterName))
+		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, fmt.Sprintf("Kubernetes Cluster with Name %q already exists.", kubernetesClusterName))
 		require.Nil(t, registerKubernetesClusterResponse)
 	})
 
@@ -92,7 +92,7 @@ func TestKubernetesServer(t *testing.T) {
 			Body:    kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: "not-exist-cluster"},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Cluster with name \"not-exist-cluster\" not found.")
+		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Kubernetes Cluster with name \"not-exist-cluster\" not found.")
 		require.Nil(t, unregisterKubernetesClusterOK)
 	})
 
