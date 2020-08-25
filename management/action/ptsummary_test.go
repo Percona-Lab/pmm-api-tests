@@ -11,7 +11,7 @@ import (
 )
 
 func TestPTSummary(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(pmmapitests.Context, 30*time.Second)
 	defer cancel()
 
 	explainActionOK, err := client.Default.Actions.StartPTSummaryAction(&actions.StartPTSummaryActionParams{
