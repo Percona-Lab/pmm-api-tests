@@ -16,17 +16,19 @@ import (
 func TestKubernetesServer(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		kubernetesClusterName := pmmapitests.TestString(t, "api-test-cluster")
+		t.Cleanup(func() {
+			_, _ = unregisterKubernetesCluster(kubernetesClusterName)
+		})
 		clusters, err := dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
 		require.NoError(t, err)
-		require.False(t, containsKubernetesCluster(clusters.Payload.KubernetesClusters, kubernetesClusterName))
+		require.NotContains(t, clusters.Payload.KubernetesClusters, &kubernetes.KubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
 
 		registerKubernetesCluster(t, kubernetesClusterName)
-		defer unregisterKubernetesCluster(kubernetesClusterName)
 
 		clusters, err = dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
 		assert.NoError(t, err)
 		assert.GreaterOrEqual(t, len(clusters.Payload.KubernetesClusters), 1)
-		require.True(t, containsKubernetesCluster(clusters.Payload.KubernetesClusters, kubernetesClusterName))
+		assert.Contains(t, clusters.Payload.KubernetesClusters, &kubernetes.KubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
 
 		unregisterKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 			&kubernetes.UnregisterKubernetesClusterParams{
@@ -39,13 +41,16 @@ func TestKubernetesServer(t *testing.T) {
 
 		clusters, err = dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
 		assert.NoError(t, err)
-		require.False(t, containsKubernetesCluster(clusters.Payload.KubernetesClusters, kubernetesClusterName))
+		require.NotContains(t, clusters.Payload.KubernetesClusters, &kubernetes.KubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
 	})
 
 	t.Run("DuplicateClusterName", func(t *testing.T) {
 		kubernetesClusterName := pmmapitests.TestString(t, "api-test-cluster-duplicate")
 		registerKubernetesCluster(t, kubernetesClusterName)
-		defer unregisterKubernetesCluster(kubernetesClusterName)
+		t.Cleanup(func() {
+			_, err := unregisterKubernetesCluster(kubernetesClusterName)
+			assert.NoError(t, err)
+		})
 		registerKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.RegisterKubernetesCluster(
 			&kubernetes.RegisterKubernetesClusterParams{
 				Body: kubernetes.RegisterKubernetesClusterBody{
@@ -88,19 +93,13 @@ func TestKubernetesServer(t *testing.T) {
 	})
 
 	t.Run("UnregisterNotExistCluster", func(t *testing.T) {
-		unregisterKubernetesClusterOK, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(&kubernetes.UnregisterKubernetesClusterParams{
-			Body:    kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: "not-exist-cluster"},
-			Context: pmmapitests.Context,
-		})
+		unregisterKubernetesClusterOK, err := unregisterKubernetesCluster("not-exist-cluster")
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Kubernetes Cluster with name \"not-exist-cluster\" not found.")
 		require.Nil(t, unregisterKubernetesClusterOK)
 	})
 
 	t.Run("UnregisterEmptyClusterName", func(t *testing.T) {
-		unregisterKubernetesClusterOK, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(&kubernetes.UnregisterKubernetesClusterParams{
-			Body:    kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: ""},
-			Context: pmmapitests.Context,
-		})
+		unregisterKubernetesClusterOK, err := unregisterKubernetesCluster("")
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field KubernetesClusterName: value '' must not be an empty string")
 		require.Nil(t, unregisterKubernetesClusterOK)
 	})

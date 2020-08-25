@@ -25,8 +25,8 @@ func registerKubernetesCluster(t *testing.T, kubernetesClusterName string) {
 	assert.NotNil(t, registerKubernetesClusterResponse)
 }
 
-func unregisterKubernetesCluster(kubernetesClusterName string) {
-	_, _ = dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
+func unregisterKubernetesCluster(kubernetesClusterName string) (*kubernetes.UnregisterKubernetesClusterOK, error) {
+	return dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 		&kubernetes.UnregisterKubernetesClusterParams{
 			Body:    kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: kubernetesClusterName},
 			Context: pmmapitests.Context,
