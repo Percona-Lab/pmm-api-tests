@@ -217,7 +217,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "revert-567-revert-566-SAAS-266-sign-out"
+  branch = "PMM-2.0"
   digest = "1:dd2a4466d4f55b10a32e6d74f748acb3a343435e8a692602e26b309b8d938ec4"
   name = "github.com/percona/pmm"
   packages = [
@@ -249,7 +249,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "0137c7d71a3bacbe922a43b63f8302fdce355a67"
+  revision = "70e3dbab29c363e53696e87cd21f71f3ab148977"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
