@@ -23,6 +23,9 @@ func registerKubernetesCluster(t *testing.T, kubernetesClusterName string) {
 	)
 	require.NoError(t, err)
 	assert.NotNil(t, registerKubernetesClusterResponse)
+	t.Cleanup(func() {
+		_, _ = unregisterKubernetesCluster(kubernetesClusterName)
+	})
 }
 
 func unregisterKubernetesCluster(kubernetesClusterName string) (*kubernetes.UnregisterKubernetesClusterOK, error) {
