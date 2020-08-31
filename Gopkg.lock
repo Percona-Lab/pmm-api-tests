@@ -217,8 +217,8 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "PMM-6130-dbaas-controller-api"
-  digest = "1:5a4bcc6cad7596199320e48573874c0bedea8c6b85822a5e1b555d8fb383e9d6"
+  branch = "PMM-2.0"
+  digest = "1:b219b1ecb0450da13d350d2b493fc3630fdde3be040f3a7293c853c5fcd0fa18"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -251,7 +251,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "ee453fb029724f288ef526d199107e8f468f05cc"
+  revision = "8b24352910ef3dc4db200a0badfdde2efd67ea3d"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
