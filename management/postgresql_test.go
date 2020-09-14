@@ -154,8 +154,8 @@ func TestAddPostgreSQL(t *testing.T) {
 		require.NotNil(t, listAgents.Payload)
 		defer removeAllAgentsInList(t, listAgents)
 		require.Len(t, listAgents.Payload.PostgresExporter, 1)
-		require.Len(t, listAgents.Payload.QANPostgresqlPgstatmonitorAgent, 1)
 		require.Len(t, listAgents.Payload.QANPostgresqlPgstatementsAgent, 1)
+		require.Len(t, listAgents.Payload.QANPostgresqlPgstatmonitorAgent, 1)
 		assert.Equal(t, agents.ListAgentsOKBody{
 			PostgresExporter: []*agents.PostgresExporterItems0{
 				{
