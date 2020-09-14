@@ -104,14 +104,15 @@ func TestAddPostgreSQL(t *testing.T) {
 		params := &postgresql.AddPostgreSQLParams{
 			Context: pmmapitests.Context,
 			Body: postgresql.AddPostgreSQLBody{
-				NodeID:                         nodeID,
-				PMMAgentID:                     pmmAgentID,
-				ServiceName:                    serviceName,
-				Address:                        "10.10.10.10",
-				Port:                           5432,
-				Username:                       "username",
-				Password:                       "password",
-				QANPostgresqlPgstatementsAgent: true,
+				NodeID:                          nodeID,
+				PMMAgentID:                      pmmAgentID,
+				ServiceName:                     serviceName,
+				Address:                         "10.10.10.10",
+				Port:                            5432,
+				Username:                        "username",
+				Password:                        "password",
+				QANPostgresqlPgstatementsAgent:  true,
+				QANPostgresqlPgstatmonitorAgent: true,
 
 				SkipConnectionCheck: true,
 			},
@@ -150,9 +151,10 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		require.NotNil(t, listAgents)
+		require.NotNil(t, listAgents.Payload)
 		defer removeAllAgentsInList(t, listAgents)
 		require.Len(t, listAgents.Payload.PostgresExporter, 1)
+		require.Len(t, listAgents.Payload.QANPostgresqlPgstatmonitorAgent, 1)
 		require.Len(t, listAgents.Payload.QANPostgresqlPgstatementsAgent, 1)
 		assert.Equal(t, agents.ListAgentsOKBody{
 			PostgresExporter: []*agents.PostgresExporterItems0{
@@ -166,6 +168,14 @@ func TestAddPostgreSQL(t *testing.T) {
 			QANPostgresqlPgstatementsAgent: []*agents.QANPostgresqlPgstatementsAgentItems0{
 				{
 					AgentID:    listAgents.Payload.QANPostgresqlPgstatementsAgent[0].AgentID,
+					ServiceID:  serviceID,
+					PMMAgentID: pmmAgentID,
+					Username:   "username",
+				},
+			},
+			QANPostgresqlPgstatmonitorAgent: []*agents.QANPostgresqlPgstatmonitorAgentItems0{
+				{
+					AgentID:    listAgents.Payload.QANPostgresqlPgstatmonitorAgent[0].AgentID,
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
