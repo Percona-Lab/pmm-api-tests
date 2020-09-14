@@ -218,7 +218,7 @@
 
 [[projects]]
   branch = "PMM-6567-pg-monitor"
-  digest = "1:83994f63a2ac7adc16c388ccabc05b06a11184f5dff9a6f330f9ea24c399df0a"
+  digest = "1:5181db217e2d09fd1e26456099c8043d475ea95088d7366ef92de3666f09640e"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
