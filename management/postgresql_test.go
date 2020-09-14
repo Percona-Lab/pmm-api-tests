@@ -151,7 +151,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		require.NotNil(t, listAgents.Payload)
+		require.NotNil(t, listAgents)
 		defer removeAllAgentsInList(t, listAgents)
 		require.Len(t, listAgents.Payload.PostgresExporter, 1)
 		require.Len(t, listAgents.Payload.QANPostgresqlPgstatementsAgent, 1)
