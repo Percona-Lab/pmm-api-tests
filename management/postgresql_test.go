@@ -568,14 +568,15 @@ func TestRemovePostgreSQL(t *testing.T) {
 		params := &postgresql.AddPostgreSQLParams{
 			Context: pmmapitests.Context,
 			Body: postgresql.AddPostgreSQLBody{
-				NodeID:                         nodeID,
-				PMMAgentID:                     pmmAgentID,
-				ServiceName:                    serviceName,
-				Address:                        "10.10.10.10",
-				Port:                           5432,
-				Username:                       "username",
-				Password:                       "password",
-				QANPostgresqlPgstatementsAgent: withAgents,
+				NodeID:                          nodeID,
+				PMMAgentID:                      pmmAgentID,
+				ServiceName:                     serviceName,
+				Address:                         "10.10.10.10",
+				Port:                            5432,
+				Username:                        "username",
+				Password:                        "password",
+				QANPostgresqlPgstatementsAgent:  withAgents,
+				QANPostgresqlPgstatmonitorAgent: withAgents,
 
 				SkipConnectionCheck: true,
 			},
