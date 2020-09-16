@@ -113,6 +113,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Password:                        "password",
 				QANPostgresqlPgstatementsAgent:  true,
 				QANPostgresqlPgstatmonitorAgent: true,
+				DisableQueryExamples:            true,
 
 				SkipConnectionCheck: true,
 			},
@@ -175,10 +176,11 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 			QANPostgresqlPgstatmonitorAgent: []*agents.QANPostgresqlPgstatmonitorAgentItems0{
 				{
-					AgentID:    listAgents.Payload.QANPostgresqlPgstatmonitorAgent[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
+					AgentID:               listAgents.Payload.QANPostgresqlPgstatmonitorAgent[0].AgentID,
+					ServiceID:             serviceID,
+					PMMAgentID:            pmmAgentID,
+					Username:              "username",
+					QueryExamplesDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)

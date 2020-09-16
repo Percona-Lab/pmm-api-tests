@@ -898,10 +898,11 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		res, err := client.Default.Agents.AddQANPostgreSQLPgStatMonitorAgent(
 			&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
 				Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
-					ServiceID:  serviceID,
-					Username:   "username",
-					Password:   "password",
-					PMMAgentID: pmmAgentID,
+					ServiceID:            serviceID,
+					Username:             "username",
+					Password:             "password",
+					PMMAgentID:           pmmAgentID,
+					DisableQueryExamples: true,
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatMonitorAgent",
 					},
@@ -922,10 +923,11 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.GetAgentOKBodyQANPostgresqlPgstatmonitorAgent{
-					AgentID:    agentID,
-					ServiceID:  serviceID,
-					Username:   "username",
-					PMMAgentID: pmmAgentID,
+					AgentID:               agentID,
+					ServiceID:             serviceID,
+					Username:              "username",
+					PMMAgentID:            pmmAgentID,
+					QueryExamplesDisabled: true,
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatMonitorAgent",
 					},
