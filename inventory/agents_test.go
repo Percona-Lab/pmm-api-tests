@@ -649,7 +649,7 @@ func TestQanAgentExporter(t *testing.T) {
 	})
 }
 
-func TestPostgreSQLQanAgentStatementsExporter(t *testing.T) {
+func TestPGStatStatementsQanAgent(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
