@@ -898,11 +898,10 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		res, err := client.Default.Agents.AddQANPostgreSQLPgStatMonitorAgent(
 			&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
 				Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
-					ServiceID:            serviceID,
-					Username:             "username",
-					Password:             "password",
-					PMMAgentID:           pmmAgentID,
-					DisableQueryExamples: true,
+					ServiceID:  serviceID,
+					Username:   "username",
+					Password:   "password",
+					PMMAgentID: pmmAgentID,
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatMonitorAgent",
 					},
@@ -927,7 +926,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 					ServiceID:             serviceID,
 					Username:              "username",
 					PMMAgentID:            pmmAgentID,
-					QueryExamplesDisabled: true,
+					QueryExamplesDisabled: false,
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatMonitorAgent",
 					},
@@ -983,6 +982,120 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatMonitorAgent",
 					},
+				},
+			},
+		}, changeQANPostgreSQLPgStatMonitorAgentOK)
+	})
+
+	t.Run("BasicWithDisabledExamples", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan PostgreSQL Agent pg_stat_monitor")).NodeID
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
+			NodeID:      genericNodeID,
+			Address:     "localhost",
+			Port:        5432,
+			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for QanAgent test"),
+		})
+		serviceID := service.Postgresql.ServiceID
+		defer pmmapitests.RemoveServices(t, serviceID)
+
+		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
+		pmmAgentID := pmmAgent.PMMAgent.AgentID
+		defer pmmapitests.RemoveAgents(t, pmmAgentID)
+
+		res, err := client.Default.Agents.AddQANPostgreSQLPgStatMonitorAgent(
+			&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
+				Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
+					ServiceID:            serviceID,
+					Username:             "username",
+					Password:             "password",
+					PMMAgentID:           pmmAgentID,
+					DisableQueryExamples: true,
+					CustomLabels: map[string]string{
+						"new_label": "QANPostgreSQLPgStatMonitorAgent",
+					},
+
+					SkipConnectionCheck: true,
+				},
+				Context: pmmapitests.Context,
+			})
+		require.NoError(t, err)
+		agentID := res.Payload.QANPostgresqlPgstatmonitorAgent.AgentID
+		defer pmmapitests.RemoveAgents(t, agentID)
+
+		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+			Body:    agents.GetAgentBody{AgentID: agentID},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, &agents.GetAgentOK{
+			Payload: &agents.GetAgentOKBody{
+				QANPostgresqlPgstatmonitorAgent: &agents.GetAgentOKBodyQANPostgresqlPgstatmonitorAgent{
+					AgentID:               agentID,
+					ServiceID:             serviceID,
+					Username:              "username",
+					PMMAgentID:            pmmAgentID,
+					QueryExamplesDisabled: true,
+					CustomLabels: map[string]string{
+						"new_label": "QANPostgreSQLPgStatMonitorAgent",
+					},
+				},
+			},
+		}, getAgentRes)
+
+		// Test change API.
+		changeQANPostgreSQLPgStatMonitorAgentOK, err := client.Default.Agents.ChangeQANPostgreSQLPgStatMonitorAgent(&agents.ChangeQANPostgreSQLPgStatMonitorAgentParams{
+			Body: agents.ChangeQANPostgreSQLPgStatMonitorAgentBody{
+				AgentID: agentID,
+				Common: &agents.ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon{
+					Disable:            true,
+					RemoveCustomLabels: true,
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, &agents.ChangeQANPostgreSQLPgStatMonitorAgentOK{
+			Payload: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBody{
+				QANPostgresqlPgstatmonitorAgent: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent{
+					AgentID:               agentID,
+					ServiceID:             serviceID,
+					Username:              "username",
+					PMMAgentID:            pmmAgentID,
+					Disabled:              true,
+					QueryExamplesDisabled: true,
+				},
+			},
+		}, changeQANPostgreSQLPgStatMonitorAgentOK)
+
+		changeQANPostgreSQLPgStatMonitorAgentOK, err = client.Default.Agents.ChangeQANPostgreSQLPgStatMonitorAgent(&agents.ChangeQANPostgreSQLPgStatMonitorAgentParams{
+			Body: agents.ChangeQANPostgreSQLPgStatMonitorAgentBody{
+				AgentID: agentID,
+				Common: &agents.ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon{
+					Enable: true,
+					CustomLabels: map[string]string{
+						"new_label": "QANPostgreSQLPgStatMonitorAgent",
+					},
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, &agents.ChangeQANPostgreSQLPgStatMonitorAgentOK{
+			Payload: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBody{
+				QANPostgresqlPgstatmonitorAgent: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent{
+					AgentID:    agentID,
+					ServiceID:  serviceID,
+					Username:   "username",
+					PMMAgentID: pmmAgentID,
+					Disabled:   false,
+					CustomLabels: map[string]string{
+						"new_label": "QANPostgreSQLPgStatMonitorAgent",
+					},
+					QueryExamplesDisabled: true,
 				},
 			},
 		}, changeQANPostgreSQLPgStatMonitorAgentOK)
