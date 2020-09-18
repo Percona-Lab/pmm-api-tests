@@ -1045,60 +1045,6 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 				},
 			},
 		}, getAgentRes)
-
-		// Test change API.
-		changeQANPostgreSQLPgStatMonitorAgentOK, err := client.Default.Agents.ChangeQANPostgreSQLPgStatMonitorAgent(&agents.ChangeQANPostgreSQLPgStatMonitorAgentParams{
-			Body: agents.ChangeQANPostgreSQLPgStatMonitorAgentBody{
-				AgentID: agentID,
-				Common: &agents.ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon{
-					Disable:            true,
-					RemoveCustomLabels: true,
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeQANPostgreSQLPgStatMonitorAgentOK{
-			Payload: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBody{
-				QANPostgresqlPgstatmonitorAgent: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent{
-					AgentID:               agentID,
-					ServiceID:             serviceID,
-					Username:              "username",
-					PMMAgentID:            pmmAgentID,
-					Disabled:              true,
-					QueryExamplesDisabled: true,
-				},
-			},
-		}, changeQANPostgreSQLPgStatMonitorAgentOK)
-
-		changeQANPostgreSQLPgStatMonitorAgentOK, err = client.Default.Agents.ChangeQANPostgreSQLPgStatMonitorAgent(&agents.ChangeQANPostgreSQLPgStatMonitorAgentParams{
-			Body: agents.ChangeQANPostgreSQLPgStatMonitorAgentBody{
-				AgentID: agentID,
-				Common: &agents.ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon{
-					Enable: true,
-					CustomLabels: map[string]string{
-						"new_label": "QANPostgreSQLPgStatMonitorAgent",
-					},
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		assert.NoError(t, err)
-		assert.Equal(t, &agents.ChangeQANPostgreSQLPgStatMonitorAgentOK{
-			Payload: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBody{
-				QANPostgresqlPgstatmonitorAgent: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent{
-					AgentID:    agentID,
-					ServiceID:  serviceID,
-					Username:   "username",
-					PMMAgentID: pmmAgentID,
-					Disabled:   false,
-					CustomLabels: map[string]string{
-						"new_label": "QANPostgreSQLPgStatMonitorAgent",
-					},
-					QueryExamplesDisabled: true,
-				},
-			},
-		}, changeQANPostgreSQLPgStatMonitorAgentOK)
 	})
 
 	t.Run("AddServiceIDEmpty", func(t *testing.T) {
