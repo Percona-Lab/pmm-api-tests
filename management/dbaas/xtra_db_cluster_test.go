@@ -3,12 +3,11 @@ package dbaas
 import (
 	"testing"
 
+	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
+	"github.com/percona/pmm/api/managementpb/dbaas/json/client/xtra_db_cluster"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
-
-	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/xtra_db_cluster"
 
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
@@ -17,6 +16,7 @@ const (
 	kubernetesClusterName = "api-test-k8s-cluster"
 )
 
+//nolint:funlen
 func TestXtraDBClusterServer(t *testing.T) {
 	if pmmapitests.Kubeconfig == "" {
 		t.Skip("Skip tests of XtraDBClusterServer without kubeconfig")
@@ -91,6 +91,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 			for _, pxc := range xtraDBClusters.Payload.Clusters {
 				if name == pxc.Name {
 					foundPXC = true
+
 					break
 				}
 			}
