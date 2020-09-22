@@ -24,7 +24,6 @@ func TestXtraDBClusterServer(t *testing.T) {
 	registerKubernetesCluster(t, kubernetesClusterName, pmmapitests.Kubeconfig)
 
 	t.Run("BasicXtraDBCluster", func(t *testing.T) {
-
 		paramsFirstPXC := xtra_db_cluster.CreateXtraDBClusterParams{
 			Body: xtra_db_cluster.CreateXtraDBClusterBody{
 				KubernetesClusterName: kubernetesClusterName,
