@@ -49,7 +49,7 @@ var (
 	// RunSTTTests is true if STT tests should be run.
 	RunSTTTests bool
 
-	// Kubeconfig path to kubeconfig.
+	// Kubeconfig contains kubeconfig.
 	Kubeconfig string
 )
 
