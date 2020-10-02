@@ -191,6 +191,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 		}
 		_, err := dbaasClient.Default.XtraDBCluster.CreateXtraDBCluster(&paramsPXCInvalidName)
 		assert.Error(t, err)
+		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
 	})
 
 	t.Run("ListUnknownCluster", func(t *testing.T) {
@@ -214,5 +215,6 @@ func TestXtraDBClusterServer(t *testing.T) {
 		}
 		_, err := dbaasClient.Default.XtraDBCluster.DeleteXtraDBCluster(&deleteXtraDBClusterParamsParam)
 		require.Error(t, err)
+		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
 	})
 }
