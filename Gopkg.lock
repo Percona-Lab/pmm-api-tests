@@ -217,7 +217,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "PMM-6457-api-db-cluster"
+  branch = "PMM-2.0"
   digest = "1:22640341721a4bde5b1e75cb12dd34ee9473bfd40a434669f656e907083c192f"
   name = "github.com/percona/pmm"
   packages = [
@@ -252,7 +252,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "33afd6b3a0fbda4a588ef8972f6032929c2376cc"
+  revision = "44fb8bd8c539384834e095889d1b22d5e82e812d"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
