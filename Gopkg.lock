@@ -252,7 +252,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "c8d8a36ac7b8801630e6d055988c2170f6c7e37e"
+  revision = "ca62a37cc847f35a6f0e3e978c029c9043f84448"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -414,6 +414,7 @@
     "github.com/percona/pmm/api/managementpb/json/client/postgre_sql",
     "github.com/percona/pmm/api/managementpb/json/client/proxy_sql",
     "github.com/percona/pmm/api/managementpb/json/client/rds",
+    "github.com/percona/pmm/api/managementpb/json/client/security_checks",
     "github.com/percona/pmm/api/managementpb/json/client/service",
     "github.com/percona/pmm/api/serverpb/json/client",
     "github.com/percona/pmm/api/serverpb/json/client/server",
