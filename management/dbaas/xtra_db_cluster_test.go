@@ -28,7 +28,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 			Context: pmmapitests.Context,
 			Body: xtra_db_cluster.CreateXtraDBClusterBody{
 				KubernetesClusterName: kubernetesClusterName,
-				Name:                  "first.pxc.test.percona.com",
+				Name:                  "first-pxc-test",
 				Params: &xtra_db_cluster.CreateXtraDBClusterParamsBodyParams{
 					ClusterSize: 3,
 					Proxysql: &xtra_db_cluster.CreateXtraDBClusterParamsBodyParamsProxysql{
@@ -55,7 +55,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 			Context: pmmapitests.Context,
 			Body: xtra_db_cluster.CreateXtraDBClusterBody{
 				KubernetesClusterName: kubernetesClusterName,
-				Name:                  "second.pxc.test.percona.com",
+				Name:                  "second-pxc-test",
 				Params: &xtra_db_cluster.CreateXtraDBClusterParamsBodyParams{
 					ClusterSize: 1,
 					Proxysql: &xtra_db_cluster.CreateXtraDBClusterParamsBodyParamsProxysql{
@@ -85,7 +85,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 		xtraDBClusters, err := dbaasClient.Default.XtraDBCluster.ListXtraDBClusters(&listXtraDBClustersParamsParam)
 		assert.NoError(t, err)
 
-		for _, name := range []string{"first.pxc.test.percona.com", "second.pxc.test.percona.com"} {
+		for _, name := range []string{"first-pxc-test", "second-pxc-test"} {
 			foundPXC := false
 			for _, pxc := range xtraDBClusters.Payload.Clusters {
 				if name == pxc.Name {
@@ -97,11 +97,25 @@ func TestXtraDBClusterServer(t *testing.T) {
 			assert.True(t, foundPXC, "Cannot find PXC with name %s in cluster list", name)
 		}
 
+		showXtraDBClusterParamsParam := xtra_db_cluster.ShowXtraDBClusterParams{
+			Context: pmmapitests.Context,
+			Body: xtra_db_cluster.ShowXtraDBClusterBody{
+				KubernetesClusterName: kubernetesClusterName,
+				Name:                  "first-pxc-test",
+			},
+		}
+		xtraDBCluster, err := dbaasClient.Default.XtraDBCluster.ShowXtraDBCluster(&showXtraDBClusterParamsParam)
+		assert.NoError(t, err)
+		assert.Equal(t, xtraDBCluster.Payload.Name, "first-pxc-test")
+		assert.Equal(t, xtraDBCluster.Payload.Username, "root")
+		assert.Equal(t, xtraDBCluster.Payload.Host, "first-pxc-test-proxysql")
+		assert.Equal(t, xtraDBCluster.Payload.Port, 3306)
+
 		paramsUpdatePXC := xtra_db_cluster.UpdateXtraDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: xtra_db_cluster.UpdateXtraDBClusterBody{
 				KubernetesClusterName: kubernetesClusterName,
-				Name:                  "second.pxc.test.percona.com",
+				Name:                  "second-pxc-test",
 				Params: &xtra_db_cluster.UpdateXtraDBClusterParamsBodyParams{
 					ClusterSize: 2,
 					Proxysql: &xtra_db_cluster.UpdateXtraDBClusterParamsBodyParamsProxysql{
@@ -163,7 +177,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 			},
 		}
 		_, err := dbaasClient.Default.XtraDBCluster.CreateXtraDBCluster(&paramsPXCEmptyName)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '' must not be an empty string`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '' must be a string conforming to regex "^[a-z]([-a-z0-9]*[a-z0-9])?$"`)
 	})
 
 	t.Run("CreateXtraDBClusterInvalidName", func(t *testing.T) {
@@ -190,8 +204,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 			},
 		}
 		_, err := dbaasClient.Default.XtraDBCluster.CreateXtraDBCluster(&paramsPXCInvalidName)
-		assert.Error(t, err)
-		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '123_asd' must be a string conforming to regex "^[a-z]([-a-z0-9]*[a-z0-9])?$"`)
 	})
 
 	t.Run("ListUnknownCluster", func(t *testing.T) {
