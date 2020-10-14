@@ -141,22 +141,19 @@ func TestToggleSecurityChecks(t *testing.T) {
 	require.NotEmpty(t, resp.Payload.ChecksStates)
 
 	var check *security_checks.ChecksStatesItems0
-	var disable bool
 	var params *security_checks.ToggleSecurityChecksParams
 
 	// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
 	// then in second iteration it returns state to its origin.
 	for i := 0; i < 2; i++ {
 		check = resp.Payload.ChecksStates[0]
-		disable = !check.Disabled
-
 		params = &security_checks.ToggleSecurityChecksParams{
 			Body: security_checks.ToggleSecurityChecksBody{
 				ChecksParams: []*security_checks.ChecksParamsItems0{
 					{
 						Name:    check.Name,
-						Disable: disable,
-						Enable:  !disable,
+						Disable: !check.Disabled,
+						Enable:  check.Disabled,
 					},
 				},
 			},
