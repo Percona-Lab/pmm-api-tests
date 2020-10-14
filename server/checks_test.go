@@ -119,7 +119,7 @@ func TestListSecurityChecks(t *testing.T) {
 	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
-	assert.NotEmpty(t, resp.Payload.Checks)
+	assert.NotEmpty(t, resp.Payload.ChecksStates)
 }
 
 func TestToggleSecurityChecks(t *testing.T) {
@@ -138,61 +138,39 @@ func TestToggleSecurityChecks(t *testing.T) {
 
 	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 	require.NoError(t, err)
-	require.NotEmpty(t, resp.Payload.Checks)
+	require.NotEmpty(t, resp.Payload.ChecksStates)
 
-	check := resp.Payload.Checks[0]
-
+	var check *security_checks.ChecksStatesItems0
+	var disable bool
 	var params *security_checks.ToggleSecurityChecksParams
-	if !check.Disabled {
+
+	// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
+	// then in second iteration it returns state to its origin.
+	for i := 0; i < 2; i++ {
+		check = resp.Payload.ChecksStates[0]
+		disable = !check.Disabled
+
 		params = &security_checks.ToggleSecurityChecksParams{
 			Body: security_checks.ToggleSecurityChecksBody{
-				DisableChecks: []string{check.Name},
+				ChecksParams: []*security_checks.ChecksParamsItems0{
+					{
+						Name:    check.Name,
+						Disable: disable,
+						Enable:  !disable,
+					},
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-	} else {
-		params = &security_checks.ToggleSecurityChecksParams{
-			Body: security_checks.ToggleSecurityChecksBody{
-				EnableChecks: []string{check.Name},
-			},
-			Context: pmmapitests.Context,
-		}
+
+		_, err = managementClient.Default.SecurityChecks.ToggleSecurityChecks(params)
+		require.NoError(t, err)
+
+		resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+		require.NoError(t, err)
+		require.NotEmpty(t, resp.Payload.ChecksStates)
+
+		assert.Equal(t, check.Name, resp.Payload.ChecksStates[0].Name)
+		assert.Equal(t, !check.Disabled, resp.Payload.ChecksStates[0].Disabled)
 	}
-
-	_, err = managementClient.Default.SecurityChecks.ToggleSecurityChecks(params)
-	require.NoError(t, err)
-
-	resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
-	require.NoError(t, err)
-	require.NotEmpty(t, resp.Payload.Checks)
-
-	assert.Equal(t, check.Name, resp.Payload.Checks[0].Name)
-	assert.Equal(t, !check.Disabled, resp.Payload.Checks[0].Disabled)
-
-	check = resp.Payload.Checks[0]
-	if !check.Disabled {
-		params = &security_checks.ToggleSecurityChecksParams{
-			Body: security_checks.ToggleSecurityChecksBody{
-				DisableChecks: []string{check.Name},
-			},
-			Context: pmmapitests.Context,
-		}
-	} else {
-		params = &security_checks.ToggleSecurityChecksParams{
-			Body: security_checks.ToggleSecurityChecksBody{
-				EnableChecks: []string{check.Name},
-			},
-			Context: pmmapitests.Context,
-		}
-	}
-
-	_, err = managementClient.Default.SecurityChecks.ToggleSecurityChecks(params)
-	require.NoError(t, err)
-
-	resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
-	require.NoError(t, err)
-	require.NotEmpty(t, resp.Payload.Checks)
-
-	assert.Equal(t, check.Name, resp.Payload.Checks[0].Name)
-	assert.Equal(t, !check.Disabled, resp.Payload.Checks[0].Disabled)
 }
