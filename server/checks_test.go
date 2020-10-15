@@ -119,10 +119,10 @@ func TestListSecurityChecks(t *testing.T) {
 	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
-	assert.NotEmpty(t, resp.Payload.ChecksStates)
+	assert.NotEmpty(t, resp.Payload.Checks)
 }
 
-func TestUpdateSecurityChecks(t *testing.T) {
+func TestChangeSecurityChecks(t *testing.T) {
 	client := serverClient.Default.Server
 
 	defer restoreSettingsDefaults(t)
@@ -138,18 +138,18 @@ func TestUpdateSecurityChecks(t *testing.T) {
 
 	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 	require.NoError(t, err)
-	require.NotEmpty(t, resp.Payload.ChecksStates)
+	require.NotEmpty(t, resp.Payload.Checks)
 
-	var check *security_checks.ChecksStatesItems0
-	var params *security_checks.UpdateSecurityChecksParams
+	var check *security_checks.ChecksItems0
+	var params *security_checks.ChangeSecurityChecksParams
 
 	// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
 	// then in second iteration it returns state to its origin.
 	for i := 0; i < 2; i++ {
-		check = resp.Payload.ChecksStates[0]
-		params = &security_checks.UpdateSecurityChecksParams{
-			Body: security_checks.UpdateSecurityChecksBody{
-				ChecksParams: []*security_checks.ChecksParamsItems0{
+		check = resp.Payload.Checks[0]
+		params = &security_checks.ChangeSecurityChecksParams{
+			Body: security_checks.ChangeSecurityChecksBody{
+				Params: []*security_checks.ParamsItems0{
 					{
 						Name:    check.Name,
 						Disable: !check.Disabled,
@@ -160,14 +160,14 @@ func TestUpdateSecurityChecks(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 
-		_, err = managementClient.Default.SecurityChecks.UpdateSecurityChecks(params)
+		_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
 		require.NoError(t, err)
 
 		resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 		require.NoError(t, err)
-		require.NotEmpty(t, resp.Payload.ChecksStates)
+		require.NotEmpty(t, resp.Payload.Checks)
 
-		assert.Equal(t, check.Name, resp.Payload.ChecksStates[0].Name)
-		assert.Equal(t, !check.Disabled, resp.Payload.ChecksStates[0].Disabled)
+		assert.Equal(t, check.Name, resp.Payload.Checks[0].Name)
+		assert.Equal(t, !check.Disabled, resp.Payload.Checks[0].Disabled)
 	}
 }
