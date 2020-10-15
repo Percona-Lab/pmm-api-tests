@@ -252,7 +252,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "51ad6f9708e4748d00819f0930ce7173f9311c4e"
+  revision = "002d746e3ff4c710572f4a34955a5963f7bfe761"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
