@@ -122,7 +122,7 @@ func TestListSecurityChecks(t *testing.T) {
 	assert.NotEmpty(t, resp.Payload.ChecksStates)
 }
 
-func TestToggleSecurityChecks(t *testing.T) {
+func TestUpdateSecurityChecks(t *testing.T) {
 	client := serverClient.Default.Server
 
 	defer restoreSettingsDefaults(t)
@@ -141,14 +141,14 @@ func TestToggleSecurityChecks(t *testing.T) {
 	require.NotEmpty(t, resp.Payload.ChecksStates)
 
 	var check *security_checks.ChecksStatesItems0
-	var params *security_checks.ToggleSecurityChecksParams
+	var params *security_checks.UpdateSecurityChecksParams
 
 	// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
 	// then in second iteration it returns state to its origin.
 	for i := 0; i < 2; i++ {
 		check = resp.Payload.ChecksStates[0]
-		params = &security_checks.ToggleSecurityChecksParams{
-			Body: security_checks.ToggleSecurityChecksBody{
+		params = &security_checks.UpdateSecurityChecksParams{
+			Body: security_checks.UpdateSecurityChecksBody{
 				ChecksParams: []*security_checks.ChecksParamsItems0{
 					{
 						Name:    check.Name,
@@ -160,7 +160,7 @@ func TestToggleSecurityChecks(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 
-		_, err = managementClient.Default.SecurityChecks.ToggleSecurityChecks(params)
+		_, err = managementClient.Default.SecurityChecks.UpdateSecurityChecks(params)
 		require.NoError(t, err)
 
 		resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
