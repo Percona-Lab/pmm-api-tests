@@ -218,7 +218,7 @@
 
 [[projects]]
   branch = "SAAS-377-disable-checks-by-name"
-  digest = "1:e629a1e7915ae3afc2a64c7cc058e8f3783ce0140e81a3479dbad304597955f2"
+  digest = "1:33ec46e8a0668866e355fd0bd64dc10bb369c187fb6acdc52dc603b60e31e7f9"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -252,7 +252,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "5ec46fad2571e48808b1ea31dcb627dd1bd1fb1e"
+  revision = "5476617e1fea14f6b90b6de0224197649c95f7f0"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
