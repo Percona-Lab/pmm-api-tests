@@ -217,7 +217,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "SAAS-377-disable-checks-by-name"
+  branch = "release/2.12"
   digest = "1:65c510ba70684578b4144092bce8acaa1489144f0375e1a0c410876252021eeb"
   name = "github.com/percona/pmm"
   packages = [
@@ -252,7 +252,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "5ba122253dda23548c6ce9c9a9523c311ddcef17"
+  revision = "e7cb1c4a8e4d1df6a2c75a6de88e66d499d92ed2"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
