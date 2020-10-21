@@ -53,7 +53,7 @@ func TestDownloadLogs(t *testing.T) {
 		"pmm.ini",
 		"postgresql.log",
 		"postgresql.startup.log",
-		"prometheus.ini",
+		"prometheus.log",
 		"qan-api2.ini",
 		"qan-api2.log",
 		"supervisorctl_status.log",
