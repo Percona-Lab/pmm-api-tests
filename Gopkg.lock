@@ -218,7 +218,7 @@
 
 [[projects]]
   branch = "PMM-6716-db-cluster-conn-creds"
-  digest = "1:3c634d4f925402ea5dcc2547b78c8d74f230bda1cc400b372a116ec49f8d38fe"
+  digest = "1:984756ddfed10e0f76ba5117cd275367dad8481e50e1625e3d0110c7ac91db19"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -252,7 +252,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "981f224a27e71b9c5efd0ed0a2a83ea81f616f94"
+  revision = "83e04fd466d84c6ffefbba55eb07aab117b26b64"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"

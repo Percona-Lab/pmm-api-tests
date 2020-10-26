@@ -97,19 +97,18 @@ func TestXtraDBClusterServer(t *testing.T) {
 			assert.True(t, foundPXC, "Cannot find PXC with name %s in cluster list", name)
 		}
 
-		showXtraDBClusterParamsParam := xtra_db_cluster.ShowXtraDBClusterParams{
+		getXtraDBClusterParamsParam := xtra_db_cluster.GetXtraDBClusterParams{
 			Context: pmmapitests.Context,
-			Body: xtra_db_cluster.ShowXtraDBClusterBody{
+			Body: xtra_db_cluster.GetXtraDBClusterBody{
 				KubernetesClusterName: kubernetesClusterName,
 				Name:                  "first-pxc-test",
 			},
 		}
-		xtraDBCluster, err := dbaasClient.Default.XtraDBCluster.ShowXtraDBCluster(&showXtraDBClusterParamsParam)
+		xtraDBCluster, err := dbaasClient.Default.XtraDBCluster.GetXtraDBCluster(&getXtraDBClusterParamsParam)
 		assert.NoError(t, err)
-		assert.Equal(t, xtraDBCluster.Payload.Name, "first-pxc-test")
-		assert.Equal(t, xtraDBCluster.Payload.Username, "root")
-		assert.Equal(t, xtraDBCluster.Payload.Host, "first-pxc-test-proxysql")
-		assert.Equal(t, xtraDBCluster.Payload.Port, 3306)
+		assert.Equal(t, xtraDBCluster.Payload.ConnectionCredentials.Username, "root")
+		assert.Equal(t, xtraDBCluster.Payload.ConnectionCredentials.Host, "first-pxc-test-proxysql")
+		assert.Equal(t, xtraDBCluster.Payload.ConnectionCredentials.Port, 3306)
 
 		paramsUpdatePXC := xtra_db_cluster.UpdateXtraDBClusterParams{
 			Context: pmmapitests.Context,
