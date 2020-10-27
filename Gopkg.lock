@@ -217,8 +217,8 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "release/2.12"
-  digest = "1:65c510ba70684578b4144092bce8acaa1489144f0375e1a0c410876252021eeb"
+  branch = "PMM-6746-psmdb-api"
+  digest = "1:d49ffba8a46574af48a81fcddf4a77a0bee6d030f2e6da05048f6888e42ab258"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -234,6 +234,7 @@
     "api/inventorypb/json/client/services",
     "api/managementpb/dbaas/json/client",
     "api/managementpb/dbaas/json/client/kubernetes",
+    "api/managementpb/dbaas/json/client/p_s_m_db_cluster",
     "api/managementpb/dbaas/json/client/xtra_db_cluster",
     "api/managementpb/json/client",
     "api/managementpb/json/client/actions",
@@ -252,7 +253,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "e7cb1c4a8e4d1df6a2c75a6de88e66d499d92ed2"
+  revision = "23c4ebee1d01df419c9cac404a3c2fd44d5194b2"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
