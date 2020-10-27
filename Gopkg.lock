@@ -217,7 +217,7 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "PMM-6716-db-cluster-conn-creds"
+  branch = "PMM-2.0"
   digest = "1:984756ddfed10e0f76ba5117cd275367dad8481e50e1625e3d0110c7ac91db19"
   name = "github.com/percona/pmm"
   packages = [
@@ -252,7 +252,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "83e04fd466d84c6ffefbba55eb07aab117b26b64"
+  revision = "5ba84bf674a8fa6d261e0befdb4b6ec719a6033f"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
