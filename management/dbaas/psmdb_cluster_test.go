@@ -24,11 +24,11 @@ func TestPSMDBClusterServer(t *testing.T) {
 	registerKubernetesCluster(t, psmdbKubernetesClusterName, pmmapitests.Kubeconfig)
 
 	t.Run("BasicPSMDBCluster", func(t *testing.T) {
-		paramsFirstPXC := psmdbcluster.CreatePSMDBClusterParams{
+		paramsFirstPSMDB := psmdbcluster.CreatePSMDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: psmdbcluster.CreatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
-				Name:                  "first.pxc.test.percona.com",
+				Name:                  "first.psmdb.test.percona.com",
 				Params: &psmdbcluster.CreatePSMDBClusterParamsBodyParams{
 					ClusterSize: 3,
 					Replicaset: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicaset{
@@ -41,15 +41,15 @@ func TestPSMDBClusterServer(t *testing.T) {
 			},
 		}
 
-		_, err := dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsFirstPXC)
+		_, err := dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsFirstPSMDB)
 		assert.NoError(t, err)
 
 		// Create one more PSMDB Cluster.
-		paramsSecondPXC := psmdbcluster.CreatePSMDBClusterParams{
+		paramsSecondPSMDB := psmdbcluster.CreatePSMDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: psmdbcluster.CreatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
-				Name:                  "second.pxc.test.percona.com",
+				Name:                  "second.psmdb.test.percona.com",
 				Params: &psmdbcluster.CreatePSMDBClusterParamsBodyParams{
 					ClusterSize: 1,
 					Replicaset: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicaset{
@@ -61,7 +61,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 				},
 			},
 		}
-		_, err = dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsSecondPXC)
+		_, err = dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsSecondPSMDB)
 		assert.NoError(t, err)
 
 		listPSMDBClustersParamsParam := psmdbcluster.ListPSMDBClustersParams{
@@ -73,23 +73,23 @@ func TestPSMDBClusterServer(t *testing.T) {
 		xtraDBClusters, err := dbaasClient.Default.PSMDBCluster.ListPSMDBClusters(&listPSMDBClustersParamsParam)
 		assert.NoError(t, err)
 
-		for _, name := range []string{"first.pxc.test.percona.com", "second.pxc.test.percona.com"} {
-			foundPXC := false
-			for _, pxc := range xtraDBClusters.Payload.Clusters {
-				if name == pxc.Name {
-					foundPXC = true
+		for _, name := range []string{"first.psmdb.test.percona.com", "second.psmdb.test.percona.com"} {
+			foundPSMDB := false
+			for _, psmdb := range xtraDBClusters.Payload.Clusters {
+				if name == psmdb.Name {
+					foundPSMDB = true
 
 					break
 				}
 			}
-			assert.True(t, foundPXC, "Cannot find PXC with name %s in cluster list", name)
+			assert.True(t, foundPSMDB, "Cannot find PSMDB with name %s in cluster list", name)
 		}
 
-		paramsUpdatePXC := psmdbcluster.UpdatePSMDBClusterParams{
+		paramsUpdatePSMDB := psmdbcluster.UpdatePSMDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: psmdbcluster.UpdatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
-				Name:                  "second.pxc.test.percona.com",
+				Name:                  "second.psmdb.test.percona.com",
 				Params: &psmdbcluster.UpdatePSMDBClusterParamsBodyParams{
 					ClusterSize: 2,
 					Replicaset: &psmdbcluster.UpdatePSMDBClusterParamsBodyParamsReplicaset{
@@ -102,18 +102,18 @@ func TestPSMDBClusterServer(t *testing.T) {
 			},
 		}
 
-		_, err = dbaasClient.Default.PSMDBCluster.UpdatePSMDBCluster(&paramsUpdatePXC)
+		_, err = dbaasClient.Default.PSMDBCluster.UpdatePSMDBCluster(&paramsUpdatePSMDB)
 		pmmapitests.AssertAPIErrorf(t, err, 501, codes.Unimplemented, `This method is not implemented yet.`)
 
-		for _, pxc := range xtraDBClusters.Payload.Clusters {
-			if pxc.Name == "" {
+		for _, psmdb := range xtraDBClusters.Payload.Clusters {
+			if psmdb.Name == "" {
 				continue
 			}
 			deletePSMDBClusterParamsParam := psmdbcluster.DeletePSMDBClusterParams{
 				Context: pmmapitests.Context,
 				Body: psmdbcluster.DeletePSMDBClusterBody{
 					KubernetesClusterName: psmdbKubernetesClusterName,
-					Name:                  pxc.Name,
+					Name:                  psmdb.Name,
 				},
 			}
 			_, err := dbaasClient.Default.PSMDBCluster.DeletePSMDBCluster(&deletePSMDBClusterParamsParam)
@@ -123,7 +123,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 		cluster, err := dbaasClient.Default.PSMDBCluster.GetPSMDBCluster(&psmdbcluster.GetPSMDBClusterParams{
 			Body: psmdbcluster.GetPSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
-				Name:                  "second.pxc.test.percona.com",
+				Name:                  "second.psmdb.test.percona.com",
 			},
 			Context: pmmapitests.Context,
 		})
@@ -132,13 +132,13 @@ func TestPSMDBClusterServer(t *testing.T) {
 		assert.Equal(t, &psmdbcluster.GetPSMDBClusterOKBodyConnectionCredentials{
 			Username: "userAdmin",
 			Password: "userAdmin123456",
-			Host:     "second.pxc.test.percona.com-rs0.default.svc.cluster.local",
+			Host:     "second.psmdb.test.percona.com-rs0.default.svc.cluster.local",
 			Port:     27017,
 		}, cluster.Payload.ConnectionCredentials)
 	})
 
 	t.Run("CreatePSMDBClusterEmptyName", func(t *testing.T) {
-		paramsPXCEmptyName := psmdbcluster.CreatePSMDBClusterParams{
+		paramsPSMDBEmptyName := psmdbcluster.CreatePSMDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: psmdbcluster.CreatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
@@ -154,12 +154,12 @@ func TestPSMDBClusterServer(t *testing.T) {
 				},
 			},
 		}
-		_, err := dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsPXCEmptyName)
+		_, err := dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsPSMDBEmptyName)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '' must not be an empty string`)
 	})
 
 	t.Run("CreatePSMDBClusterInvalidName", func(t *testing.T) {
-		paramsPXCInvalidName := psmdbcluster.CreatePSMDBClusterParams{
+		paramsPSMDBInvalidName := psmdbcluster.CreatePSMDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: psmdbcluster.CreatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
@@ -175,7 +175,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 				},
 			},
 		}
-		_, err := dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsPXCInvalidName)
+		_, err := dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsPSMDBInvalidName)
 		assert.Error(t, err)
 		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
 	})
@@ -196,7 +196,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 			Context: pmmapitests.Context,
 			Body: psmdbcluster.DeletePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
-				Name:                  "Unknown-pxc-name",
+				Name:                  "Unknown-psmdb-name",
 			},
 		}
 		_, err := dbaasClient.Default.PSMDBCluster.DeletePSMDBCluster(&deletePSMDBClusterParamsParam)
