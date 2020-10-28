@@ -28,7 +28,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 			Context: pmmapitests.Context,
 			Body: psmdbcluster.CreatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
-				Name:                  "first.psmdb.test.percona.com",
+				Name:                  "first-psmdb-test",
 				Params: &psmdbcluster.CreatePSMDBClusterParamsBodyParams{
 					ClusterSize: 3,
 					Replicaset: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicaset{
@@ -49,7 +49,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 			Context: pmmapitests.Context,
 			Body: psmdbcluster.CreatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
-				Name:                  "second.psmdb.test.percona.com",
+				Name:                  "second-psmdb-test",
 				Params: &psmdbcluster.CreatePSMDBClusterParamsBodyParams{
 					ClusterSize: 1,
 					Replicaset: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicaset{
@@ -73,7 +73,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 		xtraDBClusters, err := dbaasClient.Default.PSMDBCluster.ListPSMDBClusters(&listPSMDBClustersParamsParam)
 		assert.NoError(t, err)
 
-		for _, name := range []string{"first.psmdb.test.percona.com", "second.psmdb.test.percona.com"} {
+		for _, name := range []string{"first-psmdb-test", "second-psmdb-test"} {
 			foundPSMDB := false
 			for _, psmdb := range xtraDBClusters.Payload.Clusters {
 				if name == psmdb.Name {
@@ -89,7 +89,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 			Context: pmmapitests.Context,
 			Body: psmdbcluster.UpdatePSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
-				Name:                  "second.psmdb.test.percona.com",
+				Name:                  "second-psmdb-test",
 				Params: &psmdbcluster.UpdatePSMDBClusterParamsBodyParams{
 					ClusterSize: 2,
 					Replicaset: &psmdbcluster.UpdatePSMDBClusterParamsBodyParamsReplicaset{
@@ -123,17 +123,18 @@ func TestPSMDBClusterServer(t *testing.T) {
 		cluster, err := dbaasClient.Default.PSMDBCluster.GetPSMDBCluster(&psmdbcluster.GetPSMDBClusterParams{
 			Body: psmdbcluster.GetPSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
-				Name:                  "second.psmdb.test.percona.com",
+				Name:                  "second-psmdb-test",
 			},
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 
 		assert.Equal(t, &psmdbcluster.GetPSMDBClusterOKBodyConnectionCredentials{
-			Username: "userAdmin",
-			Password: "userAdmin123456",
-			Host:     "second.psmdb.test.percona.com-rs0.default.svc.cluster.local",
-			Port:     27017,
+			Username:   "userAdmin",
+			Password:   "userAdmin123456",
+			Host:       "second-psmdb-test-rs0.default.svc.cluster.local",
+			Port:       27017,
+			Replicaset: "rs0",
 		}, cluster.Payload.ConnectionCredentials)
 	})
 
