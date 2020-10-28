@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	xtradbKubernetesClusterName = "api-test-k8s-cluster"
+	kubernetesClusterName = "api-test-k8s-cluster"
 )
 
 //nolint:funlen
@@ -21,14 +21,14 @@ func TestXtraDBClusterServer(t *testing.T) {
 	if pmmapitests.Kubeconfig == "" {
 		t.Skip("Skip tests of XtraDBClusterServer without kubeconfig")
 	}
-	registerKubernetesCluster(t, xtradbKubernetesClusterName, pmmapitests.Kubeconfig)
+	registerKubernetesCluster(t, kubernetesClusterName, pmmapitests.Kubeconfig)
 
 	t.Run("BasicXtraDBCluster", func(t *testing.T) {
 		paramsFirstPXC := xtra_db_cluster.CreateXtraDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: xtra_db_cluster.CreateXtraDBClusterBody{
-				KubernetesClusterName: xtradbKubernetesClusterName,
-				Name:                  "first.pxc.test.percona.com",
+				KubernetesClusterName: kubernetesClusterName,
+				Name:                  "first-pxc-test",
 				Params: &xtra_db_cluster.CreateXtraDBClusterParamsBodyParams{
 					ClusterSize: 3,
 					Proxysql: &xtra_db_cluster.CreateXtraDBClusterParamsBodyParamsProxysql{
@@ -54,8 +54,8 @@ func TestXtraDBClusterServer(t *testing.T) {
 		paramsSecondPXC := xtra_db_cluster.CreateXtraDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: xtra_db_cluster.CreateXtraDBClusterBody{
-				KubernetesClusterName: xtradbKubernetesClusterName,
-				Name:                  "second.pxc.test.percona.com",
+				KubernetesClusterName: kubernetesClusterName,
+				Name:                  "second-pxc-test",
 				Params: &xtra_db_cluster.CreateXtraDBClusterParamsBodyParams{
 					ClusterSize: 1,
 					Proxysql: &xtra_db_cluster.CreateXtraDBClusterParamsBodyParamsProxysql{
@@ -79,13 +79,13 @@ func TestXtraDBClusterServer(t *testing.T) {
 		listXtraDBClustersParamsParam := xtra_db_cluster.ListXtraDBClustersParams{
 			Context: pmmapitests.Context,
 			Body: xtra_db_cluster.ListXtraDBClustersBody{
-				KubernetesClusterName: xtradbKubernetesClusterName,
+				KubernetesClusterName: kubernetesClusterName,
 			},
 		}
 		xtraDBClusters, err := dbaasClient.Default.XtraDBCluster.ListXtraDBClusters(&listXtraDBClustersParamsParam)
 		assert.NoError(t, err)
 
-		for _, name := range []string{"first.pxc.test.percona.com", "second.pxc.test.percona.com"} {
+		for _, name := range []string{"first-pxc-test", "second-pxc-test"} {
 			foundPXC := false
 			for _, pxc := range xtraDBClusters.Payload.Clusters {
 				if name == pxc.Name {
@@ -97,11 +97,24 @@ func TestXtraDBClusterServer(t *testing.T) {
 			assert.True(t, foundPXC, "Cannot find PXC with name %s in cluster list", name)
 		}
 
+		getXtraDBClusterParamsParam := xtra_db_cluster.GetXtraDBClusterParams{
+			Context: pmmapitests.Context,
+			Body: xtra_db_cluster.GetXtraDBClusterBody{
+				KubernetesClusterName: kubernetesClusterName,
+				Name:                  "first-pxc-test",
+			},
+		}
+		xtraDBCluster, err := dbaasClient.Default.XtraDBCluster.GetXtraDBCluster(&getXtraDBClusterParamsParam)
+		assert.NoError(t, err)
+		assert.Equal(t, xtraDBCluster.Payload.ConnectionCredentials.Username, "root")
+		assert.Equal(t, xtraDBCluster.Payload.ConnectionCredentials.Host, "first-pxc-test-proxysql")
+		assert.Equal(t, xtraDBCluster.Payload.ConnectionCredentials.Port, 3306)
+
 		paramsUpdatePXC := xtra_db_cluster.UpdateXtraDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: xtra_db_cluster.UpdateXtraDBClusterBody{
-				KubernetesClusterName: xtradbKubernetesClusterName,
-				Name:                  "second.pxc.test.percona.com",
+				KubernetesClusterName: kubernetesClusterName,
+				Name:                  "second-pxc-test",
 				Params: &xtra_db_cluster.UpdateXtraDBClusterParamsBodyParams{
 					ClusterSize: 2,
 					Proxysql: &xtra_db_cluster.UpdateXtraDBClusterParamsBodyParamsProxysql{
@@ -130,7 +143,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 			deleteXtraDBClusterParamsParam := xtra_db_cluster.DeleteXtraDBClusterParams{
 				Context: pmmapitests.Context,
 				Body: xtra_db_cluster.DeleteXtraDBClusterBody{
-					KubernetesClusterName: xtradbKubernetesClusterName,
+					KubernetesClusterName: kubernetesClusterName,
 					Name:                  pxc.Name,
 				},
 			}
@@ -143,7 +156,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 		paramsPXCEmptyName := xtra_db_cluster.CreateXtraDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: xtra_db_cluster.CreateXtraDBClusterBody{
-				KubernetesClusterName: xtradbKubernetesClusterName,
+				KubernetesClusterName: kubernetesClusterName,
 				Name:                  "",
 				Params: &xtra_db_cluster.CreateXtraDBClusterParamsBodyParams{
 					ClusterSize: 1,
@@ -163,14 +176,14 @@ func TestXtraDBClusterServer(t *testing.T) {
 			},
 		}
 		_, err := dbaasClient.Default.XtraDBCluster.CreateXtraDBCluster(&paramsPXCEmptyName)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '' must not be an empty string`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '' must be a string conforming to regex "^[a-z]([-a-z0-9]*[a-z0-9])?$"`)
 	})
 
 	t.Run("CreateXtraDBClusterInvalidName", func(t *testing.T) {
 		paramsPXCInvalidName := xtra_db_cluster.CreateXtraDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: xtra_db_cluster.CreateXtraDBClusterBody{
-				KubernetesClusterName: xtradbKubernetesClusterName,
+				KubernetesClusterName: kubernetesClusterName,
 				Name:                  "123_asd",
 				Params: &xtra_db_cluster.CreateXtraDBClusterParamsBodyParams{
 					ClusterSize: 1,
@@ -190,8 +203,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 			},
 		}
 		_, err := dbaasClient.Default.XtraDBCluster.CreateXtraDBCluster(&paramsPXCInvalidName)
-		assert.Error(t, err)
-		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '123_asd' must be a string conforming to regex "^[a-z]([-a-z0-9]*[a-z0-9])?$"`)
 	})
 
 	t.Run("ListUnknownCluster", func(t *testing.T) {
@@ -209,7 +221,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 		deleteXtraDBClusterParamsParam := xtra_db_cluster.DeleteXtraDBClusterParams{
 			Context: pmmapitests.Context,
 			Body: xtra_db_cluster.DeleteXtraDBClusterBody{
-				KubernetesClusterName: xtradbKubernetesClusterName,
+				KubernetesClusterName: kubernetesClusterName,
 				Name:                  "Unknown-pxc-name",
 			},
 		}
