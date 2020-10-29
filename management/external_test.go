@@ -33,6 +33,7 @@ func TestAddExternal(t *testing.T) {
 				ServiceName:  serviceName,
 				ListenPort:   9104,
 				NodeID:       nodeID,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -105,6 +106,7 @@ func TestAddExternal(t *testing.T) {
 				Cluster:        "cluster-name",
 				ReplicationSet: "replication-set",
 				CustomLabels:   map[string]string{"bar": "foo"},
+				Group:          "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -152,6 +154,7 @@ func TestAddExternal(t *testing.T) {
 				RunsOnNodeID: nodeID,
 				ServiceName:  serviceName,
 				ListenPort:   9250,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -169,6 +172,7 @@ func TestAddExternal(t *testing.T) {
 				RunsOnNodeID: nodeID,
 				ServiceName:  serviceName,
 				ListenPort:   9260,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err = client.Default.External.AddExternal(params)
@@ -187,6 +191,7 @@ func TestAddExternal(t *testing.T) {
 			Body: external.AddExternalBody{
 				NodeID:       nodeID,
 				RunsOnNodeID: nodeID,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -207,6 +212,7 @@ func TestAddExternal(t *testing.T) {
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
 				RunsOnNodeID: nodeID,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -227,6 +233,7 @@ func TestAddExternal(t *testing.T) {
 				RunsOnNodeID: nodeID,
 				ServiceName:  serviceName,
 				ListenPort:   12345,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -247,10 +254,32 @@ func TestAddExternal(t *testing.T) {
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				ListenPort:  12345,
+				Group:       "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field RunsOnNodeId: value '' must not be an empty string")
+		assert.Nil(t, addExternalOK)
+	})
+
+	t.Run("Empty Group", func(t *testing.T) {
+		nodeName := pmmapitests.TestString(t, "node-name")
+		genericNode := pmmapitests.AddGenericNode(t, nodeName)
+		nodeID := genericNode.NodeID
+		defer pmmapitests.RemoveNodes(t, nodeID)
+
+		serviceName := pmmapitests.TestString(t, "service-name")
+		params := &external.AddExternalParams{
+			Context: pmmapitests.Context,
+			Body: external.AddExternalBody{
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				ListenPort:   12345,
+				RunsOnNodeID: nodeID,
+			},
+		}
+		addExternalOK, err := client.Default.External.AddExternal(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `External group is required for service type: "external".`)
 		assert.Nil(t, addExternalOK)
 	})
 }
@@ -270,6 +299,7 @@ func TestRemoveExternal(t *testing.T) {
 				Username:     "username",
 				Password:     "password",
 				ListenPort:   12345,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)

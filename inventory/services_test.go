@@ -57,6 +57,7 @@ func TestServices(t *testing.T) {
 		externalService := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      genericNodeID,
 			ServiceName: pmmapitests.TestString(t, "Some External Service on remote Node"),
+			Group:       "external",
 		})
 		externalServiceID := externalService.External.ServiceID
 		defer pmmapitests.RemoveServices(t, externalServiceID)
@@ -1121,6 +1122,7 @@ func TestExternalService(t *testing.T) {
 			Body: services.AddExternalServiceBody{
 				NodeID:      genericNodeID,
 				ServiceName: serviceName,
+				Group:       "external",
 			},
 			Context: pmmapitests.Context,
 		}
@@ -1161,6 +1163,7 @@ func TestExternalService(t *testing.T) {
 			Body: services.AddExternalServiceBody{
 				NodeID:      genericNodeID,
 				ServiceName: serviceName,
+				Group:       "external",
 			},
 			Context: pmmapitests.Context,
 		}
@@ -1204,6 +1207,28 @@ func TestExternalService(t *testing.T) {
 		}
 		res, err := client.Default.Services.AddExternalService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field ServiceName: value '' must not be an empty string")
+		if !assert.Nil(t, res) {
+			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
+		}
+	})
+
+	t.Run("AddServiceWithOutGroup", func(t *testing.T) {
+		t.Parallel()
+
+		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
+		require.NotEmpty(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
+
+		serviceName := pmmapitests.TestString(t, "Basic External Service")
+		params := &services.AddExternalServiceParams{
+			Body: services.AddExternalServiceBody{
+				NodeID:      genericNodeID,
+				ServiceName: serviceName,
+			},
+			Context: pmmapitests.Context,
+		}
+		res, err := client.Default.Services.AddExternalService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `External group is required for service type: "external".`)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
 		}
