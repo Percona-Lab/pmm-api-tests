@@ -337,6 +337,7 @@ func TestPMMAgent(t *testing.T) {
 				{
 					PMMAgentID: pmmAgentID,
 					AgentID:    nodeExporterID,
+					PushMetricsDisabled: true,
 				},
 			},
 			MysqldExporter: []*agents.MysqldExporterItems0{
@@ -348,6 +349,7 @@ func TestPMMAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"custom_label_mysql_exporter": "mysql_exporter",
 					},
+					PushMetricsDisabled: true,
 				},
 			},
 		}, listAgentsOK.Payload)

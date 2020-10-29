@@ -217,8 +217,8 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "release/2.12"
-  digest = "1:65c510ba70684578b4144092bce8acaa1489144f0375e1a0c410876252021eeb"
+  branch = "PMM-6397-metrics-model-flow"
+  digest = "1:26f0cb9dbe70138ab923b2fad78d8ddab7a9a339b26dd6a1dc8dd4463342682c"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -252,7 +252,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "e7cb1c4a8e4d1df6a2c75a6de88e66d499d92ed2"
+  revision = "7efaa582ef204efe3fc3c49b8504b5e343d96462"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"

@@ -63,6 +63,7 @@ func assertNodeExporterCreated(t pmmapitests.TestingT, pmmAgentID string) (strin
 	asserted := assert.Equal(t, agents.NodeExporterItems0{
 		PMMAgentID: pmmAgentID,
 		AgentID:    nodeExporterAgentID,
+		PushMetricsDisabled: true,
 	}, *listAgentsOK.Payload.NodeExporter[0])
 	return nodeExporterAgentID, asserted
 }
