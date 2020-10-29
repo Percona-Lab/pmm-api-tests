@@ -1228,7 +1228,7 @@ func TestExternalService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddExternalService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `External group is required for service type: "external".`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Group: value '' must not be an empty string`)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
 		}

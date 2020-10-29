@@ -279,7 +279,7 @@ func TestAddExternal(t *testing.T) {
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `External group is required for service type: "external".`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Group: value '' must not be an empty string`)
 		assert.Nil(t, addExternalOK)
 	})
 }
