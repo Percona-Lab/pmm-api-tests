@@ -359,8 +359,6 @@ func TestMySQLdExporter(t *testing.T) {
 			Body: agents.ChangeMySQLdExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMySQLdExporterParamsBodyCommon{
-					Disable:            true,
-					RemoveCustomLabels: true,
 					DisablePushMetrics: true,
 				},
 			},
@@ -369,11 +367,13 @@ func TestMySQLdExporter(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, &agents.ChangeMySQLdExporterOKBody{
 			MysqldExporter: &agents.ChangeMySQLdExporterOKBodyMysqldExporter{
-				AgentID:                   agentID,
-				ServiceID:                 serviceID,
-				Username:                  "username",
-				PMMAgentID:                pmmAgentID,
-				Disabled:                  true,
+				AgentID:    agentID,
+				ServiceID:  serviceID,
+				Username:   "username",
+				PMMAgentID: pmmAgentID,
+				CustomLabels: map[string]string{
+					"custom_label_mysql_exporter": "mysql_exporter",
+				},
 				TablestatsGroupTableLimit: 2000,
 				PushMetricsDisabled: true,
 			},
@@ -383,10 +383,6 @@ func TestMySQLdExporter(t *testing.T) {
 			Body: agents.ChangeMySQLdExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMySQLdExporterParamsBodyCommon{
-					Enable: true,
-					CustomLabels: map[string]string{
-						"new_label": "mysql_exporter",
-					},
 					EnablePushMetrics: true,
 				},
 			},
@@ -399,9 +395,8 @@ func TestMySQLdExporter(t *testing.T) {
 				ServiceID:  serviceID,
 				Username:   "username",
 				PMMAgentID: pmmAgentID,
-				Disabled:   false,
 				CustomLabels: map[string]string{
-					"new_label": "mysql_exporter",
+					"custom_label_mysql_exporter": "mysql_exporter",
 				},
 				TablestatsGroupTableLimit: 2000,
 				PushMetricsDisabled: false,
@@ -422,7 +417,5 @@ func TestMySQLdExporter(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics, got both")
-
 	})
-
 }

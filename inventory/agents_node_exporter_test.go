@@ -176,8 +176,6 @@ func TestNodeExporter(t *testing.T) {
 			Body: agents.ChangeNodeExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeNodeExporterParamsBodyCommon{
-					Disable:            true,
-					RemoveCustomLabels: true,
 					DisablePushMetrics: true,
 				},
 			},
@@ -187,9 +185,10 @@ func TestNodeExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeNodeExporterOK{
 			Payload: &agents.ChangeNodeExporterOKBody{
 				NodeExporter: &agents.ChangeNodeExporterOKBodyNodeExporter{
-					AgentID:    agentID,
-					PMMAgentID: pmmAgentID,
-					Disabled:   true,
+					AgentID:      agentID,
+					PMMAgentID:   pmmAgentID,
+					Disabled:     false,
+					CustomLabels: customLabels,
 					PushMetricsDisabled: true,
 				},
 			},
@@ -199,10 +198,6 @@ func TestNodeExporter(t *testing.T) {
 			Body: agents.ChangeNodeExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeNodeExporterParamsBodyCommon{
-					Enable: true,
-					CustomLabels: map[string]string{
-						"new_label": "node_exporter",
-					},
 					EnablePushMetrics: true,
 				},
 			},
@@ -212,12 +207,10 @@ func TestNodeExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeNodeExporterOK{
 			Payload: &agents.ChangeNodeExporterOKBody{
 				NodeExporter: &agents.ChangeNodeExporterOKBodyNodeExporter{
-					AgentID:    agentID,
-					PMMAgentID: pmmAgentID,
-					Disabled:   false,
-					CustomLabels: map[string]string{
-						"new_label": "node_exporter",
-					},
+					AgentID:      agentID,
+					PMMAgentID:   pmmAgentID,
+					Disabled:     false,
+					CustomLabels: customLabels,
 					PushMetricsDisabled: false,
 				},
 			},
@@ -226,10 +219,6 @@ func TestNodeExporter(t *testing.T) {
 			Body: agents.ChangeNodeExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeNodeExporterParamsBodyCommon{
-					Enable: true,
-					CustomLabels: map[string]string{
-						"new_label": "node_exporter",
-					},
 					EnablePushMetrics: true,
 					DisablePushMetrics: true,
 				},

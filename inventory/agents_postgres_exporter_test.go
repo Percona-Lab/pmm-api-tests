@@ -303,8 +303,6 @@ func TestPostgresExporter(t *testing.T) {
 			Body: agents.ChangePostgresExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangePostgresExporterParamsBodyCommon{
-					Disable:            true,
-					RemoveCustomLabels: true,
 					DisablePushMetrics: true,
 				},
 			},
@@ -318,7 +316,9 @@ func TestPostgresExporter(t *testing.T) {
 					ServiceID:  serviceID,
 					Username:   "username",
 					PMMAgentID: pmmAgentID,
-					Disabled:   true,
+					CustomLabels: map[string]string{
+						"custom_label_postgres_exporter": "postgres_exporter",
+					},
 					PushMetricsDisabled: true,
 				},
 			},
@@ -328,10 +328,6 @@ func TestPostgresExporter(t *testing.T) {
 			Body: agents.ChangePostgresExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangePostgresExporterParamsBodyCommon{
-					Enable: true,
-					CustomLabels: map[string]string{
-						"new_label": "postgres_exporter",
-					},
 					EnablePushMetrics: true,
 				},
 			},
@@ -345,9 +341,8 @@ func TestPostgresExporter(t *testing.T) {
 					ServiceID:  serviceID,
 					Username:   "username",
 					PMMAgentID: pmmAgentID,
-					Disabled:   false,
 					CustomLabels: map[string]string{
-						"new_label": "postgres_exporter",
+						"custom_label_postgres_exporter": "postgres_exporter",
 					},
 					PushMetricsDisabled: false,
 				},
@@ -370,5 +365,4 @@ func TestPostgresExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics, got both")
 	})
-
 }
