@@ -57,7 +57,7 @@ func TestServices(t *testing.T) {
 		externalService := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      genericNodeID,
 			ServiceName: pmmapitests.TestString(t, "Some External Service on remote Node"),
-			Group:       "external",
+			Group:       "rabbitmq",
 		})
 		externalServiceID := externalService.External.ServiceID
 		defer pmmapitests.RemoveServices(t, externalServiceID)
@@ -1122,7 +1122,7 @@ func TestExternalService(t *testing.T) {
 			Body: services.AddExternalServiceBody{
 				NodeID:      genericNodeID,
 				ServiceName: serviceName,
-				Group:       "external",
+				Group:       "redis",
 			},
 			Context: pmmapitests.Context,
 		}
@@ -1136,6 +1136,7 @@ func TestExternalService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Group:       "redis",
 				},
 			},
 		}, res)
@@ -1154,6 +1155,7 @@ func TestExternalService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Group:       "redis",
 				},
 			},
 		}, serviceRes)
@@ -1163,7 +1165,7 @@ func TestExternalService(t *testing.T) {
 			Body: services.AddExternalServiceBody{
 				NodeID:      genericNodeID,
 				ServiceName: serviceName,
-				Group:       "external",
+				Group:       "redis",
 			},
 			Context: pmmapitests.Context,
 		}
@@ -1228,9 +1230,19 @@ func TestExternalService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddExternalService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Group: value '' must not be an empty string`)
-		if !assert.Nil(t, res) {
-			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
-		}
+		assert.NoError(t, err)
+		require.NotNil(t, res)
+		serviceID := res.Payload.External.ServiceID
+		assert.Equal(t, &services.AddExternalServiceOK{
+			Payload: &services.AddExternalServiceOKBody{
+				External: &services.AddExternalServiceOKBodyExternal{
+					ServiceID:   serviceID,
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Group:       "external",
+				},
+			},
+		}, res)
+		defer pmmapitests.RemoveServices(t, serviceID)
 	})
 }

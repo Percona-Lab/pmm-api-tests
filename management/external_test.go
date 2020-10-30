@@ -33,7 +33,7 @@ func TestAddExternal(t *testing.T) {
 				ServiceName:  serviceName,
 				ListenPort:   9104,
 				NodeID:       nodeID,
-				Group:        "external",
+				Group:        "", // empty group - pmm-admin does not support group.
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -57,6 +57,7 @@ func TestAddExternal(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
+				Group:       "external",
 			},
 		}, *serviceOK.Payload)
 
@@ -106,7 +107,7 @@ func TestAddExternal(t *testing.T) {
 				Cluster:        "cluster-name",
 				ReplicationSet: "replication-set",
 				CustomLabels:   map[string]string{"bar": "foo"},
-				Group:          "external",
+				Group:          "redis",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -135,6 +136,7 @@ func TestAddExternal(t *testing.T) {
 				Cluster:        "cluster-name",
 				ReplicationSet: "replication-set",
 				CustomLabels:   map[string]string{"bar": "foo"},
+				Group:          "redis",
 			},
 		}, *serviceOK.Payload)
 	})
@@ -259,27 +261,6 @@ func TestAddExternal(t *testing.T) {
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field RunsOnNodeId: value '' must not be an empty string")
-		assert.Nil(t, addExternalOK)
-	})
-
-	t.Run("Empty Group", func(t *testing.T) {
-		nodeName := pmmapitests.TestString(t, "node-name")
-		genericNode := pmmapitests.AddGenericNode(t, nodeName)
-		nodeID := genericNode.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
-
-		serviceName := pmmapitests.TestString(t, "service-name")
-		params := &external.AddExternalParams{
-			Context: pmmapitests.Context,
-			Body: external.AddExternalBody{
-				NodeID:       nodeID,
-				ServiceName:  serviceName,
-				ListenPort:   12345,
-				RunsOnNodeID: nodeID,
-			},
-		}
-		addExternalOK, err := client.Default.External.AddExternal(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Group: value '' must not be an empty string`)
 		assert.Nil(t, addExternalOK)
 	})
 }
