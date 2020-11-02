@@ -84,7 +84,6 @@ func TestAddPostgreSQL(t *testing.T) {
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -165,7 +164,6 @@ func TestAddPostgreSQL(t *testing.T) {
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
-					PushMetricsDisabled: true,
 				},
 			},
 			QANPostgresqlPgstatementsAgent: []*agents.QANPostgresqlPgstatementsAgentItems0{
@@ -404,7 +402,6 @@ func TestAddPostgreSQL(t *testing.T) {
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -628,7 +625,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
-					PushMetricsDisabled: false,
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -701,7 +698,6 @@ func TestAddPostgreSQL(t *testing.T) {
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -774,7 +770,6 @@ func TestAddPostgreSQL(t *testing.T) {
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)

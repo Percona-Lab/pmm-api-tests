@@ -67,7 +67,6 @@ func TestMongoDBExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mongodb_exporter",
 					},
-					PushMetricsDisabled: true,
 				},
 			},
 		}, getAgentRes)
@@ -92,7 +91,6 @@ func TestMongoDBExporter(t *testing.T) {
 					Username:   "username",
 					PMMAgentID: pmmAgentID,
 					Disabled:   true,
-					PushMetricsDisabled: true,
 				},
 			},
 		}, changeMongoDBExporterOK)
@@ -121,7 +119,6 @@ func TestMongoDBExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mongodb_exporter",
 					},
-					PushMetricsDisabled: true,
 				},
 			},
 		}, changeMongoDBExporterOK)
@@ -293,7 +290,7 @@ func TestMongoDBExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mongodb_exporter",
 					},
-					PushMetricsDisabled: false,
+					PushMetricsEnabled: true,
 				},
 			},
 		}, getAgentRes)
@@ -319,7 +316,6 @@ func TestMongoDBExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mongodb_exporter",
 					},
-					PushMetricsDisabled: true,
 				},
 			},
 		}, changeMongoDBExporterOK)
@@ -344,7 +340,7 @@ func TestMongoDBExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mongodb_exporter",
 					},
-					PushMetricsDisabled: false,
+					PushMetricsEnabled: true,
 				},
 			},
 		}, changeMongoDBExporterOK)

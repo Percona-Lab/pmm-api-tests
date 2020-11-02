@@ -82,7 +82,6 @@ func TestAddMongoDB(t *testing.T) {
 					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -161,7 +160,6 @@ func TestAddMongoDB(t *testing.T) {
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
-					PushMetricsDisabled: true,
 				},
 			},
 			QANMongodbProfilerAgent: []*agents.QANMongodbProfilerAgentItems0{
@@ -388,7 +386,6 @@ func TestAddMongoDB(t *testing.T) {
 					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -604,7 +601,6 @@ func TestAddMongoDB(t *testing.T) {
 					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -675,7 +671,7 @@ func TestAddMongoDB(t *testing.T) {
 					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
-					PushMetricsDisabled: false,
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -746,7 +742,6 @@ func TestAddMongoDB(t *testing.T) {
 					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -817,7 +812,6 @@ func TestAddMongoDB(t *testing.T) {
 					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
 					ServiceID:  serviceID,
 					PMMAgentID: pmmAgentID,
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)

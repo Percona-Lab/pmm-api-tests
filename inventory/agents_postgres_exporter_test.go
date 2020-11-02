@@ -67,7 +67,6 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"custom_label_postgres_exporter": "postgres_exporter",
 					},
-					PushMetricsDisabled: true,
 				},
 			},
 		}, getAgentRes)
@@ -92,7 +91,6 @@ func TestPostgresExporter(t *testing.T) {
 					Username:   "username",
 					PMMAgentID: pmmAgentID,
 					Disabled:   true,
-					PushMetricsDisabled: true,
 				},
 			},
 		}, changePostgresExporterOK)
@@ -121,7 +119,6 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "postgres_exporter",
 					},
-					PushMetricsDisabled: true,
 				},
 			},
 		}, changePostgresExporterOK)
@@ -293,7 +290,7 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"custom_label_postgres_exporter": "postgres_exporter",
 					},
-					PushMetricsDisabled: false,
+					PushMetricsEnabled: true,
 				},
 			},
 		}, getAgentRes)
@@ -319,7 +316,6 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"custom_label_postgres_exporter": "postgres_exporter",
 					},
-					PushMetricsDisabled: true,
 				},
 			},
 		}, changePostgresExporterOK)
@@ -344,7 +340,7 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"custom_label_postgres_exporter": "postgres_exporter",
 					},
-					PushMetricsDisabled: false,
+					PushMetricsEnabled: true,
 				},
 			},
 		}, changePostgresExporterOK)

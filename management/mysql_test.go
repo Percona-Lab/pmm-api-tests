@@ -85,7 +85,6 @@ func TestAddMySQL(t *testing.T) {
 					PMMAgentID:                pmmAgentID,
 					Username:                  "username",
 					TablestatsGroupTableLimit: 1000,
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -168,7 +167,6 @@ func TestAddMySQL(t *testing.T) {
 					Username:                  "username",
 					TablestatsGroupTableLimit: -1,
 					TablestatsGroupDisabled:   true,
-					PushMetricsDisabled: true,
 				},
 			},
 			QANMysqlSlowlogAgent: []*agents.QANMysqlSlowlogAgentItems0{
@@ -413,7 +411,6 @@ func TestAddMySQL(t *testing.T) {
 					PMMAgentID:                pmmAgentID,
 					Username:                  "username",
 					TablestatsGroupTableLimit: 1000,
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -665,7 +662,7 @@ func TestAddMySQL(t *testing.T) {
 					PMMAgentID:                pmmAgentID,
 					Username:                  "username",
 					TablestatsGroupTableLimit: 1000,
-					PushMetricsDisabled: false,
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -739,7 +736,6 @@ func TestAddMySQL(t *testing.T) {
 					PMMAgentID:                pmmAgentID,
 					Username:                  "username",
 					TablestatsGroupTableLimit: 1000,
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -813,7 +809,6 @@ func TestAddMySQL(t *testing.T) {
 					PMMAgentID:                pmmAgentID,
 					Username:                  "username",
 					TablestatsGroupTableLimit: 1000,
-					PushMetricsDisabled: true,
 				},
 			},
 		}, *listAgents.Payload)
