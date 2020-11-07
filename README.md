@@ -1,4 +1,6 @@
 # pmm-api-tests
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FPercona-Lab%2Fpmm-api-tests.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FPercona-Lab%2Fpmm-api-tests?ref=badge_shield)
+
 
 API tests for PMM 2.x
 
@@ -39,3 +41,6 @@ where `PMM_SERVER_URL` should be pointing to pmm-server.
 If pmm-server located locally:
 * Use --network=host while running docker container.
 * Use non-secured url if you use self generated certificate.
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FPercona-Lab%2Fpmm-api-tests.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FPercona-Lab%2Fpmm-api-tests?ref=badge_large)
