@@ -56,7 +56,7 @@ func TestAddExternal(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
-				Group: "external",
+				Group:       "external",
 			},
 		}, *serviceOK.Payload)
 
@@ -134,7 +134,7 @@ func TestAddExternal(t *testing.T) {
 				Cluster:        "cluster-name",
 				ReplicationSet: "replication-set",
 				CustomLabels:   map[string]string{"bar": "foo"},
-				Group: "external",
+				Group:          "external",
 			},
 		}, *serviceOK.Payload)
 	})

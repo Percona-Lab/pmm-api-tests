@@ -628,7 +628,7 @@ func TestAddMongoDB(t *testing.T) {
 				Port:        27017,
 
 				SkipConnectionCheck: true,
-				MetricsMode: pointer.ToString("PUSH"),
+				MetricsMode:         pointer.ToString("PUSH"),
 			},
 		}
 		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
@@ -668,9 +668,9 @@ func TestAddMongoDB(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			MongodbExporter: []*agents.MongodbExporterItems0{
 				{
-					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
+					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
 					PushMetricsEnabled: true,
 				},
 			},
@@ -699,7 +699,7 @@ func TestAddMongoDB(t *testing.T) {
 				Port:        27017,
 
 				SkipConnectionCheck: true,
-				MetricsMode: pointer.ToString("PULL"),
+				MetricsMode:         pointer.ToString("PULL"),
 			},
 		}
 		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
@@ -769,7 +769,7 @@ func TestAddMongoDB(t *testing.T) {
 				Port:        27017,
 
 				SkipConnectionCheck: true,
-				MetricsMode: pointer.ToString("AUTO"),
+				MetricsMode:         pointer.ToString("AUTO"),
 			},
 		}
 		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)

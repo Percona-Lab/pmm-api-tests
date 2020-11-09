@@ -270,7 +270,7 @@ func TestPostgresExporter(t *testing.T) {
 			},
 
 			SkipConnectionCheck: true,
-			PushMetrics: true,
+			PushMetrics:         true,
 		})
 		agentID := PostgresExporter.PostgresExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
@@ -353,7 +353,7 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "postgres_exporter",
 					},
-					EnablePushMetrics: true,
+					EnablePushMetrics:  true,
 					DisablePushMetrics: true,
 				},
 			},

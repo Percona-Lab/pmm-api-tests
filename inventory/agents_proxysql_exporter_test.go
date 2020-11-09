@@ -344,7 +344,7 @@ func TestProxySQLExporter(t *testing.T) {
 			Body: agents.ChangeProxySQLExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeProxySQLExporterParamsBodyCommon{
-					EnablePushMetrics: true,
+					EnablePushMetrics:  true,
 					DisablePushMetrics: true,
 				},
 			},
@@ -352,5 +352,4 @@ func TestProxySQLExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected one of  param: enable_push_metrics or disable_push_metrics")
 	})
-
 }

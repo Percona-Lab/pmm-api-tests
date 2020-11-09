@@ -325,7 +325,7 @@ func TestMySQLdExporter(t *testing.T) {
 
 			SkipConnectionCheck:       true,
 			TablestatsGroupTableLimit: 2000,
-			PushMetrics: true,
+			PushMetrics:               true,
 		})
 		assert.EqualValues(t, 0, mySqldExporter.TableCount)
 		assert.EqualValues(t, 2000, mySqldExporter.MysqldExporter.TablestatsGroupTableLimit)
@@ -347,7 +347,7 @@ func TestMySQLdExporter(t *testing.T) {
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
 				TablestatsGroupTableLimit: 2000,
-				PushMetricsEnabled: true,
+				PushMetricsEnabled:        true,
 			},
 		}, getAgentRes.Payload)
 
@@ -395,7 +395,7 @@ func TestMySQLdExporter(t *testing.T) {
 					"custom_label_mysql_exporter": "mysql_exporter",
 				},
 				TablestatsGroupTableLimit: 2000,
-				PushMetricsEnabled: true,
+				PushMetricsEnabled:        true,
 			},
 		}, changeMySQLdExporterOK.Payload)
 		_, err = client.Default.Agents.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{
@@ -406,7 +406,7 @@ func TestMySQLdExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mysql_exporter",
 					},
-					EnablePushMetrics: true,
+					EnablePushMetrics:  true,
 					DisablePushMetrics: true,
 				},
 			},

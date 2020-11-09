@@ -581,7 +581,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode: pointer.ToString("PUSH"),
+				MetricsMode:         pointer.ToString("PUSH"),
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -621,10 +621,10 @@ func TestAddPostgreSQL(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			PostgresExporter: []*agents.PostgresExporterItems0{
 				{
-					AgentID:    listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
+					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					Username:           "username",
 					PushMetricsEnabled: true,
 				},
 			},
@@ -654,7 +654,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode: pointer.ToString("PULL"),
+				MetricsMode:         pointer.ToString("PULL"),
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -726,7 +726,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode: pointer.ToString("AUTO"),
+				MetricsMode:         pointer.ToString("AUTO"),
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)

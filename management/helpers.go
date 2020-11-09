@@ -165,7 +165,7 @@ func removeAllAgentsInList(t pmmapitests.TestingT, listAgentsOK *agents.ListAgen
 	for _, agent := range listAgentsOK.Payload.ExternalExporter {
 		agentIDs = append(agentIDs, agent.AgentID)
 	}
-	for _, agent := range listAgentsOK.Payload.VMAgent{
+	for _, agent := range listAgentsOK.Payload.VMAgent {
 		agentIDs = append(agentIDs, agent.AgentID)
 	}
 

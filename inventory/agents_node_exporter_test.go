@@ -140,7 +140,7 @@ func TestNodeExporter(t *testing.T) {
 			Body: agents.AddNodeExporterBody{
 				PMMAgentID:   pmmAgentID,
 				CustomLabels: customLabels,
-				PushMetrics: true,
+				PushMetrics:  true,
 			},
 			Context: pmmapitests.Context,
 		})
@@ -159,10 +159,10 @@ func TestNodeExporter(t *testing.T) {
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
 				NodeExporter: &agents.GetAgentOKBodyNodeExporter{
-					AgentID:      agentID,
-					PMMAgentID:   pmmAgentID,
-					Disabled:     false,
-					CustomLabels: customLabels,
+					AgentID:            agentID,
+					PMMAgentID:         pmmAgentID,
+					Disabled:           false,
+					CustomLabels:       customLabels,
 					PushMetricsEnabled: true,
 				},
 			},
@@ -203,10 +203,10 @@ func TestNodeExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeNodeExporterOK{
 			Payload: &agents.ChangeNodeExporterOKBody{
 				NodeExporter: &agents.ChangeNodeExporterOKBodyNodeExporter{
-					AgentID:      agentID,
-					PMMAgentID:   pmmAgentID,
-					Disabled:     false,
-					CustomLabels: customLabels,
+					AgentID:            agentID,
+					PMMAgentID:         pmmAgentID,
+					Disabled:           false,
+					CustomLabels:       customLabels,
 					PushMetricsEnabled: true,
 				},
 			},
@@ -215,7 +215,7 @@ func TestNodeExporter(t *testing.T) {
 			Body: agents.ChangeNodeExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeNodeExporterParamsBodyCommon{
-					EnablePushMetrics: true,
+					EnablePushMetrics:  true,
 					DisablePushMetrics: true,
 				},
 			},

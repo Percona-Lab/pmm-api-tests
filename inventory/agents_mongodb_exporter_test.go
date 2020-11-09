@@ -270,7 +270,7 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 
 			SkipConnectionCheck: true,
-			PushMetrics: true,
+			PushMetrics:         true,
 		})
 		agentID := mongoDBExporter.MongodbExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
@@ -349,7 +349,7 @@ func TestMongoDBExporter(t *testing.T) {
 			Body: agents.ChangeMongoDBExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMongoDBExporterParamsBodyCommon{
-					EnablePushMetrics: true,
+					EnablePushMetrics:  true,
 					DisablePushMetrics: true,
 				},
 			},

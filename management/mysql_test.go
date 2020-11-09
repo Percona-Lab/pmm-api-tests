@@ -617,7 +617,7 @@ func TestAddMySQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode: pointer.ToString("PUSH"),
+				MetricsMode:         pointer.ToString("PUSH"),
 			},
 		}
 		addMySQLOK, err := client.Default.MySQL.AddMySQL(params)
@@ -662,7 +662,7 @@ func TestAddMySQL(t *testing.T) {
 					PMMAgentID:                pmmAgentID,
 					Username:                  "username",
 					TablestatsGroupTableLimit: 1000,
-					PushMetricsEnabled: true,
+					PushMetricsEnabled:        true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -691,7 +691,7 @@ func TestAddMySQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode: pointer.ToString("PULL"),
+				MetricsMode:         pointer.ToString("PULL"),
 			},
 		}
 		addMySQLOK, err := client.Default.MySQL.AddMySQL(params)
@@ -764,7 +764,7 @@ func TestAddMySQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode: pointer.ToString("AUTO"),
+				MetricsMode:         pointer.ToString("AUTO"),
 			},
 		}
 		addMySQLOK, err := client.Default.MySQL.AddMySQL(params)

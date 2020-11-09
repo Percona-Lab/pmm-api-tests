@@ -253,7 +253,7 @@ func TestRDSExporter(t *testing.T) {
 					},
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
-					PushMetricsEnabled: true,
+					PushMetricsEnabled:      true,
 				},
 			},
 		}, changeRDSExporterOK)
@@ -286,7 +286,7 @@ func TestRDSExporter(t *testing.T) {
 			Body: agents.ChangeRDSExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeRDSExporterParamsBodyCommon{
-					EnablePushMetrics: true,
+					EnablePushMetrics:  true,
 					DisablePushMetrics: true,
 				},
 			},

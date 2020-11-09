@@ -14,7 +14,6 @@ import (
 )
 
 func TestExternalExporter(t *testing.T) {
-
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 

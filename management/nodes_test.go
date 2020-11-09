@@ -38,7 +38,6 @@ func TestNodeRegister(t *testing.T) {
 
 			// Check Node Exporter is created
 			assertNodeExporterCreated(t, pmmAgentID)
-
 		})
 
 		t.Run("Reregister with same node name (no re-register - should fail)", func(t *testing.T) {
@@ -95,7 +94,6 @@ func TestNodeRegister(t *testing.T) {
 			defer pmmapitests.RemoveNodes(t, node.Payload.GenericNode.NodeID)
 			defer removePMMAgentWithSubAgents(t, node.Payload.PMMAgent.AgentID)
 			assertNodeExporterCreated(t, node.Payload.PMMAgent.AgentID)
-
 		})
 
 		t.Run("Reregister with different node name (no re-register - should fail)", func(t *testing.T) {
