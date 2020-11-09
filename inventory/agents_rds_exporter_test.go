@@ -253,6 +253,7 @@ func TestRDSExporter(t *testing.T) {
 					},
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
+					PushMetricsEnabled: true,
 				},
 			},
 		}, changeRDSExporterOK)

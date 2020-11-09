@@ -147,6 +147,9 @@ type AddProxySQLExporterBody struct {
 
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
+	// Enables push metrics mode for exporter.
+	PushMetrics bool `json:"push_metrics,omitempty"`
 }
 
 // Validate validates this add proxy SQL exporter body
@@ -335,7 +338,7 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// True if exporter use pull metrics mode.
+	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
 
 	// AgentStatus represents actual Agent status.

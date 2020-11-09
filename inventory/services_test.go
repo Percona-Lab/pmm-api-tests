@@ -1134,6 +1134,7 @@ func TestExternalService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Group: "external",
 				},
 			},
 		}, res)
@@ -1152,6 +1153,7 @@ func TestExternalService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Group: "external",
 				},
 			},
 		}, serviceRes)
