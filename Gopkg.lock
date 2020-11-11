@@ -218,7 +218,7 @@
 
 [[projects]]
   branch = "PMM-6397-metrics-model-flow"
-  digest = "1:f700401929219f6892ee9c70c8539d65d004efb1b87b471104d0ed8488af5f9a"
+  digest = "1:ade1c0b13f7f565e926c3a1d29b36795a42b3730289290f9113a6dc848079443"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -253,7 +253,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "8d7496546d36a522be74c82744365f902ef44983"
+  revision = "e30064cafe43c7ba0da7afb6486c50bb917a79d3"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -404,6 +404,7 @@
     "github.com/percona/pmm/api/inventorypb/json/client/services",
     "github.com/percona/pmm/api/managementpb/dbaas/json/client",
     "github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes",
+    "github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_cluster",
     "github.com/percona/pmm/api/managementpb/dbaas/json/client/xtra_db_cluster",
     "github.com/percona/pmm/api/managementpb/json/client",
     "github.com/percona/pmm/api/managementpb/json/client/actions",

@@ -33,6 +33,7 @@ func TestAddExternal(t *testing.T) {
 				ServiceName:  serviceName,
 				ListenPort:   9104,
 				NodeID:       nodeID,
+				Group:        "", // empty group - pmm-admin does not support group.
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -106,6 +107,7 @@ func TestAddExternal(t *testing.T) {
 				Cluster:        "cluster-name",
 				ReplicationSet: "replication-set",
 				CustomLabels:   map[string]string{"bar": "foo"},
+				Group:          "redis",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -134,7 +136,8 @@ func TestAddExternal(t *testing.T) {
 				Cluster:        "cluster-name",
 				ReplicationSet: "replication-set",
 				CustomLabels:   map[string]string{"bar": "foo"},
-				Group:          "external",
+
+				Group:          "redis",
 			},
 		}, *serviceOK.Payload)
 	})
@@ -154,6 +157,7 @@ func TestAddExternal(t *testing.T) {
 				RunsOnNodeID: nodeID,
 				ServiceName:  serviceName,
 				ListenPort:   9250,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -171,6 +175,7 @@ func TestAddExternal(t *testing.T) {
 				RunsOnNodeID: nodeID,
 				ServiceName:  serviceName,
 				ListenPort:   9260,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err = client.Default.External.AddExternal(params)
@@ -189,6 +194,7 @@ func TestAddExternal(t *testing.T) {
 			Body: external.AddExternalBody{
 				NodeID:       nodeID,
 				RunsOnNodeID: nodeID,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -209,6 +215,7 @@ func TestAddExternal(t *testing.T) {
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
 				RunsOnNodeID: nodeID,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -229,6 +236,7 @@ func TestAddExternal(t *testing.T) {
 				RunsOnNodeID: nodeID,
 				ServiceName:  serviceName,
 				ListenPort:   12345,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -249,6 +257,7 @@ func TestAddExternal(t *testing.T) {
 				NodeID:      nodeID,
 				ServiceName: serviceName,
 				ListenPort:  12345,
+				Group:       "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)
@@ -272,6 +281,7 @@ func TestRemoveExternal(t *testing.T) {
 				Username:     "username",
 				Password:     "password",
 				ListenPort:   12345,
+				Group:        "external",
 			},
 		}
 		addExternalOK, err := client.Default.External.AddExternal(params)

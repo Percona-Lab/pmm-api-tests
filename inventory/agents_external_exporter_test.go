@@ -24,6 +24,7 @@ func TestExternalExporter(t *testing.T) {
 		service := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      genericNodeID,
 			ServiceName: pmmapitests.TestString(t, "External Service for External Exporter test"),
+			Group:       "external",
 		})
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -73,6 +74,7 @@ func TestExternalExporter(t *testing.T) {
 		service := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      nodeID,
 			ServiceName: pmmapitests.TestString(t, "External Service for External Exporter test"),
+			Group:       "external",
 		})
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -198,6 +200,7 @@ func TestExternalExporter(t *testing.T) {
 		service := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      genericNodeID,
 			ServiceName: pmmapitests.TestString(t, "External Service for agent"),
+			Group:       "external",
 		})
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -225,6 +228,7 @@ func TestExternalExporter(t *testing.T) {
 		service := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      genericNodeID,
 			ServiceName: pmmapitests.TestString(t, "External Service for agent"),
+			Group:       "external",
 		})
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -274,6 +278,7 @@ func TestExternalExporter(t *testing.T) {
 		service := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      genericNodeID,
 			ServiceName: pmmapitests.TestString(t, "External Service for not exists node ID"),
+			Group:       "external",
 		})
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
