@@ -401,7 +401,7 @@ func TestExternalExporter(t *testing.T) {
 			Body: agents.ChangeExternalExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeExternalExporterParamsBodyCommon{
-					EnablePushMetrics: true,
+					EnablePushMetrics:  true,
 					DisablePushMetrics: true,
 				},
 			},
