@@ -22,6 +22,7 @@ import (
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
+	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -198,6 +199,7 @@ func init() {
 	dbaasClient.Default = dbaasClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
 	amclient.Default = amclient.New(alertmanagerTransport, nil)
+	channelsClient.Default = channelsClient.New(transport, nil)
 
 	// do not run tests if server is not available
 	_, err = serverClient.Default.Server.Readiness(nil)
