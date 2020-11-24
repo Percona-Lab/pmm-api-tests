@@ -105,7 +105,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 		}
 
 		_, err = dbaasClient.Default.PSMDBCluster.UpdatePSMDBCluster(&paramsUpdatePSMDB)
-		pmmapitests.AssertAPIErrorf(t, err, 501, codes.InvalidArgument, `invalid field Params.Replicaset.DiskSize: value '0' must be greater than '0'`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Params.Replicaset.DiskSize: value '0' must be greater than '0'`)
 
 		for _, psmdb := range xtraDBClusters.Payload.Clusters {
 			if psmdb.Name == "" {
@@ -139,10 +139,11 @@ func TestPSMDBClusterServer(t *testing.T) {
 			Replicaset: "rs0",
 		}, cluster.Payload.ConnectionCredentials)
 
+		t.Skip("Skip restart till better implementation. https://jira.percona.com/browse/PMM-6980")
 		_, err = dbaasClient.Default.PSMDBCluster.RestartPSMDBCluster(&psmdbcluster.RestartPSMDBClusterParams{
 			Body: psmdbcluster.RestartPSMDBClusterBody{
 				KubernetesClusterName: psmdbKubernetesClusterName,
-				Name:                  "second-psmdb-test",
+				Name:                  "first-psmdb-test",
 			},
 			Context: pmmapitests.Context,
 		})
@@ -213,7 +214,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 		}
 		_, err := dbaasClient.Default.PSMDBCluster.RestartPSMDBCluster(&restartPSMDBClusterParamsParam)
 		require.Error(t, err)
-		assert.Equal(t, 501, err.(pmmapitests.ErrorResponse).Code())
+		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
 	})
 
 	t.Run("DeleteUnknownPSMDBCluster", func(t *testing.T) {
