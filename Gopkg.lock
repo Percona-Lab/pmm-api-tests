@@ -412,6 +412,7 @@
     "github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_cluster",
     "github.com/percona/pmm/api/managementpb/dbaas/json/client/xtra_db_cluster",
     "github.com/percona/pmm/api/managementpb/ia/json/client",
+    "github.com/percona/pmm/api/managementpb/ia/json/client/channels",
     "github.com/percona/pmm/api/managementpb/json/client",
     "github.com/percona/pmm/api/managementpb/json/client/actions",
     "github.com/percona/pmm/api/managementpb/json/client/annotation",
