@@ -190,7 +190,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 		}
 		_, err := dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsPSMDBInvalidName)
 		assert.Error(t, err)
-		assert.Equal(t, 400, err.(pmmapitests.ErrorResponse).Code())
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `invalid field Name: value '123_asd' must be a string conforming to regex "^[a-z]([-a-z0-9]*[a-z0-9])?$"`)
 	})
 
 	t.Run("ListUnknownCluster", func(t *testing.T) {
