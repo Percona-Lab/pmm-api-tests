@@ -38,6 +38,7 @@ func TestDownloadLogs(t *testing.T) {
 		"client/status.json",
 		"cron.log",
 		"dashboard-upgrade.log",
+		"dbaas-controller.log",
 		"grafana.log",
 		"installed.json",
 		"nginx.access.log",
