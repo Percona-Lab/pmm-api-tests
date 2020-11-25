@@ -145,6 +145,7 @@ func TestRemoveChannel(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
+		require.NoError(t, err)
 
 		resp, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
@@ -155,5 +156,66 @@ func TestRemoveChannel(t *testing.T) {
 				assert.NotEqual(t, id, channel.ChannelID)
 			}
 		}
+
+		t.Run("unknown id", func(t *testing.T) {
+			_, err := client.AddChannel(&channels.AddChannelParams{
+				Body: channels.AddChannelBody{
+					ChannelID: gofakeit.UUID(),
+					Disabled:  gofakeit.Bool(),
+					EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
+						SendResolved: false,
+						To:           []string{gofakeit.Email()},
+					},
+				},
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+
+			_, err = client.RemoveChannel(&channels.RemoveChannelParams{
+				Body: channels.RemoveChannelBody{
+					ChannelID: gofakeit.UUID(),
+				},
+				Context: pmmapitests.Context,
+			})
+			require.Error(t, err)
+		})
 	})
+}
+
+func TestListChannels(t *testing.T) {
+	if !pmmapitests.RunIATests {
+		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
+	}
+
+	client := channelsClient.Default.Channels
+
+	id := gofakeit.UUID()
+	email := gofakeit.Email()
+	_, err := client.AddChannel(&channels.AddChannelParams{
+		Body: channels.AddChannelBody{
+			ChannelID: id,
+			Disabled:  gofakeit.Bool(),
+			EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
+				SendResolved: true,
+				To:           []string{email},
+			},
+		},
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+
+	resp, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
+	require.NoError(t, err)
+
+	assert.NotEmpty(t, resp.Payload.Channels)
+	var found bool
+	for _, channel := range resp.Payload.Channels {
+		if channel.ChannelID == id {
+			assert.Equal(t, []string{email}, channel.EmailConfig.To)
+			assert.True(t, channel.EmailConfig.SendResolved)
+			found = true
+		}
+	}
+
+	assert.True(t, found, "Expected channel not found")
 }
