@@ -14,6 +14,10 @@ import (
 )
 
 func TestAddChannel(t *testing.T) {
+	if !pmmapitests.RunIATests {
+		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
+	}
+
 	client := channelsClient.Default.Channels
 
 	t.Run("normal", func(t *testing.T) {
@@ -61,6 +65,10 @@ func TestAddChannel(t *testing.T) {
 }
 
 func TestChangeChannel(t *testing.T) {
+	if !pmmapitests.RunIATests {
+		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
+	}
+
 	client := channelsClient.Default.Channels
 
 	t.Run("normal", func(t *testing.T) {
@@ -110,6 +118,10 @@ func TestChangeChannel(t *testing.T) {
 }
 
 func TestRemoveChannel(t *testing.T) {
+	if !pmmapitests.RunIATests {
+		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
+	}
+
 	client := channelsClient.Default.Channels
 
 	t.Run("normal", func(t *testing.T) {
