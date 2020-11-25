@@ -56,7 +56,7 @@ func TestAddChannel(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "channel validation failed: notification channel type is empty")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Notification channel type is empty")
 	})
 }
 
