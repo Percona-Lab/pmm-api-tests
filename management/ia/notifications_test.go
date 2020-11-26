@@ -14,16 +14,16 @@ import (
 )
 
 func TestAddChannel(t *testing.T) {
-	// if !pmmapitests.RunIATests {
-	// 	t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
-	// }
+	if !pmmapitests.RunIATests {
+		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
+	}
 
 	client := channelsClient.Default.Channels
 
 	t.Run("normal", func(t *testing.T) {
 		_, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
-				Summary: gofakeit.Quote(),
+				Summary:  gofakeit.Quote(),
 				Disabled: gofakeit.Bool(),
 				EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
 					SendResolved: false,
@@ -39,7 +39,7 @@ func TestAddChannel(t *testing.T) {
 	t.Run("invalid request", func(t *testing.T) {
 		_, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
-				Summary: gofakeit.Quote(),
+				Summary:  gofakeit.Quote(),
 				Disabled: gofakeit.Bool(),
 				EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
 					SendResolved: false,
@@ -54,7 +54,7 @@ func TestAddChannel(t *testing.T) {
 	t.Run("missing config", func(t *testing.T) {
 		_, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
-				Summary: gofakeit.Quote(),
+				Summary:  gofakeit.Quote(),
 				Disabled: gofakeit.Bool(),
 			},
 			Context: pmmapitests.Context,
@@ -65,9 +65,9 @@ func TestAddChannel(t *testing.T) {
 }
 
 func TestChangeChannel(t *testing.T) {
-	// if !pmmapitests.RunIATests {
-	// 	t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
-	// }
+	if !pmmapitests.RunIATests {
+		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
+	}
 
 	client := channelsClient.Default.Channels
 
@@ -101,7 +101,7 @@ func TestChangeChannel(t *testing.T) {
 		_, err = client.ChangeChannel(&channels.ChangeChannelParams{
 			Body: channels.ChangeChannelBody{
 				ChannelID: id,
-				Disabled: gofakeit.Bool(),
+				Disabled:  gofakeit.Bool(),
 				EmailConfig: &channels.ChangeChannelParamsBodyEmailConfig{
 					SendResolved: true,
 					To:           newEmail,
@@ -129,9 +129,9 @@ func TestChangeChannel(t *testing.T) {
 }
 
 func TestRemoveChannel(t *testing.T) {
-	// if !pmmapitests.RunIATests {
-	// 	t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
-	// }
+	if !pmmapitests.RunIATests {
+		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
+	}
 
 	client := channelsClient.Default.Channels
 
@@ -204,9 +204,9 @@ func TestRemoveChannel(t *testing.T) {
 }
 
 func TestListChannels(t *testing.T) {
-	// if !pmmapitests.RunIATests {
-	// 	t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
-	// }
+	if !pmmapitests.RunIATests {
+		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
+	}
 
 	client := channelsClient.Default.Channels
 
