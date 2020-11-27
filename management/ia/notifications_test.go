@@ -21,7 +21,7 @@ func TestAddChannel(t *testing.T) {
 	client := channelsClient.Default.Channels
 
 	t.Run("normal", func(t *testing.T) {
-		_, err := client.AddChannel(&channels.AddChannelParams{
+		resp, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
 				Summary:  gofakeit.Quote(),
 				Disabled: gofakeit.Bool(),
@@ -34,10 +34,11 @@ func TestAddChannel(t *testing.T) {
 		})
 
 		require.NoError(t, err)
+		assert.NotEmpty(t, resp.Payload.ChannelID)
 	})
 
 	t.Run("invalid request", func(t *testing.T) {
-		_, err := client.AddChannel(&channels.AddChannelParams{
+		resp, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
 				Summary:  gofakeit.Quote(),
 				Disabled: gofakeit.Bool(),
@@ -49,10 +50,11 @@ func TestAddChannel(t *testing.T) {
 		})
 
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field EmailConfig.To: value '[]' must contain at least 1 elements")
+		assert.Nil(t, resp)
 	})
 
 	t.Run("missing config", func(t *testing.T) {
-		_, err := client.AddChannel(&channels.AddChannelParams{
+		resp, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
 				Summary:  gofakeit.Quote(),
 				Disabled: gofakeit.Bool(),
@@ -61,6 +63,7 @@ func TestAddChannel(t *testing.T) {
 		})
 
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing channel configuration.")
+		assert.Nil(t, resp)
 	})
 }
 
@@ -187,7 +190,7 @@ func TestListChannels(t *testing.T) {
 
 	summary := gofakeit.UUID()
 	email := gofakeit.Email()
-	_, err := client.AddChannel(&channels.AddChannelParams{
+	resp1, err := client.AddChannel(&channels.AddChannelParams{
 		Body: channels.AddChannelBody{
 			Summary:  summary,
 			Disabled: gofakeit.Bool(),
@@ -206,7 +209,7 @@ func TestListChannels(t *testing.T) {
 	assert.NotEmpty(t, resp.Payload.Channels)
 	var found bool
 	for _, channel := range resp.Payload.Channels {
-		if channel.Summary == summary {
+		if channel.ChannelID == resp1.Payload.ChannelID {
 			assert.Equal(t, []string{email}, channel.EmailConfig.To)
 			assert.True(t, channel.EmailConfig.SendResolved)
 			found = true
