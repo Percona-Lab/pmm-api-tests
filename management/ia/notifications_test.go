@@ -72,10 +72,9 @@ func TestChangeChannel(t *testing.T) {
 	client := channelsClient.Default.Channels
 
 	t.Run("normal", func(t *testing.T) {
-		summary := gofakeit.UUID()
-		_, err := client.AddChannel(&channels.AddChannelParams{
+		resp1, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
-				Summary:  summary,
+				Summary:  gofakeit.Quote(),
 				Disabled: gofakeit.Bool(),
 				EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
 					SendResolved: false,
@@ -86,21 +85,10 @@ func TestChangeChannel(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		resp, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
-		require.NoError(t, err)
-
-		var id string
-		for _, channel := range resp.Payload.Channels {
-			if channel.Summary == summary {
-				id = channel.ChannelID
-			}
-		}
-		require.NotEmpty(t, id)
-
 		newEmail := []string{gofakeit.Email()}
 		_, err = client.ChangeChannel(&channels.ChangeChannelParams{
 			Body: channels.ChangeChannelBody{
-				ChannelID: id,
+				ChannelID: resp1.Payload.ChannelID,
 				Disabled:  gofakeit.Bool(),
 				EmailConfig: &channels.ChangeChannelParamsBodyEmailConfig{
 					SendResolved: true,
@@ -111,13 +99,13 @@ func TestChangeChannel(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		resp, err = client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
+		resp2, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 
-		assert.NotEmpty(t, resp.Payload.Channels)
+		assert.NotEmpty(t, resp2.Payload.Channels)
 		var found bool
-		for _, channel := range resp.Payload.Channels {
-			if channel.ChannelID == id {
+		for _, channel := range resp2.Payload.Channels {
+			if channel.ChannelID == resp1.Payload.ChannelID {
 				assert.Equal(t, newEmail, channel.EmailConfig.To)
 				assert.True(t, channel.EmailConfig.SendResolved)
 				found = true
@@ -137,7 +125,7 @@ func TestRemoveChannel(t *testing.T) {
 
 	t.Run("normal", func(t *testing.T) {
 		summary := gofakeit.UUID()
-		_, err := client.AddChannel(&channels.AddChannelParams{
+		resp1, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
 				Summary:  summary,
 				Disabled: gofakeit.Bool(),
@@ -150,33 +138,20 @@ func TestRemoveChannel(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		resp, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
-		require.NoError(t, err)
-
-		var id string
-		for _, channel := range resp.Payload.Channels {
-			if channel.Summary == summary {
-				id = channel.ChannelID
-			}
-		}
-		require.NotEmpty(t, id)
-
 		_, err = client.RemoveChannel(&channels.RemoveChannelParams{
 			Body: channels.RemoveChannelBody{
-				ChannelID: id,
+				ChannelID: resp1.Payload.ChannelID,
 			},
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
 
-		resp, err = client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
+		resp2, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 
-		assert.NotEmpty(t, resp.Payload.Channels)
-		for _, channel := range resp.Payload.Channels {
-			if channel.ChannelID == id {
-				assert.NotEqual(t, id, channel.ChannelID)
-			}
+		assert.NotEmpty(t, resp2.Payload.Channels)
+		for _, channel := range resp2.Payload.Channels {
+			assert.NotEqual(t, resp1, channel.ChannelID)
 		}
 	})
 	t.Run("unknown id", func(t *testing.T) {
