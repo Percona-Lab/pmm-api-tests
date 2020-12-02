@@ -49,7 +49,7 @@ func TestAddTemplate(t *testing.T) {
 				found = true
 			}
 		}
-		assert.True(t, found)
+		assert.Truef(t, found, "Template with id %s not found", name)
 	})
 
 	t.Run("duplicate", func(t *testing.T) {
@@ -140,7 +140,7 @@ func TestChangeTemplate(t *testing.T) {
 				found = true
 			}
 		}
-		assert.True(t, found)
+		assert.Truef(t, found, "Template with id %s not found", name)
 	})
 
 	t.Run("unknown template", func(t *testing.T) {
@@ -309,5 +309,5 @@ func TestListTemplate(t *testing.T) {
 			found = true
 		}
 	}
-	assert.True(t, found)
+	assert.Truef(t, found, "Template with id %s not found", name)
 }
