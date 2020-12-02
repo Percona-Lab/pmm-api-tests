@@ -70,7 +70,6 @@ func TestAddTemplate(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, fmt.Sprintf("Template with name \"%s\" already exists.", name))
-
 	})
 
 	t.Run("invalid yaml", func(t *testing.T) {
@@ -184,7 +183,7 @@ func TestChangeTemplate(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		b, err := ioutil.ReadFile("../../testdata/ia/invalid-template.yaml")
+		b, err = ioutil.ReadFile("../../testdata/ia/invalid-template.yaml")
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
