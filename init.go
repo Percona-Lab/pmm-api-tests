@@ -135,6 +135,7 @@ func init() {
 		"PMM_SERVER_INSECURE_TLS": flag.Lookup("pmm.server-insecure-tls"),
 		"PMM_RUN_UPDATE_TEST":     flag.Lookup("pmm.run-update-test"),
 		"PMM_RUN_STT_TESTS":       flag.Lookup("pmm.run-stt-tests"),
+		"PMM_RUN_IA_TESTS":        flag.Lookup("pmm.run-ia-tests"),
 		"PMM_KUBECONFIG":          flag.Lookup("pmm.kubeconfig"),
 	} {
 		env, ok := os.LookupEnv(envVar)
