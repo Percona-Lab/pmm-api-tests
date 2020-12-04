@@ -1,5 +1,5 @@
 ---
-rules:
+templates:
   - name: %s
     version: 1
     summary: Test summary

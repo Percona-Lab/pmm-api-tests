@@ -1,5 +1,5 @@
 ---
-rules:
+templates:
   - name: %s
     field: value # Unknown field
     version: 1
