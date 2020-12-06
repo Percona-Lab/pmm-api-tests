@@ -1,8 +1,8 @@
 all: build
 
 init:           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
-	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
-	go install ./vendor/github.com/jstemmer/go-junit-report
+	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin
+	go build -modfile=tools/go.mod -o bin/go-junit-report github.com/jstemmer/go-junit-report
 
 build:
 	go install -v ./...
@@ -16,11 +16,11 @@ dev-test:						## Run test on dev env. Use `PMM_KUBECONFIG=/path/to/kubeconfig.y
 
 run:
 	go test -count=1 -p 1 -v ./... 2>&1 | tee pmm-api-tests-output.txt
-	cat pmm-api-tests-output.txt | go-junit-report > pmm-api-tests-junit-report.xml
+	cat pmm-api-tests-output.txt | bin/go-junit-report > pmm-api-tests-junit-report.xml
 
 run-race:
 	go test -count=1 -p 1 -v -race ./... 2>&1 | tee pmm-api-tests-output.txt
-	cat pmm-api-tests-output.txt | go-junit-report > pmm-api-tests-junit-report.xml
+	cat pmm-api-tests-output.txt | bin/go-junit-report > pmm-api-tests-junit-report.xml
 
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 

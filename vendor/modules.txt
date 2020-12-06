@@ -1,0 +1,140 @@
+# github.com/AlekSi/pointer v1.1.0
+## explicit
+github.com/AlekSi/pointer
+# github.com/PuerkitoBio/purell v1.1.1
+github.com/PuerkitoBio/purell
+# github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
+github.com/PuerkitoBio/urlesc
+# github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535
+github.com/asaskevich/govalidator
+# github.com/brianvoe/gofakeit/v5 v5.11.0
+## explicit
+github.com/brianvoe/gofakeit/v5
+github.com/brianvoe/gofakeit/v5/data
+# github.com/davecgh/go-spew v1.1.1
+## explicit
+github.com/davecgh/go-spew/spew
+# github.com/go-openapi/analysis v0.19.10
+github.com/go-openapi/analysis
+github.com/go-openapi/analysis/internal
+# github.com/go-openapi/errors v0.19.6
+github.com/go-openapi/errors
+# github.com/go-openapi/jsonpointer v0.19.3
+github.com/go-openapi/jsonpointer
+# github.com/go-openapi/jsonreference v0.19.3
+github.com/go-openapi/jsonreference
+# github.com/go-openapi/loads v0.19.5
+github.com/go-openapi/loads
+# github.com/go-openapi/runtime v0.19.20
+## explicit
+github.com/go-openapi/runtime
+github.com/go-openapi/runtime/client
+github.com/go-openapi/runtime/logger
+github.com/go-openapi/runtime/middleware
+github.com/go-openapi/runtime/middleware/denco
+github.com/go-openapi/runtime/middleware/header
+github.com/go-openapi/runtime/middleware/untyped
+github.com/go-openapi/runtime/security
+# github.com/go-openapi/spec v0.19.8
+github.com/go-openapi/spec
+# github.com/go-openapi/strfmt v0.19.5
+github.com/go-openapi/strfmt
+# github.com/go-openapi/swag v0.19.9
+github.com/go-openapi/swag
+# github.com/go-openapi/validate v0.19.10
+github.com/go-openapi/validate
+# github.com/go-stack/stack v1.8.0
+github.com/go-stack/stack
+# github.com/json-iterator/go v1.1.10
+github.com/json-iterator/go
+# github.com/konsorten/go-windows-terminal-sequences v1.0.3
+github.com/konsorten/go-windows-terminal-sequences
+# github.com/mailru/easyjson v0.7.1
+github.com/mailru/easyjson/buffer
+github.com/mailru/easyjson/jlexer
+github.com/mailru/easyjson/jwriter
+# github.com/mitchellh/mapstructure v1.3.2
+github.com/mitchellh/mapstructure
+# github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
+github.com/modern-go/concurrent
+# github.com/modern-go/reflect2 v1.0.1
+github.com/modern-go/reflect2
+# github.com/percona/pmm v2.12.1-0.20201202114955-5089534cb973+incompatible
+## explicit
+github.com/percona/pmm/api/alertmanager/amclient
+github.com/percona/pmm/api/alertmanager/amclient/alert
+github.com/percona/pmm/api/alertmanager/amclient/alertgroup
+github.com/percona/pmm/api/alertmanager/amclient/general
+github.com/percona/pmm/api/alertmanager/amclient/receiver
+github.com/percona/pmm/api/alertmanager/amclient/silence
+github.com/percona/pmm/api/alertmanager/ammodels
+github.com/percona/pmm/api/inventorypb/json/client
+github.com/percona/pmm/api/inventorypb/json/client/agents
+github.com/percona/pmm/api/inventorypb/json/client/nodes
+github.com/percona/pmm/api/inventorypb/json/client/services
+github.com/percona/pmm/api/managementpb/dbaas/json/client
+github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes
+github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_cluster
+github.com/percona/pmm/api/managementpb/dbaas/json/client/xtra_db_cluster
+github.com/percona/pmm/api/managementpb/ia/json/client
+github.com/percona/pmm/api/managementpb/ia/json/client/alerts
+github.com/percona/pmm/api/managementpb/ia/json/client/channels
+github.com/percona/pmm/api/managementpb/ia/json/client/rules
+github.com/percona/pmm/api/managementpb/ia/json/client/templates
+github.com/percona/pmm/api/managementpb/json/client
+github.com/percona/pmm/api/managementpb/json/client/actions
+github.com/percona/pmm/api/managementpb/json/client/annotation
+github.com/percona/pmm/api/managementpb/json/client/external
+github.com/percona/pmm/api/managementpb/json/client/mongo_db
+github.com/percona/pmm/api/managementpb/json/client/my_sql
+github.com/percona/pmm/api/managementpb/json/client/node
+github.com/percona/pmm/api/managementpb/json/client/postgre_sql
+github.com/percona/pmm/api/managementpb/json/client/proxy_sql
+github.com/percona/pmm/api/managementpb/json/client/rds
+github.com/percona/pmm/api/managementpb/json/client/security_checks
+github.com/percona/pmm/api/managementpb/json/client/service
+github.com/percona/pmm/api/serverpb/json/client
+github.com/percona/pmm/api/serverpb/json/client/server
+github.com/percona/pmm/utils/tlsconfig
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/prometheus/client_golang v1.7.1
+## explicit
+github.com/prometheus/client_golang/api
+github.com/prometheus/client_golang/api/prometheus/v1
+# github.com/prometheus/common v0.10.0
+github.com/prometheus/common/model
+# github.com/sirupsen/logrus v1.6.0
+## explicit
+github.com/sirupsen/logrus
+# github.com/stretchr/testify v1.6.1
+## explicit
+github.com/stretchr/testify/assert
+github.com/stretchr/testify/require
+# go.mongodb.org/mongo-driver v1.3.4
+go.mongodb.org/mongo-driver/bson
+go.mongodb.org/mongo-driver/bson/bsoncodec
+go.mongodb.org/mongo-driver/bson/bsonoptions
+go.mongodb.org/mongo-driver/bson/bsonrw
+go.mongodb.org/mongo-driver/bson/bsontype
+go.mongodb.org/mongo-driver/bson/primitive
+go.mongodb.org/mongo-driver/x/bsonx/bsoncore
+# golang.org/x/net v0.0.0-20200602114024-627f9648deb9
+golang.org/x/net/idna
+# golang.org/x/sys v0.0.0-20200722175500-76b94024e4b6
+## explicit
+golang.org/x/sys/internal/unsafeheader
+golang.org/x/sys/unix
+# golang.org/x/text v0.3.2
+golang.org/x/text/secure/bidirule
+golang.org/x/text/transform
+golang.org/x/text/unicode/bidi
+golang.org/x/text/unicode/norm
+golang.org/x/text/width
+# google.golang.org/grpc v1.30.0
+## explicit
+google.golang.org/grpc/codes
+# gopkg.in/yaml.v2 v2.3.0
+gopkg.in/yaml.v2
+# gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+gopkg.in/yaml.v3
