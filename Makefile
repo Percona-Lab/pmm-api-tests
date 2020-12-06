@@ -2,7 +2,7 @@ all: build
 
 init:           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
 	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin
-	go build -modfile=tools/go.mod -o bin/go-junit-report github.com/jstemmer/go-junit-report
+	cd tools && go build -o bin/go-junit-report github.com/jstemmer/go-junit-report
 
 build:
 	go install -v ./...
