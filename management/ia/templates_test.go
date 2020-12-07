@@ -134,7 +134,7 @@ func TestChangeTemplate(t *testing.T) {
 		for _, template := range resp.Payload.Templates {
 			if template.Name == name {
 				assert.Equal(t, newExpr, template.Expr)
-				assert.Equal(t,yml , template.Yaml)
+				assert.Equal(t, yml, template.Yaml)
 				found = true
 			}
 		}
@@ -175,7 +175,7 @@ func TestChangeTemplate(t *testing.T) {
 		name := gofakeit.UUID()
 		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
-				Yaml:  fmt.Sprintf(string(b), name, gofakeit.UUID()),
+				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -249,10 +249,10 @@ func TestListTemplate(t *testing.T) {
 
 	name := gofakeit.UUID()
 	expr := gofakeit.UUID()
-	file := fmt.Sprintf(string(b), name, expr)
+	yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, expr))
 	_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 		Body: templates.CreateTemplateBody{
-			Yaml: file,
+			Yaml: yml,
 		},
 		Context: pmmapitests.Context,
 	})
@@ -294,7 +294,7 @@ func TestListTemplate(t *testing.T) {
 
 			assert.Equal(t, map[string]string{"foo": "bar"}, template.Labels)
 			assert.Equal(t, map[string]string{"description": "test description", "summary": "test summary"}, template.Annotations)
-			assert.Equal(t, file, template.Yaml)
+			assert.Equal(t, yml, template.Yaml)
 			assert.NotEmpty(t, template.CreatedAt)
 			found = true
 		}
