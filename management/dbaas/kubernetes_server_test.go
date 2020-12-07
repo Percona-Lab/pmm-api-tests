@@ -7,6 +7,7 @@ import (
 
 	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
 	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
+	psmdbcluster "github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_cluster"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -103,5 +104,63 @@ func TestKubernetesServer(t *testing.T) {
 		unregisterKubernetesClusterOK, err := unregisterKubernetesCluster("")
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field KubernetesClusterName: value '' must not be an empty string")
 		require.Nil(t, unregisterKubernetesClusterOK)
+	})
+
+	t.Run("UnregisterWithForce", func(t *testing.T) {
+		kubernetesClusterName := pmmapitests.TestString(t, "api-test-cluster")
+		clusters, err := dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
+		require.NoError(t, err)
+		require.NotContains(t, clusters.Payload.KubernetesClusters, &kubernetes.KubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
+		registerKubernetesCluster(t, kubernetesClusterName, kubeConfig)
+
+		paramsFirstPSMDB := psmdbcluster.CreatePSMDBClusterParams{
+			Context: pmmapitests.Context,
+			Body: psmdbcluster.CreatePSMDBClusterBody{
+				KubernetesClusterName: kubernetesClusterName,
+				Name:                  "first-psmdb-test",
+				Params: &psmdbcluster.CreatePSMDBClusterParamsBodyParams{
+					ClusterSize: 3,
+					Replicaset: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicaset{
+						ComputeResources: &psmdbcluster.CreatePSMDBClusterParamsBodyParamsReplicasetComputeResources{
+							CPUm:        500,
+							MemoryBytes: "1000000000",
+						},
+						DiskSize: "1000000000",
+					},
+				},
+			},
+		}
+		_, err = dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsFirstPSMDB)
+		assert.NoError(t, err)
+		deletePSMDBClusterParamsParam := psmdbcluster.DeletePSMDBClusterParams{
+			Context: pmmapitests.Context,
+			Body: psmdbcluster.DeletePSMDBClusterBody{
+				KubernetesClusterName: kubernetesClusterName,
+				Name:                  "first-psmdb-test",
+			},
+		}
+		_, err = dbaasClient.Default.PSMDBCluster.DeletePSMDBCluster(&deletePSMDBClusterParamsParam)
+		assert.NoError(t, err)
+
+		clusters, err = dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
+		assert.NoError(t, err)
+		assert.GreaterOrEqual(t, len(clusters.Payload.KubernetesClusters), 1)
+		assert.Contains(t, clusters.Payload.KubernetesClusters, &kubernetes.KubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
+
+		unregisterKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
+			&kubernetes.UnregisterKubernetesClusterParams{
+				Body: kubernetes.UnregisterKubernetesClusterBody{
+					KubernetesClusterName: kubernetesClusterName,
+					Force:                 true,
+				},
+				Context: pmmapitests.Context,
+			},
+		)
+		require.NoError(t, err)
+		assert.NotNil(t, unregisterKubernetesClusterResponse)
+
+		clusters, err = dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
+		assert.NoError(t, err)
+		assert.Equal(t, len(clusters.Payload.KubernetesClusters), 0)
 	})
 }
