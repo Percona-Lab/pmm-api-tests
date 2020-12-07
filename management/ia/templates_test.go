@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/brianvoe/gofakeit"
-	iaClient "github.com/percona/pmm/api/managementpb/ia/json/client"
+	templatesClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -16,11 +16,7 @@ import (
 )
 
 func TestAddTemplate(t *testing.T) {
-	if !pmmapitests.RunIATests {
-		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
-	}
-
-	client := iaClient.Default.Templates
+	client := templatesClient.Default.Templates
 
 	b, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
 	require.NoError(t, err)
@@ -97,11 +93,7 @@ func TestAddTemplate(t *testing.T) {
 }
 
 func TestChangeTemplate(t *testing.T) {
-	if !pmmapitests.RunIATests {
-		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
-	}
-
-	client := iaClient.Default.Templates
+	client := templatesClient.Default.Templates
 
 	b, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
 	require.NoError(t, err)
@@ -195,11 +187,7 @@ func TestChangeTemplate(t *testing.T) {
 }
 
 func TestDeleteTemplate(t *testing.T) {
-	if !pmmapitests.RunIATests {
-		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
-	}
-
-	client := iaClient.Default.Templates
+	client := templatesClient.Default.Templates
 
 	b, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
 	require.NoError(t, err)
@@ -248,11 +236,7 @@ func TestDeleteTemplate(t *testing.T) {
 }
 
 func TestListTemplate(t *testing.T) {
-	if !pmmapitests.RunIATests {
-		t.Skip("Skipping IA tests until IA will out of beta: https://jira.percona.com/browse/PMM-7001")
-	}
-
-	client := iaClient.Default.Templates
+	client := templatesClient.Default.Templates
 
 	b, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
 	require.NoError(t, err)
@@ -267,7 +251,6 @@ func TestListTemplate(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
-
 	resp, err := client.ListTemplates(&templates.ListTemplatesParams{
 		Body: templates.ListTemplatesBody{
 			Reload: true,
@@ -306,6 +289,7 @@ func TestListTemplate(t *testing.T) {
 			assert.Equal(t, map[string]string{"foo": "bar"}, template.Labels)
 			assert.Equal(t, map[string]string{"description": "test description", "summary": "test summary"}, template.Annotations)
 			assert.Equal(t, file, template.Yaml)
+			assert.NotEmpty(t, template.CreatedAt)
 			found = true
 		}
 	}
