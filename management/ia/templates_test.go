@@ -3,13 +3,17 @@ package ia
 import (
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"testing"
 
 	"github.com/brianvoe/gofakeit"
+	"github.com/percona-platform/saas/pkg/alert"
 	templatesClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v3"
+
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
@@ -109,9 +113,10 @@ func TestChangeTemplate(t *testing.T) {
 		require.NoError(t, err)
 
 		newExpr := gofakeit.UUID()
+		yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, newExpr))
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
-				Yaml: fmt.Sprintf(string(b), name, newExpr),
+				Yaml: yml,
 			},
 			Context: pmmapitests.Context,
 		})
@@ -129,6 +134,7 @@ func TestChangeTemplate(t *testing.T) {
 		for _, template := range resp.Payload.Templates {
 			if template.Name == name {
 				assert.Equal(t, newExpr, template.Expr)
+				assert.Equal(t,yml , template.Yaml)
 				found = true
 			}
 		}
@@ -169,7 +175,7 @@ func TestChangeTemplate(t *testing.T) {
 		name := gofakeit.UUID()
 		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
-				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
+				Yaml:  fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -294,4 +300,21 @@ func TestListTemplate(t *testing.T) {
 		}
 	}
 	assert.Truef(t, found, "Template with id %s not found", name)
+}
+
+func formatTemplateYaml(t *testing.T, yml string) string {
+	params := &alert.ParseParams{
+		DisallowUnknownFields:    true,
+		DisallowInvalidTemplates: true,
+	}
+	r, err := alert.Parse(strings.NewReader(yml), params)
+	require.NoError(t, err)
+	type templates struct {
+		Templates []alert.Template `yaml:"templates"`
+	}
+
+	s, err := yaml.Marshal(&templates{Templates: r})
+	require.NoError(t, err)
+
+	return string(s)
 }
