@@ -18,7 +18,6 @@ services:
       # for check-dev
       - PERCONA_TEST_SAAS_HOST=check-dev.percona.com:443
       - PERCONA_TEST_CHECKS_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
-      - PMM_RUN_IA_TESTS=1
     volumes:
       - ./testdata/checks:/srv/checks
 
