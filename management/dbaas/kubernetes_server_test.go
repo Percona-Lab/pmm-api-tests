@@ -192,7 +192,7 @@ func TestKubernetesServer(t *testing.T) {
 			},
 		}
 
-		for true {
+		for {
 			psmDBClusters, err := dbaasClient.Default.PSMDBCluster.ListPSMDBClusters(&listPSMDBClustersParamsParam)
 			assert.NoError(t, err)
 			if len(psmDBClusters.Payload.Clusters) == 0 {
