@@ -218,7 +218,7 @@
 
 [[projects]]
   branch = "PMM-6983-force-for-unregister-k8s"
-  digest = "1:7449c283ba031357b0ca43fd5a2bdceb2a04a5b36faf1263e1f16a48bf2a4cbf"
+  digest = "1:20b1745d1a5c22505ad48fdc22fe018da7378ecc6b5f4bfbb7af648f5c7b1079"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -258,7 +258,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "4e76e64d7e40c9bd33f62c36039e809b7d4c9549"
+  revision = "3b227dbe8fcd7a32ce555b806d60fc19bf5db06a"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
