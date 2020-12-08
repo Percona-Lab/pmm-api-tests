@@ -140,7 +140,7 @@ func TestKubernetesServer(t *testing.T) {
 		assert.GreaterOrEqual(t, len(clusters.Payload.KubernetesClusters), 1)
 		assert.Contains(t, clusters.Payload.KubernetesClusters, &kubernetes.KubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
 
-		unregisterKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
+		_, err = dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 			&kubernetes.UnregisterKubernetesClusterParams{
 				Body: kubernetes.UnregisterKubernetesClusterBody{
 					KubernetesClusterName: kubernetesClusterName,
@@ -151,7 +151,7 @@ func TestKubernetesServer(t *testing.T) {
 		require.Error(t, err)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, fmt.Sprintf(`Kubernetes cluster %s has PSMDB clusters`, kubernetesClusterName))
 
-		unregisterKubernetesClusterResponse, err = dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
+		unregisterKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 			&kubernetes.UnregisterKubernetesClusterParams{
 				Body: kubernetes.UnregisterKubernetesClusterBody{
 					KubernetesClusterName: kubernetesClusterName,
@@ -191,12 +191,11 @@ func TestKubernetesServer(t *testing.T) {
 				KubernetesClusterName: kubernetesClusterName,
 			},
 		}
-		done := false
-		for done == false {
+
+		for true {
 			psmDBClusters, err := dbaasClient.Default.PSMDBCluster.ListPSMDBClusters(&listPSMDBClustersParamsParam)
 			assert.NoError(t, err)
 			if len(psmDBClusters.Payload.Clusters) == 0 {
-				done = true
 				break
 			}
 			time.Sleep(1 * time.Second)
