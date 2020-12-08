@@ -163,7 +163,7 @@ func TestKubernetesServer(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotNil(t, unregisterKubernetesClusterResponse)
 
-		unregisterKubernetesClusterResponse, err = dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
+		_, err = dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 			&kubernetes.UnregisterKubernetesClusterParams{
 				Body: kubernetes.UnregisterKubernetesClusterBody{
 					KubernetesClusterName: kubernetesClusterName,
@@ -185,7 +185,22 @@ func TestKubernetesServer(t *testing.T) {
 		_, err = dbaasClient.Default.PSMDBCluster.DeletePSMDBCluster(&deletePSMDBClusterParamsParam)
 		assert.NoError(t, err)
 
-		time.Sleep(10 * time.Second)
+		listPSMDBClustersParamsParam := psmdbcluster.ListPSMDBClustersParams{
+			Context: pmmapitests.Context,
+			Body: psmdbcluster.ListPSMDBClustersBody{
+				KubernetesClusterName: kubernetesClusterName,
+			},
+		}
+		done := false
+		for done == false {
+			psmDBClusters, err := dbaasClient.Default.PSMDBCluster.ListPSMDBClusters(&listPSMDBClustersParamsParam)
+			assert.NoError(t, err)
+			if len(psmDBClusters.Payload.Clusters) == 0 {
+				done = true
+				break
+			}
+			time.Sleep(1 * time.Second)
+		}
 
 		unregisterKubernetesClusterResponse, err = dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 			&kubernetes.UnregisterKubernetesClusterParams{
@@ -196,5 +211,6 @@ func TestKubernetesServer(t *testing.T) {
 			},
 		)
 		assert.NoError(t, err)
+		assert.NotNil(t, unregisterKubernetesClusterResponse)
 	})
 }
