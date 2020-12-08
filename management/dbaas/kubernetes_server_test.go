@@ -185,8 +185,8 @@ func TestKubernetesServer(t *testing.T) {
 		_, err = dbaasClient.Default.PSMDBCluster.DeletePSMDBCluster(&deletePSMDBClusterParamsParam)
 		assert.NoError(t, err)
 
-		// Need better way to wait
 		time.Sleep(10 * time.Second)
+
 		unregisterKubernetesClusterResponse, err = dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 			&kubernetes.UnregisterKubernetesClusterParams{
 				Body: kubernetes.UnregisterKubernetesClusterBody{
