@@ -7,17 +7,15 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/brianvoe/gofakeit"
+	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	rulesClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	templatesClient "github.com/percona/pmm/api/managementpb/ia/json/client"
-	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
-	"github.com/stretchr/testify/assert"
-	"google.golang.org/grpc/codes"
-
-	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
-
 	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
