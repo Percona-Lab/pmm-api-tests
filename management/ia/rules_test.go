@@ -7,9 +7,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/brianvoe/gofakeit"
-	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
-	rulesClient "github.com/percona/pmm/api/managementpb/ia/json/client"
-	templatesClient "github.com/percona/pmm/api/managementpb/ia/json/client"
+	"github.com/percona/pmm/api/managementpb/ia/json/client"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
@@ -24,7 +22,7 @@ func TestRulesAPI(t *testing.T) {
 	templateName := createTemplate(t)
 	channelID := createChannel(t)
 
-	client := rulesClient.Default.Rules
+	client := client.Default.Rules
 
 	t.Run("add", func(t *testing.T) {
 		t.Run("normal", func(t *testing.T) {
@@ -210,7 +208,7 @@ func createTemplate(t *testing.T) string {
 	require.NoError(t, err)
 
 	templateName := gofakeit.UUID()
-	_, err = templatesClient.Default.Templates.CreateTemplate(&templates.CreateTemplateParams{
+	_, err = client.Default.Templates.CreateTemplate(&templates.CreateTemplateParams{
 		Body: templates.CreateTemplateBody{
 			Yaml: fmt.Sprintf(string(b), templateName, gofakeit.UUID()),
 		},
@@ -222,7 +220,7 @@ func createTemplate(t *testing.T) string {
 }
 
 func createChannel(t *testing.T) string {
-	resp, err := channelsClient.Default.Channels.AddChannel(&channels.AddChannelParams{
+	resp, err := client.Default.Channels.AddChannel(&channels.AddChannelParams{
 		Body: channels.AddChannelBody{
 			Summary:  gofakeit.Quote(),
 			Disabled: gofakeit.Bool(),
