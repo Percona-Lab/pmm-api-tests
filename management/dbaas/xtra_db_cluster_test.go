@@ -138,7 +138,7 @@ func TestXtraDBClusterServer(t *testing.T) {
 		}
 
 		_, err = dbaasClient.Default.XtraDBCluster.UpdateXtraDBCluster(&paramsUpdatePXC)
-		pmmapitests.AssertAPIErrorf(t, err, 500, codes.InvalidArgument, `XtraDB cluster is not ready`)
+		pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `state is Error: XtraDB cluster is not ready`)
 
 		for _, pxc := range xtraDBClusters.Payload.Clusters {
 			if pxc.Name == "" {

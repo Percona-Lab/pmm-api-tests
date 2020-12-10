@@ -104,7 +104,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 		}
 
 		_, err = dbaasClient.Default.PSMDBCluster.UpdatePSMDBCluster(&paramsUpdatePSMDB)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `state is initializing: PSMDB cluster is not ready`)
+		pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `state is initializing: PSMDB cluster is not ready`)
 
 		for _, psmdb := range xtraDBClusters.Payload.Clusters {
 			if psmdb.Name == "" {
