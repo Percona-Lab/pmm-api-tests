@@ -228,8 +228,8 @@
   revision = "ad38b2c7116bd3cc80057ab2a8cf86166d9d2e24"
 
 [[projects]]
-  branch = "release/2.13"
-  digest = "1:94743e20e76e817b7cf3177a342d5605a84e597a6e06dbbfc116501991f37a22"
+  branch = "PMM-6897-suspend-psmdb"
+  digest = "1:6bfa309253d40db5f6f4c0b39c88eb4274d53c5d61d669027455231e0a2e16c9"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -269,7 +269,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "ffb6feb9c104adc0f64790ae2134e0d5852a92bc"
+  revision = "da6293535a3c6c8ef1199d90869feb5b8a7cf343"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
