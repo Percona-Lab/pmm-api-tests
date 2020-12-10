@@ -217,8 +217,19 @@
   version = "1.0.1"
 
 [[projects]]
+  branch = "main"
+  digest = "1:9fb315ef352fae6223081e05471d29f6fa85c7ea1f305c5a7da1ef5b8f326c5b"
+  name = "github.com/percona-platform/saas"
+  packages = [
+    "pkg/alert",
+    "pkg/common",
+  ]
+  pruneopts = "NUT"
+  revision = "b395fb361ebdfbc9dcbcb7b702fc197c8f59e5fa"
+
+[[projects]]
   branch = "PMM-5980-suspend-pxc"
-  digest = "1:e2cfe93f36875672a8f22ba107353187691e01dac5b25114d69df077d5b57d77"
+  digest = "1:53348649a319d559bac915afadf9d658567048f4e4359863c2067c95071ab6bd"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -258,7 +269,23 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "491dafd44c58e79550b9ab7139bfa0211d7a358d"
+  revision = "19c2f39cba132ac4b3de027258d0a4c76f32c133"
+
+[[projects]]
+  digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
+  name = "github.com/percona/promconfig"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "bbfe4cec824887dffa3d1d485a825485830cb710"
+  version = "v0.2.0"
+
+[[projects]]
+  digest = "1:4047c378584616813d610c9f993bf90dd0d07aed8d94bd3bc299cd35ececdcba"
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "614d223910a179a466c1767a985424175c39b465"
+  version = "v0.9.1"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -401,6 +428,7 @@
     "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",
     "github.com/jstemmer/go-junit-report",
+    "github.com/percona-platform/saas/pkg/alert",
     "github.com/percona/pmm/api/alertmanager/amclient",
     "github.com/percona/pmm/api/alertmanager/amclient/alert",
     "github.com/percona/pmm/api/inventorypb/json/client",
@@ -413,6 +441,7 @@
     "github.com/percona/pmm/api/managementpb/dbaas/json/client/xtra_db_cluster",
     "github.com/percona/pmm/api/managementpb/ia/json/client",
     "github.com/percona/pmm/api/managementpb/ia/json/client/channels",
+    "github.com/percona/pmm/api/managementpb/ia/json/client/templates",
     "github.com/percona/pmm/api/managementpb/json/client",
     "github.com/percona/pmm/api/managementpb/json/client/actions",
     "github.com/percona/pmm/api/managementpb/json/client/annotation",
@@ -435,6 +464,7 @@
     "github.com/stretchr/testify/require",
     "golang.org/x/sys/unix",
     "google.golang.org/grpc/codes",
+    "gopkg.in/yaml.v3",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
