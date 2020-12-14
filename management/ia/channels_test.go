@@ -28,8 +28,9 @@ func TestAddChannel(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-
 		require.NoError(t, err)
+		defer deleteChannel(t, client, resp.Payload.ChannelID)
+
 		assert.NotEmpty(t, resp.Payload.ChannelID)
 	})
 
@@ -79,6 +80,7 @@ func TestChangeChannel(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
+		defer deleteChannel(t, client, resp1.Payload.ChannelID)
 
 		newEmail := []string{gofakeit.Email()}
 		_, err = client.ChangeChannel(&channels.ChangeChannelParams{
@@ -188,6 +190,7 @@ func TestListChannels(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
+	defer deleteChannel(t, client, resp1.Payload.ChannelID)
 
 	resp, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
 	require.NoError(t, err)
@@ -205,4 +208,14 @@ func TestListChannels(t *testing.T) {
 	}
 
 	assert.True(t, found, "Expected channel not found")
+}
+
+func deleteChannel(t *testing.T, client channels.ClientService, id string) {
+	_, err := client.RemoveChannel(&channels.RemoveChannelParams{
+		Body: channels.RemoveChannelBody{
+			ChannelID: id,
+		},
+		Context: pmmapitests.Context,
+	})
+	assert.NoError(t, err)
 }

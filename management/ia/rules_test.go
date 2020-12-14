@@ -20,7 +20,10 @@ import (
 
 func TestRulesAPI(t *testing.T) {
 	templateName := createTemplate(t)
+	defer deleteTemplate(t, client.Default.Templates, templateName)
+
 	channelID := createChannel(t)
+	defer deleteChannel(t, client.Default.Channels, channelID)
 
 	client := client.Default.Rules
 
@@ -29,6 +32,8 @@ func TestRulesAPI(t *testing.T) {
 			params := createAlertRuleParams(templateName, channelID)
 			rule, err := client.CreateAlertRule(params)
 			require.NoError(t, err)
+			defer deleteRule(t, client, rule.Payload.RuleID)
+
 			assert.NotEmpty(t, rule.Payload.RuleID)
 		})
 
@@ -52,6 +57,7 @@ func TestRulesAPI(t *testing.T) {
 			cParams := createAlertRuleParams(templateName, channelID)
 			rule, err := client.CreateAlertRule(cParams)
 			require.NoError(t, err)
+			defer deleteRule(t, client, rule.Payload.RuleID)
 
 			newChannelID := createChannel(t)
 
@@ -107,6 +113,7 @@ func TestRulesAPI(t *testing.T) {
 			cParams := createAlertRuleParams(templateName, channelID)
 			rule, err := client.CreateAlertRule(cParams)
 			require.NoError(t, err)
+			defer deleteRule(t, client, rule.Payload.RuleID)
 
 			unknownChannelID := gofakeit.UUID()
 			params := &rules.UpdateAlertRuleParams{
@@ -139,10 +146,30 @@ func TestRulesAPI(t *testing.T) {
 		})
 	})
 
+	t.Run("delete", func(t *testing.T) {
+		params := createAlertRuleParams(templateName, channelID)
+		rule, err := client.CreateAlertRule(params)
+		require.NoError(t, err)
+
+		_, err = client.DeleteAlertRule(&rules.DeleteAlertRuleParams{
+			Body:    rules.DeleteAlertRuleBody{RuleID: rule.Payload.RuleID},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		list, err := client.ListAlertRules(&rules.ListAlertRulesParams{Context: pmmapitests.Context})
+		require.NoError(t, err)
+
+		for _, r := range list.Payload.Rules {
+			assert.NotEqual(t, rule.Payload.RuleID, r.RuleID)
+		}
+	})
+
 	t.Run("list", func(t *testing.T) {
 		params := createAlertRuleParams(templateName, channelID)
 		rule, err := client.CreateAlertRule(params)
 		require.NoError(t, err)
+		defer deleteRule(t, client, rule.Payload.RuleID)
 
 		list, err := client.ListAlertRules(&rules.ListAlertRulesParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
@@ -172,6 +199,14 @@ func TestRulesAPI(t *testing.T) {
 		}
 		assert.Truef(t, found, "Rule with id %s not found", rule.Payload.RuleID)
 	})
+}
+
+func deleteRule(t *testing.T, client rules.ClientService, id string) {
+	_, err := client.DeleteAlertRule(&rules.DeleteAlertRuleParams{
+		Body:    rules.DeleteAlertRuleBody{RuleID: id},
+		Context: pmmapitests.Context,
+	})
+	assert.NoError(t, err)
 }
 
 func createAlertRuleParams(templateName, channelID string) *rules.CreateAlertRuleParams {
