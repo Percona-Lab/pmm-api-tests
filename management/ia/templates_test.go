@@ -10,6 +10,8 @@ import (
 	"github.com/percona-platform/saas/pkg/alert"
 	templatesClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
+	serverClient "github.com/percona/pmm/api/serverpb/json/client"
+	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
@@ -21,13 +23,23 @@ import (
 
 func TestAddTemplate(t *testing.T) {
 	client := templatesClient.Default.Templates
+	sClient := serverClient.Default.Server
 
 	b, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
 	require.NoError(t, err)
 
 	t.Run("normal", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
 		name := gofakeit.UUID()
-		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
+		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
@@ -52,10 +64,39 @@ func TestAddTemplate(t *testing.T) {
 		assert.Truef(t, found, "Template with id %s not found", name)
 	})
 
+	t.Run("with alerting disabled", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				DisableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.False(t, res.Payload.Settings.AlertingEnabled)
+
+		resp, err := client.CreateTemplate(&templates.CreateTemplateParams{
+			Body: templates.CreateTemplateBody{
+				Yaml: fmt.Sprintf(string(b), gofakeit.UUID(), gofakeit.UUID()),
+			},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Alerting is disabled.`)
+		assert.Nil(t, resp)
+	})
+
 	t.Run("duplicate", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
 		name := gofakeit.UUID()
 		yaml := fmt.Sprintf(string(b), name, gofakeit.UUID())
-		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
+		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: yaml,
 			},
@@ -73,7 +114,16 @@ func TestAddTemplate(t *testing.T) {
 	})
 
 	t.Run("invalid yaml", func(t *testing.T) {
-		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
+		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: "not a yaml",
 			},
@@ -83,6 +133,15 @@ func TestAddTemplate(t *testing.T) {
 	})
 
 	t.Run("invalid template", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
 		b, err := ioutil.ReadFile("../../testdata/ia/invalid-template.yaml")
 		require.NoError(t, err)
 		name := gofakeit.UUID()
@@ -98,13 +157,23 @@ func TestAddTemplate(t *testing.T) {
 
 func TestChangeTemplate(t *testing.T) {
 	client := templatesClient.Default.Templates
+	sClient := serverClient.Default.Server
 
 	b, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
 	require.NoError(t, err)
 
 	t.Run("normal", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
 		name := gofakeit.UUID()
-		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
+		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
@@ -141,7 +210,55 @@ func TestChangeTemplate(t *testing.T) {
 		assert.Truef(t, found, "Template with id %s not found", name)
 	})
 
+	t.Run("with alerting disabled", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
+		name := gofakeit.UUID()
+		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
+			Body: templates.CreateTemplateBody{
+				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		res, err = sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				DisableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.False(t, res.Payload.Settings.AlertingEnabled)
+
+		yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, gofakeit.UUID()))
+		resp, err := client.UpdateTemplate(&templates.UpdateTemplateParams{
+			Body: templates.UpdateTemplateBody{
+				Yaml: yml,
+			},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Alerting is disabled.`)
+		assert.Nil(t, resp)
+	})
+
 	t.Run("unknown template", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
 		name := gofakeit.UUID()
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
@@ -153,8 +270,17 @@ func TestChangeTemplate(t *testing.T) {
 	})
 
 	t.Run("invalid yaml", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
 		name := gofakeit.UUID()
-		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
+		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
@@ -172,6 +298,15 @@ func TestChangeTemplate(t *testing.T) {
 	})
 
 	t.Run("invalid template", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
 		name := gofakeit.UUID()
 		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
@@ -194,13 +329,23 @@ func TestChangeTemplate(t *testing.T) {
 
 func TestDeleteTemplate(t *testing.T) {
 	client := templatesClient.Default.Templates
+	sClient := serverClient.Default.Server
 
 	b, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
 	require.NoError(t, err)
 
 	t.Run("normal", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
 		name := gofakeit.UUID()
-		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
+		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
@@ -229,7 +374,54 @@ func TestDeleteTemplate(t *testing.T) {
 		}
 	})
 
+	t.Run("with alerting disabled", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
+		name := gofakeit.UUID()
+		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
+			Body: templates.CreateTemplateBody{
+				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		res, err = sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				DisableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.False(t, res.Payload.Settings.AlertingEnabled)
+
+		resp, err := client.DeleteTemplate(&templates.DeleteTemplateParams{
+			Body: templates.DeleteTemplateBody{
+				Name: name,
+			},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Alerting is disabled.`)
+		assert.Nil(t, resp)
+	})
+
 	t.Run("unknown template", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
 		name := gofakeit.UUID()
 		_, err = client.DeleteTemplate(&templates.DeleteTemplateParams{
 			Body: templates.DeleteTemplateBody{
@@ -243,63 +435,118 @@ func TestDeleteTemplate(t *testing.T) {
 
 func TestListTemplate(t *testing.T) {
 	client := templatesClient.Default.Templates
+	sClient := serverClient.Default.Server
 
-	b, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
-	require.NoError(t, err)
+	t.Run("normal", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
 
-	name := gofakeit.UUID()
-	expr := gofakeit.UUID()
-	yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, expr))
-	_, err = client.CreateTemplate(&templates.CreateTemplateParams{
-		Body: templates.CreateTemplateBody{
-			Yaml: yml,
-		},
-		Context: pmmapitests.Context,
-	})
-	require.NoError(t, err)
-	resp, err := client.ListTemplates(&templates.ListTemplatesParams{
-		Body: templates.ListTemplatesBody{
-			Reload: true,
-		},
-		Context: pmmapitests.Context,
-	})
-	require.NoError(t, err)
+		b, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
+		require.NoError(t, err)
 
-	var found bool
-	for _, template := range resp.Payload.Templates {
-		if template.Name == name {
-			assert.Equal(t, expr, template.Expr)
-			assert.Equal(t, "Test summary", template.Summary)
-			assert.Equal(t, "USER_API", *template.Source)
-			assert.Equal(t, "SEVERITY_WARNING", *template.Severity)
-			assert.Equal(t, "300s", template.For)
-			assert.Len(t, template.Params, 1)
+		name := gofakeit.UUID()
+		expr := gofakeit.UUID()
+		yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, expr))
+		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
+			Body: templates.CreateTemplateBody{
+				Yaml: yml,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		resp, err := client.ListTemplates(&templates.ListTemplatesParams{
+			Body: templates.ListTemplatesBody{
+				Reload: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
 
-			param := template.Params[0]
-			assert.Equal(t, "threshold", param.Name)
-			assert.Equal(t, "test param summary", param.Summary)
-			assert.Equal(t, "FLOAT", *param.Type)
-			assert.Equal(t, "PERCENTAGE", *param.Unit)
-			assert.Nil(t, param.Bool)
-			assert.Nil(t, param.String)
-			assert.NotNil(t, param.Float)
+		var found bool
+		for _, template := range resp.Payload.Templates {
+			if template.Name == name {
+				assert.Equal(t, expr, template.Expr)
+				assert.Equal(t, "Test summary", template.Summary)
+				assert.Equal(t, "USER_API", *template.Source)
+				assert.Equal(t, "SEVERITY_WARNING", *template.Severity)
+				assert.Equal(t, "300s", template.For)
+				assert.Len(t, template.Params, 1)
 
-			float := param.Float
-			assert.True(t, float.HasDefault)
-			assert.Equal(t, float32(80), float.Default)
-			assert.True(t, float.HasMax)
-			assert.Equal(t, float32(100), float.Max)
-			assert.True(t, float.HasMin)
-			assert.Equal(t, float32(0), float.Min)
+				param := template.Params[0]
+				assert.Equal(t, "threshold", param.Name)
+				assert.Equal(t, "test param summary", param.Summary)
+				assert.Equal(t, "FLOAT", *param.Type)
+				assert.Equal(t, "PERCENTAGE", *param.Unit)
+				assert.Nil(t, param.Bool)
+				assert.Nil(t, param.String)
+				assert.NotNil(t, param.Float)
 
-			assert.Equal(t, map[string]string{"foo": "bar"}, template.Labels)
-			assert.Equal(t, map[string]string{"description": "test description", "summary": "test summary"}, template.Annotations)
-			assert.Equal(t, yml, template.Yaml)
-			assert.NotEmpty(t, template.CreatedAt)
-			found = true
+				float := param.Float
+				assert.True(t, float.HasDefault)
+				assert.Equal(t, float32(80), float.Default)
+				assert.True(t, float.HasMax)
+				assert.Equal(t, float32(100), float.Max)
+				assert.True(t, float.HasMin)
+				assert.Equal(t, float32(0), float.Min)
+
+				assert.Equal(t, map[string]string{"foo": "bar"}, template.Labels)
+				assert.Equal(t, map[string]string{"description": "test description", "summary": "test summary"}, template.Annotations)
+				assert.Equal(t, yml, template.Yaml)
+				assert.NotEmpty(t, template.CreatedAt)
+				found = true
+			}
 		}
-	}
-	assert.Truef(t, found, "Template with id %s not found", name)
+		assert.Truef(t, found, "Template with id %s not found", name)
+	})
+
+	t.Run("with alerting disabled", func(t *testing.T) {
+		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.AlertingEnabled)
+
+		b, err := ioutil.ReadFile("../../testdata/ia/template.yaml")
+		require.NoError(t, err)
+
+		name := gofakeit.UUID()
+		expr := gofakeit.UUID()
+		yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, expr))
+		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
+			Body: templates.CreateTemplateBody{
+				Yaml: yml,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		res, err = sClient.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				DisableAlerting: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		assert.False(t, res.Payload.Settings.AlertingEnabled)
+
+		resp, err := client.ListTemplates(&templates.ListTemplatesParams{
+			Body: templates.ListTemplatesBody{
+				Reload: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Alerting is disabled.`)
+		assert.Nil(t, resp)
+	})
 }
 
 func formatTemplateYaml(t *testing.T, yml string) string {

@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/brianvoe/gofakeit"
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
@@ -52,6 +53,57 @@ func TestSettings(t *testing.T) {
 					Context: pmmapitests.Context,
 				})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_stt and disable_stt are present.`)
+				assert.Empty(t, res)
+			})
+
+			t.Run("InvalidBothEnableAndDisableAlerting", func(t *testing.T) {
+				defer restoreSettingsDefaults(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EnableAlerting:  true,
+						DisableAlerting: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_alerting and disable_alerting are present.`)
+				assert.Empty(t, res)
+			})
+
+			t.Run("InvalidBothSlackAlertingSettingsAndRemoveSlackAlertingSettings", func(t *testing.T) {
+				defer restoreSettingsDefaults(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						SlackAlertingSettings: &server.ChangeSettingsParamsBodySlackAlertingSettings{
+							URL: gofakeit.URL(),
+						},
+						RemoveSlackAlertingSettings: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both slack_alerting_settings and remove_slack_alerting_settings are present.`)
+				assert.Empty(t, res)
+			})
+
+			t.Run("InvalidBothEmailAlertingSettingsAndRemoveEmailAlertingSettings", func(t *testing.T) {
+				defer restoreSettingsDefaults(t)
+
+				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+					Body: server.ChangeSettingsBody{
+						EmailAlertingSettings: &server.ChangeSettingsParamsBodyEmailAlertingSettings{
+							From:      gofakeit.Email(),
+							Smarthost: "0.0.0.0:8080",
+							Username:  "username",
+							Password:  "password",
+							Identity:  "identity",
+							Secret:    "secret",
+						},
+						RemoveEmailAlertingSettings: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both email_alerting_settings and remove_email_alerting_settings are present.`)
 				assert.Empty(t, res)
 			})
 
@@ -338,7 +390,7 @@ func TestSettings(t *testing.T) {
 				})
 			})
 
-			t.Run("InvalidBothEnableAndDisable", func(t *testing.T) {
+			t.Run("InvalidBothEnableAndDisableTelemetry", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -743,6 +795,7 @@ groups:
 					})
 				}
 			})
+
 		})
 	})
 }
