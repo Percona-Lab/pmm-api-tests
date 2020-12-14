@@ -143,7 +143,6 @@ func TestRemoveChannel(t *testing.T) {
 		resp2, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 
-		assert.NotEmpty(t, resp2.Payload.Channels)
 		for _, channel := range resp2.Payload.Channels {
 			assert.NotEqual(t, resp1, channel.ChannelID)
 		}
