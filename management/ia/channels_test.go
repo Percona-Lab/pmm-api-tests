@@ -323,7 +323,7 @@ func TestRemoveChannel(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, res.Payload.Settings.AlertingEnabled)
 
-		_, err = client.AddChannel(&channels.AddChannelParams{
+		_, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
 				Summary:  gofakeit.Quote(),
 				Disabled: gofakeit.Bool(),
