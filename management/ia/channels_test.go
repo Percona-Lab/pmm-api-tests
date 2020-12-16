@@ -6,8 +6,6 @@ import (
 	"github.com/brianvoe/gofakeit"
 	channelsClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/channels"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -15,20 +13,13 @@ import (
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
+// Note: Even though the IA services check for alerting enabled or disabled before returning results
+// we don't enable or disable IA explicit in our tests since it is enabled by default through
+// ENABLE_ALERTING env var.
 func TestAddChannel(t *testing.T) {
 	client := channelsClient.Default.Channels
-	sClient := serverClient.Default.Server
 
 	t.Run("normal", func(t *testing.T) {
-		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.AlertingEnabled)
-
 		resp, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
 				Summary:  gofakeit.Quote(),
@@ -46,15 +37,6 @@ func TestAddChannel(t *testing.T) {
 	})
 
 	t.Run("invalid request", func(t *testing.T) {
-		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.AlertingEnabled)
-
 		resp, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
 				Summary:  gofakeit.Quote(),
@@ -71,15 +53,6 @@ func TestAddChannel(t *testing.T) {
 	})
 
 	t.Run("missing config", func(t *testing.T) {
-		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.AlertingEnabled)
-
 		resp, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
 				Summary:  gofakeit.Quote(),
@@ -95,18 +68,8 @@ func TestAddChannel(t *testing.T) {
 
 func TestChangeChannel(t *testing.T) {
 	client := channelsClient.Default.Channels
-	sClient := serverClient.Default.Server
 
 	t.Run("normal", func(t *testing.T) {
-		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.AlertingEnabled)
-
 		resp1, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
 				Summary:  gofakeit.Quote(),
@@ -154,18 +117,8 @@ func TestChangeChannel(t *testing.T) {
 
 func TestRemoveChannel(t *testing.T) {
 	client := channelsClient.Default.Channels
-	sClient := serverClient.Default.Server
 
 	t.Run("normal", func(t *testing.T) {
-		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.AlertingEnabled)
-
 		summary := gofakeit.UUID()
 		resp1, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
@@ -198,16 +151,7 @@ func TestRemoveChannel(t *testing.T) {
 	})
 
 	t.Run("unknown id", func(t *testing.T) {
-		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.AlertingEnabled)
-
-		_, err = client.AddChannel(&channels.AddChannelParams{
+		_, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
 				Summary:  gofakeit.Quote(),
 				Disabled: gofakeit.Bool(),
@@ -232,18 +176,8 @@ func TestRemoveChannel(t *testing.T) {
 
 func TestListChannels(t *testing.T) {
 	client := channelsClient.Default.Channels
-	sClient := serverClient.Default.Server
 
 	t.Run("normal", func(t *testing.T) {
-		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.AlertingEnabled)
-
 		summary := gofakeit.UUID()
 		email := gofakeit.Email()
 		disabled := gofakeit.Bool()
