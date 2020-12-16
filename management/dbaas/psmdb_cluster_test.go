@@ -44,7 +44,6 @@ func TestPSMDBClusterServer(t *testing.T) {
 
 		_, err := dbaasClient.Default.PSMDBCluster.CreatePSMDBCluster(&paramsFirstPSMDB)
 		assert.NoError(t, err)
-
 		// Create one more PSMDB Cluster.
 		paramsSecondPSMDB := psmdbcluster.CreatePSMDBClusterParams{
 			Context: pmmapitests.Context,

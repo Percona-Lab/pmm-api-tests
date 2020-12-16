@@ -257,4 +257,20 @@ func TestXtraDBClusterServer(t *testing.T) {
 		require.Error(t, err)
 		assert.Equal(t, 500, err.(pmmapitests.ErrorResponse).Code())
 	})
+
+	t.Run("SuspendResumeCluster", func(t *testing.T) {
+		paramsUpdatePXC := xtra_db_cluster.UpdateXtraDBClusterParams{
+			Context: pmmapitests.Context,
+			Body: xtra_db_cluster.UpdateXtraDBClusterBody{
+				KubernetesClusterName: kubernetesClusterName,
+				Name:                  "second-pxc-test",
+				Params: &xtra_db_cluster.UpdateXtraDBClusterParamsBodyParams{
+					Suspend: true,
+					Resume:  true,
+				},
+			},
+		}
+		_, err := dbaasClient.Default.XtraDBCluster.UpdateXtraDBCluster(&paramsUpdatePXC)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `resume and suspend cannot be set together`)
+	})
 }

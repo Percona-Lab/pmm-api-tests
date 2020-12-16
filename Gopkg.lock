@@ -225,7 +225,7 @@
     "pkg/common",
   ]
   pruneopts = "NUT"
-  revision = "ad38b2c7116bd3cc80057ab2a8cf86166d9d2e24"
+  revision = "b395fb361ebdfbc9dcbcb7b702fc197c8f59e5fa"
 
 [[projects]]
   branch = "PMM-2.0"
