@@ -31,7 +31,6 @@ func TestAddChannel(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-
 		require.NoError(t, err)
 		defer deleteChannel(t, client, resp.Payload.ChannelID)
 
@@ -209,7 +208,6 @@ func TestListChannels(t *testing.T) {
 			found = true
 		}
 	}
-
 	assert.True(t, found, "Expected channel not found")
 
 }
