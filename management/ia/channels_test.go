@@ -209,7 +209,6 @@ func TestListChannels(t *testing.T) {
 		}
 	}
 	assert.True(t, found, "Expected channel not found")
-
 }
 
 func deleteChannel(t *testing.T, client channels.ClientService, id string) {
