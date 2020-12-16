@@ -45,31 +45,6 @@ func TestAddChannel(t *testing.T) {
 		assert.NotEmpty(t, resp.Payload.ChannelID)
 	})
 
-	t.Run("with alerting disabled", func(t *testing.T) {
-		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				DisableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.False(t, res.Payload.Settings.AlertingEnabled)
-
-		resp, err := client.AddChannel(&channels.AddChannelParams{
-			Body: channels.AddChannelBody{
-				Summary:  gofakeit.Quote(),
-				Disabled: gofakeit.Bool(),
-				EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
-					SendResolved: false,
-					To:           []string{gofakeit.Email()},
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Alerting is disabled.`)
-		assert.Nil(t, resp)
-	})
-
 	t.Run("invalid request", func(t *testing.T) {
 		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
@@ -175,54 +150,6 @@ func TestChangeChannel(t *testing.T) {
 
 		assert.True(t, found, "Expected channel not found")
 	})
-
-	t.Run("with alerting disabled", func(t *testing.T) {
-		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.AlertingEnabled)
-
-		resp1, err := client.AddChannel(&channels.AddChannelParams{
-			Body: channels.AddChannelBody{
-				Summary:  gofakeit.Quote(),
-				Disabled: false,
-				EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
-					SendResolved: false,
-					To:           []string{gofakeit.Email()},
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-
-		res, err = sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				DisableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.False(t, res.Payload.Settings.AlertingEnabled)
-
-		newEmail := []string{gofakeit.Email()}
-		resp, err := client.ChangeChannel(&channels.ChangeChannelParams{
-			Body: channels.ChangeChannelBody{
-				ChannelID: resp1.Payload.ChannelID,
-				Disabled:  true,
-				EmailConfig: &channels.ChangeChannelParamsBodyEmailConfig{
-					SendResolved: true,
-					To:           newEmail,
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Alerting is disabled.`)
-		assert.Nil(t, resp)
-	})
 }
 
 func TestRemoveChannel(t *testing.T) {
@@ -268,49 +195,6 @@ func TestRemoveChannel(t *testing.T) {
 		for _, channel := range resp2.Payload.Channels {
 			assert.NotEqual(t, resp1, channel.ChannelID)
 		}
-	})
-
-	t.Run("with alerting disabled", func(t *testing.T) {
-		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.AlertingEnabled)
-
-		summary := gofakeit.UUID()
-		resp1, err := client.AddChannel(&channels.AddChannelParams{
-			Body: channels.AddChannelBody{
-				Summary:  summary,
-				Disabled: gofakeit.Bool(),
-				EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
-					SendResolved: false,
-					To:           []string{gofakeit.Email()},
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-
-		res, err = sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				DisableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.False(t, res.Payload.Settings.AlertingEnabled)
-
-		resp, err := client.RemoveChannel(&channels.RemoveChannelParams{
-			Body: channels.RemoveChannelBody{
-				ChannelID: resp1.Payload.ChannelID,
-			},
-			Context: pmmapitests.Context,
-		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Alerting is disabled.`)
-		assert.Nil(t, resp)
 	})
 
 	t.Run("unknown id", func(t *testing.T) {
@@ -392,42 +276,5 @@ func TestListChannels(t *testing.T) {
 		}
 
 		assert.True(t, found, "Expected channel not found")
-	})
-
-	t.Run("with alerting disabled", func(t *testing.T) {
-		res, err := sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				EnableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.True(t, res.Payload.Settings.AlertingEnabled)
-
-		_, err = client.AddChannel(&channels.AddChannelParams{
-			Body: channels.AddChannelBody{
-				Summary:  gofakeit.UUID(),
-				Disabled: gofakeit.Bool(),
-				EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
-					SendResolved: true,
-					To:           []string{gofakeit.Email()},
-				},
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-
-		res, err = sClient.ChangeSettings(&server.ChangeSettingsParams{
-			Body: server.ChangeSettingsBody{
-				DisableAlerting: true,
-			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		assert.False(t, res.Payload.Settings.AlertingEnabled)
-
-		resp, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Alerting is disabled.`)
-		assert.Nil(t, resp)
 	})
 }
