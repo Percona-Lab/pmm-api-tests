@@ -31,7 +31,6 @@ func TestAddChannel(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-
 		require.NoError(t, err)
 		assert.NotEmpty(t, resp.Payload.ChannelID)
 	})
@@ -47,7 +46,6 @@ func TestAddChannel(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field EmailConfig.To: value '[]' must contain at least 1 elements")
 		assert.Nil(t, resp)
 	})
@@ -60,7 +58,6 @@ func TestAddChannel(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing channel configuration.")
 		assert.Nil(t, resp)
 	})
