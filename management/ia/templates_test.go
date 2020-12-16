@@ -37,6 +37,7 @@ func TestAddTemplate(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
+		defer deleteTemplate(t, client, name)
 
 		resp, err := client.ListTemplates(&templates.ListTemplatesParams{
 			Body: templates.ListTemplatesBody{
@@ -65,6 +66,7 @@ func TestAddTemplate(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
+		defer deleteTemplate(t, client, name)
 
 		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
@@ -114,6 +116,7 @@ func TestChangeTemplate(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
+		defer deleteTemplate(t, client, name)
 
 		newExpr := gofakeit.UUID()
 		yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, newExpr))
@@ -164,6 +167,7 @@ func TestChangeTemplate(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
+		defer deleteTemplate(t, client, name)
 
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
@@ -183,6 +187,7 @@ func TestChangeTemplate(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
+		defer deleteTemplate(t, client, name)
 
 		b, err = ioutil.ReadFile("../../testdata/ia/invalid-template.yaml")
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
@@ -260,6 +265,8 @@ func TestListTemplate(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	require.NoError(t, err)
+	defer deleteTemplate(t, client, name)
+
 	resp, err := client.ListTemplates(&templates.ListTemplatesParams{
 		Body: templates.ListTemplatesBody{
 			Reload: true,
@@ -303,6 +310,16 @@ func TestListTemplate(t *testing.T) {
 		}
 	}
 	assert.Truef(t, found, "Template with id %s not found", name)
+}
+
+func deleteTemplate(t *testing.T, client templates.ClientService, name string) {
+	_, err := client.DeleteTemplate(&templates.DeleteTemplateParams{
+		Body: templates.DeleteTemplateBody{
+			Name: name,
+		},
+		Context: pmmapitests.Context,
+	})
+	assert.NoError(t, err)
 }
 
 func formatTemplateYaml(t *testing.T, yml string) string {
