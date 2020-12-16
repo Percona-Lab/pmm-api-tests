@@ -30,7 +30,7 @@ func TestAddTemplate(t *testing.T) {
 
 	t.Run("normal", func(t *testing.T) {
 		name := gofakeit.UUID()
-		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
+		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
@@ -59,7 +59,7 @@ func TestAddTemplate(t *testing.T) {
 	t.Run("duplicate", func(t *testing.T) {
 		name := gofakeit.UUID()
 		yaml := fmt.Sprintf(string(b), name, gofakeit.UUID())
-		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
+		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: yaml,
 			},
@@ -78,7 +78,7 @@ func TestAddTemplate(t *testing.T) {
 	})
 
 	t.Run("invalid yaml", func(t *testing.T) {
-		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
+		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: "not a yaml",
 			},
@@ -109,7 +109,7 @@ func TestChangeTemplate(t *testing.T) {
 
 	t.Run("normal", func(t *testing.T) {
 		name := gofakeit.UUID()
-		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
+		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
@@ -160,7 +160,7 @@ func TestChangeTemplate(t *testing.T) {
 
 	t.Run("invalid yaml", func(t *testing.T) {
 		name := gofakeit.UUID()
-		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
+		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
@@ -208,7 +208,7 @@ func TestDeleteTemplate(t *testing.T) {
 
 	t.Run("normal", func(t *testing.T) {
 		name := gofakeit.UUID()
-		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
+		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},

@@ -31,6 +31,7 @@ func TestAddChannel(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
+
 		require.NoError(t, err)
 		defer deleteChannel(t, client, resp.Payload.ChannelID)
 
@@ -48,6 +49,7 @@ func TestAddChannel(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
+
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field EmailConfig.To: value '[]' must contain at least 1 elements")
 		assert.Nil(t, resp)
 	})
@@ -60,6 +62,7 @@ func TestAddChannel(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
+
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing channel configuration.")
 		assert.Nil(t, resp)
 	})
@@ -148,7 +151,6 @@ func TestRemoveChannel(t *testing.T) {
 			assert.NotEqual(t, resp1, channel.ChannelID)
 		}
 	})
-
 	t.Run("unknown id", func(t *testing.T) {
 		_, err := client.AddChannel(&channels.AddChannelParams{
 			Body: channels.AddChannelBody{
@@ -176,41 +178,40 @@ func TestRemoveChannel(t *testing.T) {
 func TestListChannels(t *testing.T) {
 	client := channelsClient.Default.Channels
 
-	t.Run("normal", func(t *testing.T) {
-		summary := gofakeit.UUID()
-		email := gofakeit.Email()
-		disabled := gofakeit.Bool()
-		resp1, err := client.AddChannel(&channels.AddChannelParams{
-			Body: channels.AddChannelBody{
-				Summary:  summary,
-				Disabled: disabled,
-				EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
-					SendResolved: true,
-					To:           []string{email},
-				},
+	summary := gofakeit.UUID()
+	email := gofakeit.Email()
+	disabled := gofakeit.Bool()
+	resp1, err := client.AddChannel(&channels.AddChannelParams{
+		Body: channels.AddChannelBody{
+			Summary:  summary,
+			Disabled: disabled,
+			EmailConfig: &channels.AddChannelParamsBodyEmailConfig{
+				SendResolved: true,
+				To:           []string{email},
 			},
-			Context: pmmapitests.Context,
-		})
-		require.NoError(t, err)
-		defer deleteChannel(t, client, resp1.Payload.ChannelID)
-
-		resp, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
-		require.NoError(t, err)
-
-		assert.NotEmpty(t, resp.Payload.Channels)
-		var found bool
-		for _, channel := range resp.Payload.Channels {
-			if channel.ChannelID == resp1.Payload.ChannelID {
-				assert.Equal(t, summary, channel.Summary)
-				assert.Equal(t, disabled, channel.Disabled)
-				assert.Equal(t, []string{email}, channel.EmailConfig.To)
-				assert.True(t, channel.EmailConfig.SendResolved)
-				found = true
-			}
-		}
-
-		assert.True(t, found, "Expected channel not found")
+		},
+		Context: pmmapitests.Context,
 	})
+	require.NoError(t, err)
+	defer deleteChannel(t, client, resp1.Payload.ChannelID)
+
+	resp, err := client.ListChannels(&channels.ListChannelsParams{Context: pmmapitests.Context})
+	require.NoError(t, err)
+
+	assert.NotEmpty(t, resp.Payload.Channels)
+	var found bool
+	for _, channel := range resp.Payload.Channels {
+		if channel.ChannelID == resp1.Payload.ChannelID {
+			assert.Equal(t, summary, channel.Summary)
+			assert.Equal(t, disabled, channel.Disabled)
+			assert.Equal(t, []string{email}, channel.EmailConfig.To)
+			assert.True(t, channel.EmailConfig.SendResolved)
+			found = true
+		}
+	}
+
+	assert.True(t, found, "Expected channel not found")
+
 }
 
 func deleteChannel(t *testing.T, client channels.ClientService, id string) {
