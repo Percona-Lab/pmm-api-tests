@@ -109,19 +109,6 @@ func TestKubernetesServer(t *testing.T) {
 		assert.NotNil(t, cluster)
 		assert.NotNil(t, cluster.Payload.KubeAuth)
 		assert.Equal(t, kubeConfig, cluster.Payload.KubeAuth.Kubeconfig)
-
-		unregisterKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
-			&kubernetes.UnregisterKubernetesClusterParams{
-				Body:    kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: kubernetesClusterName},
-				Context: pmmapitests.Context,
-			},
-		)
-		require.NoError(t, err)
-		assert.NotNil(t, unregisterKubernetesClusterResponse)
-
-		clusters, err := dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
-		assert.NoError(t, err)
-		require.NotContains(t, clusters.Payload.KubernetesClusters, &kubernetes.KubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
 	})
 
 	t.Run("UnregisterNotExistCluster", func(t *testing.T) {
