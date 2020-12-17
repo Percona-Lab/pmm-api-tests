@@ -95,6 +95,35 @@ func TestKubernetesServer(t *testing.T) {
 		require.Nil(t, registerKubernetesClusterResponse)
 	})
 
+	t.Run("GetKubernetesCluster", func(t *testing.T) {
+		kubernetesClusterName := pmmapitests.TestString(t, "api-test-cluster")
+		registerKubernetesCluster(t, kubernetesClusterName, kubeConfig)
+
+		cluster, err := dbaasClient.Default.Kubernetes.GetKubernetesCluster(&kubernetes.GetKubernetesClusterParams{
+			Body: kubernetes.GetKubernetesClusterBody{
+				KubernetesClusterName: kubernetesClusterName,
+			},
+			Context: pmmapitests.Context,
+		})
+		assert.NoError(t, err)
+		assert.NotNil(t, cluster)
+		assert.NotNil(t, cluster.Payload.KubeAuth)
+		assert.Contains(t, cluster.Payload.KubeAuth.Kubeconfig, kubeConfig)
+
+		unregisterKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
+			&kubernetes.UnregisterKubernetesClusterParams{
+				Body:    kubernetes.UnregisterKubernetesClusterBody{KubernetesClusterName: kubernetesClusterName},
+				Context: pmmapitests.Context,
+			},
+		)
+		require.NoError(t, err)
+		assert.NotNil(t, unregisterKubernetesClusterResponse)
+
+		clusters, err := dbaasClient.Default.Kubernetes.ListKubernetesClusters(nil)
+		assert.NoError(t, err)
+		require.NotContains(t, clusters.Payload.KubernetesClusters, &kubernetes.KubernetesClustersItems0{KubernetesClusterName: kubernetesClusterName})
+	})
+
 	t.Run("UnregisterNotExistCluster", func(t *testing.T) {
 		unregisterKubernetesClusterOK, err := unregisterKubernetesCluster("not-exist-cluster")
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Kubernetes Cluster with name \"not-exist-cluster\" not found.")
