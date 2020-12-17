@@ -108,7 +108,7 @@ func TestKubernetesServer(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, cluster)
 		assert.NotNil(t, cluster.Payload.KubeAuth)
-		assert.Contains(t, cluster.Payload.KubeAuth.Kubeconfig, kubeConfig)
+		assert.Equal(t, kubeConfig, cluster.Payload.KubeAuth.Kubeconfig)
 
 		unregisterKubernetesClusterResponse, err := dbaasClient.Default.Kubernetes.UnregisterKubernetesCluster(
 			&kubernetes.UnregisterKubernetesClusterParams{
