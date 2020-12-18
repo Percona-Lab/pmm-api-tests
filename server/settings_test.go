@@ -82,7 +82,6 @@ func TestSettings(t *testing.T) {
 				assert.Equal(t, identity, res.Payload.Settings.EmailAlertingSettings.Identity)
 				assert.Equal(t, secret, res.Payload.Settings.EmailAlertingSettings.Secret)
 				assert.Equal(t, slackURL, res.Payload.Settings.SlackAlertingSettings.URL)
-			})
 
 			t.Run("InvalidBothEnableAndDisableAlerting", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
@@ -98,7 +97,6 @@ func TestSettings(t *testing.T) {
 				})
 				pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Alerting is enabled via ENABLE_ALERTING environment variable.`)
 				assert.Empty(t, res)
-				t.Log(err, res)
 			})
 
 			t.Run("InvalidBothSlackAlertingSettingsAndRemoveSlackAlertingSettings", func(t *testing.T) {
