@@ -82,6 +82,7 @@ func TestSettings(t *testing.T) {
 				assert.Equal(t, identity, res.Payload.Settings.EmailAlertingSettings.Identity)
 				assert.Equal(t, secret, res.Payload.Settings.EmailAlertingSettings.Secret)
 				assert.Equal(t, slackURL, res.Payload.Settings.SlackAlertingSettings.URL)
+			})
 
 			t.Run("InvalidBothEnableAndDisableAlerting", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
