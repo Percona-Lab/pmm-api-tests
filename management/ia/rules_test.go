@@ -18,6 +18,9 @@ import (
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
+// Note: Even though the IA services check for alerting enabled or disabled before returning results
+// we don't enable or disable IA explicit in our tests since it is enabled by default through
+// ENABLE_ALERTING env var.
 func TestRulesAPI(t *testing.T) {
 	templateName := createTemplate(t)
 	defer deleteTemplate(t, client.Default.Templates, templateName)
@@ -30,6 +33,15 @@ func TestRulesAPI(t *testing.T) {
 	t.Run("add", func(t *testing.T) {
 		t.Run("normal", func(t *testing.T) {
 			params := createAlertRuleParams(templateName, channelID)
+			rule, err := client.CreateAlertRule(params)
+			require.NoError(t, err)
+			defer deleteRule(t, client, rule.Payload.RuleID)
+
+			assert.NotEmpty(t, rule.Payload.RuleID)
+		})
+
+		t.Run("builtin_template", func(t *testing.T) {
+			params := createAlertRuleParams("mongodb_restarted", channelID)
 			rule, err := client.CreateAlertRule(params)
 			require.NoError(t, err)
 			defer deleteRule(t, client, rule.Payload.RuleID)
@@ -143,6 +155,48 @@ func TestRulesAPI(t *testing.T) {
 			}
 			_, err = client.UpdateAlertRule(params)
 			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Failed to find all required channels: [%s].", unknownChannelID)
+		})
+	})
+
+	t.Run("toggle", func(t *testing.T) {
+		t.Run("normal", func(t *testing.T) {
+			cParams := createAlertRuleParams(templateName, channelID)
+			rule, err := client.CreateAlertRule(cParams)
+			require.NoError(t, err)
+			defer deleteRule(t, client, rule.Payload.RuleID)
+
+			list, err := client.ListAlertRules(&rules.ListAlertRulesParams{Context: pmmapitests.Context})
+			require.NoError(t, err)
+
+			var found bool
+			for _, r := range list.Payload.Rules {
+				if r.RuleID == rule.Payload.RuleID {
+					assert.True(t, r.Disabled)
+					found = true
+				}
+			}
+			assert.Truef(t, found, "Rule with id %s not found", rule.Payload.RuleID)
+
+			_, err = client.ToggleAlertRule(&rules.ToggleAlertRuleParams{
+				Body: rules.ToggleAlertRuleBody{
+					RuleID:   rule.Payload.RuleID,
+					Disabled: pointer.ToString(rules.ToggleAlertRuleBodyDisabledFALSE),
+				},
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+
+			list, err = client.ListAlertRules(&rules.ListAlertRulesParams{Context: pmmapitests.Context})
+			require.NoError(t, err)
+
+			found = false
+			for _, r := range list.Payload.Rules {
+				if r.RuleID == rule.Payload.RuleID {
+					assert.False(t, r.Disabled)
+					found = true
+				}
+			}
+			assert.Truef(t, found, "Rule with id %s not found", rule.Payload.RuleID)
 		})
 	})
 
