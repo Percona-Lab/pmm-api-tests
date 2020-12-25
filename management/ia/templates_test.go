@@ -308,8 +308,6 @@ func TestDeleteTemplate(t *testing.T) {
 		for _, template := range resp.Payload.Templates {
 			if name == template.Name {
 				found = true
-
-				break
 			}
 		}
 		assert.Truef(t, found, "Template with id %s not found", name)
