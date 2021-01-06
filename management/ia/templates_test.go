@@ -280,7 +280,7 @@ func TestDeleteTemplate(t *testing.T) {
 		channelID := createChannel(t)
 		defer deleteChannel(t, templatesClient.Default.Channels, channelID)
 
-		params := createAlertRuleParams(name, channelID, true)
+		params := createAlertRuleParams(name, channelID, dummyFilter)
 
 		rule, err := templatesClient.Default.Rules.CreateAlertRule(params)
 		require.NoError(t, err)
