@@ -62,16 +62,45 @@ func TestRulesAPI(t *testing.T) {
 			_, err := client.CreateAlertRule(params)
 			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Failed to find all required channels: [%s].", channelID)
 		})
+
+		t.Run("wrong parameter", func(t *testing.T) {
+			params := createAlertRuleParams(templateName, channelID)
+			params.Body.Params = []*rules.ParamsItems0{{
+				Name:  "unknown parameter",
+				Type:  pointer.ToString("FLOAT"),
+				Float: 12,
+			}}
+			_, err := client.CreateAlertRule(params)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing parameter threshold.")
+		})
+
+		t.Run("wrong parameter type", func(t *testing.T) {
+			params := createAlertRuleParams(templateName, channelID)
+			params.Body.Params = []*rules.ParamsItems0{{
+				Name: "threshold",
+				Type: pointer.ToString("BOOL"),
+				Bool: true,
+			}}
+			_, err := client.CreateAlertRule(params)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Parameter threshold has type bool instead of float.")
+		})
+
+		t.Run("missing parameter", func(t *testing.T) {
+			params := createAlertRuleParams(templateName, channelID)
+			params.Body.Params = []*rules.ParamsItems0{}
+			_, err := client.CreateAlertRule(params)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Template defines only 1 parameters, but rule has 0.")
+		})
 	})
 
 	t.Run("update", func(t *testing.T) {
+		newChannelID := createChannel(t)
+
 		t.Run("normal", func(t *testing.T) {
 			cParams := createAlertRuleParams(templateName, channelID)
 			rule, err := client.CreateAlertRule(cParams)
 			require.NoError(t, err)
 			defer deleteRule(t, client, rule.Payload.RuleID)
-
-			newChannelID := createChannel(t)
 
 			params := &rules.UpdateAlertRuleParams{
 				Body: rules.UpdateAlertRuleBody{
@@ -147,6 +176,95 @@ func TestRulesAPI(t *testing.T) {
 			}
 			_, err = client.UpdateAlertRule(params)
 			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Failed to find all required channels: [%s].", unknownChannelID)
+		})
+
+		t.Run("wrong parameter", func(t *testing.T) {
+			cParams := createAlertRuleParams(templateName, channelID)
+			rule, err := client.CreateAlertRule(cParams)
+			require.NoError(t, err)
+			defer deleteRule(t, client, rule.Payload.RuleID)
+
+			params := &rules.UpdateAlertRuleParams{
+				Body: rules.UpdateAlertRuleBody{
+					RuleID:   rule.Payload.RuleID,
+					Disabled: false,
+					Params: []*rules.ParamsItems0{{
+						Name:  "unknown parameter",
+						Type:  pointer.ToString("FLOAT"),
+						Float: 21,
+					}},
+					For:          "10s",
+					Severity:     pointer.ToString("SEVERITY_ERROR"),
+					CustomLabels: map[string]string{"foo": "bar", "baz": "faz"},
+					Filters: []*rules.FiltersItems0{{
+						Type:  pointer.ToString("EQUAL"),
+						Key:   "threshold",
+						Value: "21",
+					}},
+					ChannelIds: []string{channelID, newChannelID},
+				},
+				Context: pmmapitests.Context,
+			}
+			_, err = client.UpdateAlertRule(params)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing parameter threshold.")
+		})
+
+		t.Run("missing parameter", func(t *testing.T) {
+			cParams := createAlertRuleParams(templateName, channelID)
+			rule, err := client.CreateAlertRule(cParams)
+			require.NoError(t, err)
+			defer deleteRule(t, client, rule.Payload.RuleID)
+
+			params := &rules.UpdateAlertRuleParams{
+				Body: rules.UpdateAlertRuleBody{
+					RuleID:       rule.Payload.RuleID,
+					Disabled:     false,
+					Params:       nil,
+					For:          "10s",
+					Severity:     pointer.ToString("SEVERITY_ERROR"),
+					CustomLabels: map[string]string{"foo": "bar", "baz": "faz"},
+					Filters: []*rules.FiltersItems0{{
+						Type:  pointer.ToString("EQUAL"),
+						Key:   "threshold",
+						Value: "21",
+					}},
+					ChannelIds: []string{channelID, newChannelID},
+				},
+				Context: pmmapitests.Context,
+			}
+			_, err = client.UpdateAlertRule(params)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Template defines only 1 parameters, but rule has 0.")
+		})
+
+		t.Run("wrong parameter type", func(t *testing.T) {
+			cParams := createAlertRuleParams(templateName, channelID)
+			rule, err := client.CreateAlertRule(cParams)
+			require.NoError(t, err)
+			defer deleteRule(t, client, rule.Payload.RuleID)
+
+			params := &rules.UpdateAlertRuleParams{
+				Body: rules.UpdateAlertRuleBody{
+					RuleID:   rule.Payload.RuleID,
+					Disabled: false,
+					Params: []*rules.ParamsItems0{{
+						Name: "threshold",
+						Type: pointer.ToString("BOOL"),
+						Bool: true,
+					}},
+					For:          "10s",
+					Severity:     pointer.ToString("SEVERITY_ERROR"),
+					CustomLabels: map[string]string{"foo": "bar", "baz": "faz"},
+					Filters: []*rules.FiltersItems0{{
+						Type:  pointer.ToString("EQUAL"),
+						Key:   "threshold",
+						Value: "21",
+					}},
+					ChannelIds: []string{channelID, newChannelID},
+				},
+				Context: pmmapitests.Context,
+			}
+			_, err = client.UpdateAlertRule(params)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing parameter threshold.")
 		})
 	})
 
