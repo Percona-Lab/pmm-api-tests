@@ -217,15 +217,15 @@
   version = "1.0.1"
 
 [[projects]]
-  branch = "main"
-  digest = "1:4ce3cd60919b35a67fa20eeeb92c8495313fdaf39a0c67cdf83c64fef26f80ba"
+  branch = "PMM-7279-param-units"
+  digest = "1:7d65bb1d88047bae40ab7c40f18e16e510660941f9fbca99dfdf8288ea5530a2"
   name = "github.com/percona-platform/saas"
   packages = [
     "pkg/alert",
     "pkg/common",
   ]
   pruneopts = "NUT"
-  revision = "fa94aa1c69dda7db9834dbaa295ec9977a45b165"
+  revision = "fc1340530b24f106ed323f53d2700a2759ffc9d2"
 
 [[projects]]
   branch = "PMM-2.0"
