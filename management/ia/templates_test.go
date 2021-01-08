@@ -75,7 +75,7 @@ func TestAddTemplate(t *testing.T) {
 
 	t.Run("duplicate", func(t *testing.T) {
 		name := gofakeit.UUID()
-		yaml := fmt.Sprintf(string(b), name, gofakeit.UUID())
+		yaml := fmt.Sprintf(string(b), name, gofakeit.UUID(), "")
 		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
 				Yaml: yaml,
@@ -128,7 +128,7 @@ func TestChangeTemplate(t *testing.T) {
 		name := gofakeit.UUID()
 		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
-				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
+				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID(), "s"),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -136,7 +136,7 @@ func TestChangeTemplate(t *testing.T) {
 		defer deleteTemplate(t, client, name)
 
 		newExpr := gofakeit.UUID()
-		yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, newExpr, "s"))
+		yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, newExpr, "%"))
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
 				Yaml: yml,
@@ -159,18 +159,30 @@ func TestChangeTemplate(t *testing.T) {
 				assert.Equal(t, newExpr, template.Expr)
 				assert.Equal(t, yml, template.Yaml)
 				assert.Equal(t, "Test summary", template.Summary)
-				assert.Len(t, template.Params, 1)
-				param := template.Params[0]
-				assert.Equal(t, "threshold", param.Name)
-				assert.Equal(t, "test param summary", param.Summary)
-				assert.Equal(t, "SECONDS", *param.Unit)
-				assert.Equal(t, "FLOAT", *param.Type)
-				assert.True(t, param.Float.HasDefault)
-				assert.Equal(t, float32(80), param.Float.Default)
-				assert.True(t, param.Float.HasMax)
-				assert.Equal(t, float32(100), param.Float.Max)
-				assert.True(t, param.Float.HasMin)
-				assert.Equal(t, float32(0), param.Float.Min)
+				assert.Len(t, template.Params, 2)
+				param1 := template.Params[0]
+				assert.Equal(t, "threshold", param1.Name)
+				assert.Equal(t, "test param summary", param1.Summary)
+				assert.Equal(t, "PERCENTAGE", *param1.Unit)
+				assert.Equal(t, "FLOAT", *param1.Type)
+				assert.True(t, param1.Float.HasDefault)
+				assert.Equal(t, float32(80), param1.Float.Default)
+				assert.True(t, param1.Float.HasMax)
+				assert.Equal(t, float32(100), param1.Float.Max)
+				assert.True(t, param1.Float.HasMin)
+				assert.Equal(t, float32(0), param1.Float.Min)
+
+				param2 := template.Params[1]
+				assert.Equal(t, "duration", param2.Name)
+				assert.Equal(t, "another test summary", param2.Summary)
+				assert.Equal(t, "SECONDS", *param2.Unit)
+				assert.Equal(t, "FLOAT", *param2.Type)
+				assert.False(t, param2.Float.HasDefault)
+				assert.Equal(t, float32(0), param2.Float.Default)
+				assert.False(t, param2.Float.HasMax)
+				assert.Equal(t, float32(0), param2.Float.Max)
+				assert.False(t, param2.Float.HasMin)
+				assert.Equal(t, float32(0), param2.Float.Min)
 				found = true
 			}
 		}
@@ -181,7 +193,7 @@ func TestChangeTemplate(t *testing.T) {
 		name := gofakeit.UUID()
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
-				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
+				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID(), ""),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -192,7 +204,7 @@ func TestChangeTemplate(t *testing.T) {
 		name := gofakeit.UUID()
 		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
-				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
+				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID(), ""),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -212,7 +224,7 @@ func TestChangeTemplate(t *testing.T) {
 		name := gofakeit.UUID()
 		_, err = client.CreateTemplate(&templates.CreateTemplateParams{
 			Body: templates.CreateTemplateBody{
-				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
+				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID(), ""),
 			},
 			Context: pmmapitests.Context,
 		})

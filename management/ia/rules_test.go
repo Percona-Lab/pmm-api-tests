@@ -289,7 +289,7 @@ func createTemplate(t *testing.T) string {
 	templateName := gofakeit.UUID()
 	_, err = client.Default.Templates.CreateTemplate(&templates.CreateTemplateParams{
 		Body: templates.CreateTemplateBody{
-			Yaml: fmt.Sprintf(string(b), templateName, gofakeit.UUID()),
+			Yaml: fmt.Sprintf(string(b), templateName, gofakeit.UUID(), ""),
 		},
 		Context: pmmapitests.Context,
 	})

@@ -12,6 +12,10 @@ templates:
           type: float
           range: [0, 100]
           value: 80
+        - name: duration
+          summary: another test summary
+          unit: s
+          type: float
       for: 300s
       severity: warning
       labels:
