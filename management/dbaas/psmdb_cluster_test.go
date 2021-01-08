@@ -133,6 +133,7 @@ func TestPSMDBClusterServer(t *testing.T) {
 		assert.Equal(t, cluster.Payload.ConnectionCredentials.Host, "second-psmdb-test-rs0.default.svc.cluster.local")
 		assert.Equal(t, cluster.Payload.ConnectionCredentials.Port, int32(27017))
 		assert.Equal(t, cluster.Payload.ConnectionCredentials.Replicaset, "rs0")
+		assert.NotEmpty(t, cluster.Payload.ConnectionCredentials.Password)
 
 		t.Skip("Skip restart till better implementation. https://jira.percona.com/browse/PMM-6980")
 		_, err = dbaasClient.Default.PSMDBCluster.RestartPSMDBCluster(&psmdbcluster.RestartPSMDBClusterParams{
