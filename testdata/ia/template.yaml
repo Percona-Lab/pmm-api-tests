@@ -7,13 +7,13 @@ templates:
       expr: %s
       params:
         - name: threshold
-          summary: test param summary
+          summary: parameter with default and range
           unit: "%s"
           type: float
           range: [0, 100]
           value: 80
         - name: duration
-          summary: another test summary
+          summary: parameter without default and range
           unit: s
           type: float
       for: 300s
