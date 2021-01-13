@@ -264,7 +264,7 @@ func TestRulesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			}
 			_, err = client.UpdateAlertRule(params)
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing parameter threshold.")
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Parameter threshold has type bool instead of float.")
 		})
 	})
 
