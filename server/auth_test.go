@@ -113,8 +113,8 @@ func TestSetup(t *testing.T) {
 			"prometheus/": 303,
 			"qan":         303,
 			"qan/":        303,
-			"swagger":     303,
-			"swagger/":    303,
+			"swagger":     200,
+			"swagger/":    301,
 
 			"v1/readyz":           200,
 			"v1/AWSInstanceCheck": 405, // only POST is expected
