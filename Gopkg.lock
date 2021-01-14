@@ -228,7 +228,7 @@
   revision = "fa94aa1c69dda7db9834dbaa295ec9977a45b165"
 
 [[projects]]
-  branch = "PMM-5765-add-external-service-on-remote-node"
+  branch = "PMM-2.0"
   digest = "1:8bb41b96e129a6431468d96f58f222e0349d708c19e8e8ea23c7c7aee5494634"
   name = "github.com/percona/pmm"
   packages = [
@@ -269,7 +269,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "0ec97e93a23b7a4c54c6b580f12c48234d4c850b"
+  revision = "c4ee3d8bfe5b0b556e49afba553d6700308f3d25"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"

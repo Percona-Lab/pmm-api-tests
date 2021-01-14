@@ -356,6 +356,30 @@ func TestAddExternal(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "runs_on_node_id and node_id should be specified together.")
 		assert.Nil(t, addExternalOK)
 	})
+
+	t.Run("Empty Address for Add Node", func(t *testing.T) {
+		nodeName := pmmapitests.TestString(t, "node-name")
+		genericNode := pmmapitests.AddGenericNode(t, nodeName)
+		nodeID := genericNode.NodeID
+		defer pmmapitests.RemoveNodes(t, nodeID)
+
+		serviceName := pmmapitests.TestString(t, "service-name")
+		params := &external.AddExternalParams{
+			Context: pmmapitests.Context,
+			Body: external.AddExternalBody{
+				AddNode: &external.AddExternalParamsBodyAddNode{
+					NodeType: pointer.ToString(external.AddExternalParamsBodyAddNodeNodeTypeREMOTENODE),
+					NodeName: "external-serverless",
+				},
+				ServiceName: serviceName,
+				ListenPort:  12345,
+				Group:       "external",
+			},
+		}
+		addExternalOK, err := client.Default.External.AddExternal(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "address can't be empty for add node request.")
+		assert.Nil(t, addExternalOK)
+	})
 }
 
 func TestRemoveExternal(t *testing.T) {
