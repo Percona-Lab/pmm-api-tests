@@ -6,9 +6,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/brianvoe/gofakeit"
 	"github.com/percona-platform/saas/pkg/alert"
 	templatesClient "github.com/percona/pmm/api/managementpb/ia/json/client"
+	"github.com/percona/pmm/api/managementpb/ia/json/client/rules"
 	"github.com/percona/pmm/api/managementpb/ia/json/client/templates"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -280,7 +282,11 @@ func TestDeleteTemplate(t *testing.T) {
 		channelID := createChannel(t)
 		defer deleteChannel(t, templatesClient.Default.Channels, channelID)
 
-		params := createAlertRuleParams(name, channelID)
+		params := createAlertRuleParams(name, channelID, &rules.FiltersItems0{
+			Type:  pointer.ToString("EQUAL"),
+			Key:   "threshold",
+			Value: "12",
+		})
 
 		rule, err := templatesClient.Default.Rules.CreateAlertRule(params)
 		require.NoError(t, err)
@@ -291,7 +297,7 @@ func TestDeleteTemplate(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, "Internal server error.")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, "Failed to delete rule template %s, as it is being used by some rule.", name)
 
 		defer deleteTemplate(t, templatesClient.Default.Templates, name)
 		defer deleteRule(t, templatesClient.Default.Rules, rule.Payload.RuleID)
