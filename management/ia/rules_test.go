@@ -232,32 +232,33 @@ func TestRulesAPI(t *testing.T) {
 			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Unknown parameters [unknown parameter].")
 		})
 
-		// t.Run("missing parameter", func(t *testing.T) { TODO: PMM-7279 fix once templates will support parameters without default value.
-		// 	cParams := createAlertRuleParams(templateName, channelID, "param1", dummyFilter)
-		// 	rule, err := client.CreateAlertRule(cParams)
-		// 	require.NoError(t, err)
-		// 	defer deleteRule(t, client, rule.Payload.RuleID)
-		//
-		// 	params := &rules.UpdateAlertRuleParams{
-		// 		Body: rules.UpdateAlertRuleBody{
-		// 			RuleID:       rule.Payload.RuleID,
-		// 			Disabled:     false,
-		// 			Params:       nil,
-		// 			For:          "10s",
-		// 			Severity:     pointer.ToString("SEVERITY_ERROR"),
-		// 			CustomLabels: map[string]string{"foo": "bar", "baz": "faz"},
-		// 			Filters: []*rules.FiltersItems0{{
-		// 				Type:  pointer.ToString("EQUAL"),
-		// 				Key:   "param1",
-		// 				Value: "21",
-		// 			}},
-		// 			ChannelIds: []string{channelID, newChannelID},
-		// 		},
-		// 		Context: pmmapitests.Context,
-		// 	}
-		// 	_, err = client.UpdateAlertRule(params)
-		// 	pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Template defines only 1 parameters, but rule has 0.")
-		// })
+		t.Run("missing parameter", func(t *testing.T) {
+			t.Skip("Skipping until templates will support parameters without default value https://jira.percona.com/browse/PMM-7279")
+			cParams := createAlertRuleParams(templateName, channelID, "param1", dummyFilter)
+			rule, err := client.CreateAlertRule(cParams)
+			require.NoError(t, err)
+			defer deleteRule(t, client, rule.Payload.RuleID)
+
+			params := &rules.UpdateAlertRuleParams{
+				Body: rules.UpdateAlertRuleBody{
+					RuleID:       rule.Payload.RuleID,
+					Disabled:     false,
+					Params:       nil,
+					For:          "10s",
+					Severity:     pointer.ToString("SEVERITY_ERROR"),
+					CustomLabels: map[string]string{"foo": "bar", "baz": "faz"},
+					Filters: []*rules.FiltersItems0{{
+						Type:  pointer.ToString("EQUAL"),
+						Key:   "param1",
+						Value: "21",
+					}},
+					ChannelIds: []string{channelID, newChannelID},
+				},
+				Context: pmmapitests.Context,
+			}
+			_, err = client.UpdateAlertRule(params)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Template defines only 1 parameters, but rule has 0.")
+		})
 
 		t.Run("wrong parameter type", func(t *testing.T) {
 			cParams := createAlertRuleParams(templateName, channelID, "param1", dummyFilter)
