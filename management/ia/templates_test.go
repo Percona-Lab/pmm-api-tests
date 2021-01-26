@@ -71,7 +71,7 @@ func TestAddTemplate(t *testing.T) {
 				assert.Equal(t, float32(0), template.Params[0].Float.Min)
 
 				assert.Equal(t, "param2", template.Params[1].Name)
-				assert.Equal(t, "second parameter with default value and defined range", template.Params[1].Summary)
+				assert.Equal(t, "second parameter without default value and defined range", template.Params[1].Summary)
 				assert.Equal(t, "SECONDS", *template.Params[1].Unit)
 				assert.Equal(t, "FLOAT", *template.Params[1].Type)
 				assert.False(t, template.Params[1].Float.HasDefault)
@@ -187,7 +187,7 @@ func TestChangeTemplate(t *testing.T) {
 				assert.Equal(t, float32(0), template.Params[0].Float.Min)
 
 				assert.Equal(t, "param2", template.Params[1].Name)
-				assert.Equal(t, "second parameter with default value and defined range", template.Params[1].Summary)
+				assert.Equal(t, "second parameter without default value and defined range", template.Params[1].Summary)
 				assert.Equal(t, "PERCENTAGE", *template.Params[1].Unit)
 				assert.Equal(t, "FLOAT", *template.Params[1].Type)
 				assert.False(t, template.Params[1].Float.HasDefault)
@@ -405,7 +405,7 @@ func TestListTemplate(t *testing.T) {
 			assert.Equal(t, float32(0), template.Params[0].Float.Min)
 
 			assert.Equal(t, "param2", template.Params[1].Name)
-			assert.Equal(t, "second parameter with default value and defined range", template.Params[1].Summary)
+			assert.Equal(t, "second parameter without default value and defined range", template.Params[1].Summary)
 			assert.Equal(t, "FLOAT", *template.Params[1].Type)
 			assert.Equal(t, "SECONDS", *template.Params[1].Unit)
 			assert.Nil(t, template.Params[1].Bool)
