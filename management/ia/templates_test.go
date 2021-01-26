@@ -151,6 +151,7 @@ func TestChangeTemplate(t *testing.T) {
 		yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, newExpr, "s", "%"))
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
+				Name: name,
 				Yaml: yml,
 			},
 			Context: pmmapitests.Context,
@@ -202,11 +203,33 @@ func TestChangeTemplate(t *testing.T) {
 		name := gofakeit.UUID()
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
+				Name: name,
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf("Template with name \"%s\" not found.", name))
+	})
+
+	t.Run("mismatch names", func(t *testing.T) {
+		name := gofakeit.UUID()
+		_, err := client.CreateTemplate(&templates.CreateTemplateParams{
+			Body: templates.CreateTemplateBody{
+				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		defer deleteTemplate(t, client, name)
+
+		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
+			Body: templates.UpdateTemplateBody{
+				Name: gofakeit.UUID(),
+				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
+			},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Mismatch names.")
 	})
 
 	t.Run("invalid yaml", func(t *testing.T) {
@@ -222,6 +245,7 @@ func TestChangeTemplate(t *testing.T) {
 
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
+				Name: name,
 				Yaml: "not a yaml",
 			},
 			Context: pmmapitests.Context,
@@ -243,6 +267,7 @@ func TestChangeTemplate(t *testing.T) {
 		b, err = ioutil.ReadFile("../../testdata/ia/invalid-template.yaml")
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
+				Name: name,
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
 			Context: pmmapitests.Context,
