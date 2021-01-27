@@ -195,9 +195,7 @@ func TestNodeRegister(t *testing.T) {
 			// Check PMM Agent is created
 			assertPMMAgentCreated(t, nodeID, pmmAgentID)
 
-			// // Check Node Exporter is created
-			// nodeExporterAgentID, ok := assertNodeExporterCreated(t, pmmAgentID)
-
+			// Check Node Exporter is created
 			listAgentsOK, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
 				Body: agents.ListAgentsBody{
 					PMMAgentID: pmmAgentID,
