@@ -209,6 +209,7 @@ func TestNodeRegister(t *testing.T) {
 				PMMAgentID:         pmmAgentID,
 				AgentID:            nodeExporterAgentID,
 				DisabledCollectors: []string{"diskstats", "filesystem", "standard.process"},
+				PushMetricsEnabled: true,
 			}, *listAgentsOK.Payload.NodeExporter[0])
 
 			if ok {
