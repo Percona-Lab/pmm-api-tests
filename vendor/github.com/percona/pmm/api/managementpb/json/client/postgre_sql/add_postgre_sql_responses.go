@@ -191,6 +191,9 @@ type AddPostgreSQLBody struct {
 	// Enum: [AUTO PULL PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
+	// List of collector names to exclude from exporter.
+	DisableCollectors []string `json:"disable_collectors"`
+
 	// add node
 	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -535,6 +538,9 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 
 	// True if exporter uses push metrics mode.
 	PushMetricsEnabled bool `json:"push_metrics_enabled,omitempty"`
+
+	// List of collector names to exclude from exporter.
+	DisabledCollectors []string `json:"disabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//

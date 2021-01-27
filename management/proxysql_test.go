@@ -41,6 +41,7 @@ func TestAddProxySQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
+				DisableCollectors:   []string{"mysql_status", "mysql_connection_pool"},
 			},
 		}
 		addProxySQLOK, err := client.Default.ProxySQL.AddProxySQL(params)
@@ -80,10 +81,11 @@ func TestAddProxySQL(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			ProxysqlExporter: []*agents.ProxysqlExporterItems0{
 				{
-					AgentID:    listAgents.Payload.ProxysqlExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
+					AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					Username:           "username",
+					DisabledCollectors: []string{"mysql_status", "mysql_connection_pool"},
 				},
 			},
 		}, *listAgents.Payload)

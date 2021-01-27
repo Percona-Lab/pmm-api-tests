@@ -41,6 +41,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
+				DisableCollectors:   []string{"custom_query.ml", "custom_query.mr.directory"},
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
@@ -80,10 +81,11 @@ func TestAddPostgreSQL(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			PostgresExporter: []*agents.PostgresExporterItems0{
 				{
-					AgentID:    listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
+					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					Username:           "username",
+					DisabledCollectors: []string{"custom_query.ml", "custom_query.mr.directory"},
 				},
 			},
 		}, *listAgents.Payload)

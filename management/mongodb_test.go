@@ -40,6 +40,7 @@ func TestAddMongoDB(t *testing.T) {
 				Port:        27017,
 
 				SkipConnectionCheck: true,
+				DisableCollectors:   []string{"database"},
 			},
 		}
 		addMongoDBOK, err := client.Default.MongoDB.AddMongoDB(params)
@@ -79,9 +80,10 @@ func TestAddMongoDB(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			MongodbExporter: []*agents.MongodbExporterItems0{
 				{
-					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
+					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					DisabledCollectors: []string{"database"},
 				},
 			},
 		}, *listAgents.Payload)
