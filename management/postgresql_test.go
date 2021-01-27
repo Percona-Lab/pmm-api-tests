@@ -86,6 +86,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					PMMAgentID:         pmmAgentID,
 					Username:           "username",
 					DisabledCollectors: []string{"custom_query.ml", "custom_query.mr.directory"},
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -162,10 +163,11 @@ func TestAddPostgreSQL(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			PostgresExporter: []*agents.PostgresExporterItems0{
 				{
-					AgentID:    listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
+					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					Username:           "username",
+					PushMetricsEnabled: true,
 				},
 			},
 			QANPostgresqlPgstatementsAgent: []*agents.QANPostgresqlPgstatementsAgentItems0{
@@ -400,10 +402,11 @@ func TestAddPostgreSQL(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			PostgresExporter: []*agents.PostgresExporterItems0{
 				{
-					AgentID:    listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
+					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					Username:           "username",
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -768,10 +771,11 @@ func TestAddPostgreSQL(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			PostgresExporter: []*agents.PostgresExporterItems0{
 				{
-					AgentID:    listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
+					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					Username:           "username",
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)

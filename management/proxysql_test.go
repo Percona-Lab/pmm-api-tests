@@ -86,6 +86,7 @@ func TestAddProxySQL(t *testing.T) {
 					PMMAgentID:         pmmAgentID,
 					Username:           "username",
 					DisabledCollectors: []string{"mysql_status", "mysql_connection_pool"},
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -157,10 +158,11 @@ func TestAddProxySQL(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			ProxysqlExporter: []*agents.ProxysqlExporterItems0{
 				{
-					AgentID:    listAgents.Payload.ProxysqlExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
+					AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					Username:           "username",
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -383,10 +385,11 @@ func TestAddProxySQL(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			ProxysqlExporter: []*agents.ProxysqlExporterItems0{
 				{
-					AgentID:    listAgents.Payload.ProxysqlExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
+					AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					Username:           "username",
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)

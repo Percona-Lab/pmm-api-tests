@@ -84,6 +84,7 @@ func TestAddMongoDB(t *testing.T) {
 					ServiceID:          serviceID,
 					PMMAgentID:         pmmAgentID,
 					DisabledCollectors: []string{"database"},
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -158,10 +159,11 @@ func TestAddMongoDB(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			MongodbExporter: []*agents.MongodbExporterItems0{
 				{
-					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
+					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					Username:           "username",
+					PushMetricsEnabled: true,
 				},
 			},
 			QANMongodbProfilerAgent: []*agents.QANMongodbProfilerAgentItems0{
@@ -385,9 +387,10 @@ func TestAddMongoDB(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			MongodbExporter: []*agents.MongodbExporterItems0{
 				{
-					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
+					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -600,9 +603,10 @@ func TestAddMongoDB(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			MongodbExporter: []*agents.MongodbExporterItems0{
 				{
-					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
+					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -811,9 +815,10 @@ func TestAddMongoDB(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			MongodbExporter: []*agents.MongodbExporterItems0{
 				{
-					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
+					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+					ServiceID:          serviceID,
+					PMMAgentID:         pmmAgentID,
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
