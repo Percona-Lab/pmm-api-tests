@@ -107,7 +107,7 @@ func TestAddLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field FsConfig.Endpoint: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field S3Config.Endpoint: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 }
