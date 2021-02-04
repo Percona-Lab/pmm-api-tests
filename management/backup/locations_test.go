@@ -3,21 +3,23 @@ package backup
 import (
 	"testing"
 
-	"google.golang.org/grpc/codes"
-
 	"github.com/brianvoe/gofakeit"
 	backupClient "github.com/percona/pmm/api/managementpb/backup/json/client"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
 func TestAddLocation(t *testing.T) {
 	client := backupClient.Default.Locations
+	t.Parallel()
 
 	t.Run("normal fs config", func(t *testing.T) {
+		t.Parallel()
+
 		resp, err := client.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
@@ -35,6 +37,8 @@ func TestAddLocation(t *testing.T) {
 	})
 
 	t.Run("normal s3 config", func(t *testing.T) {
+		t.Parallel()
+
 		resp, err := client.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
@@ -52,21 +56,15 @@ func TestAddLocation(t *testing.T) {
 
 		assert.NotEmpty(t, resp.Payload.LocationID)
 	})
+}
 
-	t.Run("missing name", func(t *testing.T) {
-		resp, err := client.AddLocation(&locations.AddLocationParams{
-			Body: locations.AddLocationBody{
-				Name:        gofakeit.Name(),
-				Description: gofakeit.Question(),
-			},
-			Context: pmmapitests.Context,
-		})
-
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing location type")
-		assert.Nil(t, resp)
-	})
+func TestAddWrongLocation(t *testing.T) {
+	client := backupClient.Default.Locations
+	t.Parallel()
 
 	t.Run("missing config", func(t *testing.T) {
+		t.Parallel()
+
 		resp, err := client.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
@@ -80,6 +78,8 @@ func TestAddLocation(t *testing.T) {
 	})
 
 	t.Run("missing fs path", func(t *testing.T) {
+		t.Parallel()
+
 		resp, err := client.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
@@ -92,14 +92,29 @@ func TestAddLocation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field FsConfig.Path: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
+	t.Run("missing name", func(t *testing.T) {
+		t.Parallel()
+
+		resp, err := client.AddLocation(&locations.AddLocationParams{
+			Body: locations.AddLocationBody{
+				Name:        gofakeit.Name(),
+				Description: gofakeit.Question(),
+			},
+			Context: pmmapitests.Context,
+		})
+
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing location type")
+		assert.Nil(t, resp)
+	})
 
 	t.Run("missing s3 endpoint", func(t *testing.T) {
+		t.Parallel()
+
 		resp, err := client.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
 				Description: gofakeit.Question(),
 				S3Config: &locations.AddLocationParamsBodyS3Config{
-					Endpoint:  "",
 					AccessKey: "access_key",
 					SecretKey: "secret_key",
 				},
@@ -114,6 +129,7 @@ func TestAddLocation(t *testing.T) {
 
 func TestListLocations(t *testing.T) {
 	client := backupClient.Default.Locations
+	t.Parallel()
 
 	body := locations.AddLocationBody{
 		Name:        gofakeit.Name(),
@@ -146,5 +162,6 @@ func TestListLocations(t *testing.T) {
 }
 
 func deleteLocation(t *testing.T, client locations.ClientService, id string) {
+	t.Helper()
 	// @TODO
 }
