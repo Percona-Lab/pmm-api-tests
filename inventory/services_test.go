@@ -1200,7 +1200,7 @@ func TestExternalService(t *testing.T) {
 		})
 		assert.NoError(t, err)
 		assert.NotNil(t, noFilterServicesList)
-		assert.Len(t, noFilterServicesList.Payload.Mysql, 0)
+		assert.Len(t, noFilterServicesList.Payload.Mysql, 1)
 		assert.Len(t, noFilterServicesList.Payload.Mongodb, 0)
 		assert.Len(t, noFilterServicesList.Payload.Postgresql, 1)
 		assert.Len(t, noFilterServicesList.Payload.Proxysql, 0)
