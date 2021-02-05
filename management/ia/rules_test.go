@@ -405,7 +405,7 @@ func TestRulesAPI(t *testing.T) {
 		ruleIDs := make(map[string]struct{})
 
 		for i := 0; i < rulesCount; i++ {
-			params := createAlertRuleParams(templateName, channelID, "param1", dummyFilter)
+			params := createAlertRuleParams(templateName, channelID, "param2", dummyFilter)
 			rule, err := client.CreateAlertRule(params)
 			require.NoError(t, err)
 
