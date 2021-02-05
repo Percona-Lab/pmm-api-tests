@@ -419,9 +419,9 @@ func TestRulesAPI(t *testing.T) {
 
 		// list rules, so they are all on the first page
 		body := rules.ListAlertRulesBody{
-			Page: &rules.ListAlertRulesParamsBodyPage{
-				Size:  20,
-				Index: 0,
+			PageParams: &rules.ListAlertRulesParamsBodyPageParams{
+				PageSize: 20,
+				Index:    0,
 			},
 		}
 		list1, err := client.ListAlertRules(&rules.ListAlertRulesParams{Body: body, Context: pmmapitests.Context})
@@ -437,6 +437,7 @@ func TestRulesAPI(t *testing.T) {
 			for _, r := range list1.Payload.Rules {
 				if r.RuleID == id {
 					found = true
+
 					break
 				}
 			}
@@ -448,9 +449,9 @@ func TestRulesAPI(t *testing.T) {
 		// last iteration checks that there is no elements for not existing page.
 		for pageIndex := 0; pageIndex <= len(lp1.Rules); pageIndex++ {
 			body := rules.ListAlertRulesBody{
-				Page: &rules.ListAlertRulesParamsBodyPage{
-					Size:  1,
-					Index: int32(pageIndex),
+				PageParams: &rules.ListAlertRulesParamsBodyPageParams{
+					PageSize: 1,
+					Index:    int32(pageIndex),
 				},
 			}
 			list2, err := client.ListAlertRules(&rules.ListAlertRulesParams{Body: body, Context: pmmapitests.Context})
