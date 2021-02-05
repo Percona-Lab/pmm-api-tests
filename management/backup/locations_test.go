@@ -125,6 +125,29 @@ func TestAddWrongLocation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field S3Config.Endpoint: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
+	t.Run("double config", func(t *testing.T) {
+		t.Parallel()
+
+		resp, err := client.AddLocation(&locations.AddLocationParams{
+			Body: locations.AddLocationBody{
+				Name:        gofakeit.Name(),
+				Description: gofakeit.Question(),
+				FsConfig: &locations.AddLocationParamsBodyFsConfig{
+					Path: "/tmp",
+				},
+				S3Config: &locations.AddLocationParamsBodyS3Config{
+					Endpoint:  "http://example.com",
+					AccessKey: "access_key",
+					SecretKey: "secret_key",
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Only one config is allowed")
+
+		assert.Nil(t, resp)
+
+	})
 }
 
 func TestListLocations(t *testing.T) {
