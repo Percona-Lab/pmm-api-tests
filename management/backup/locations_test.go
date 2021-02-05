@@ -14,8 +14,8 @@ import (
 )
 
 func TestAddLocation(t *testing.T) {
-	client := backupClient.Default.Locations
 	t.Parallel()
+	client := backupClient.Default.Locations
 
 	t.Run("normal fs config", func(t *testing.T) {
 		t.Parallel()
@@ -59,8 +59,8 @@ func TestAddLocation(t *testing.T) {
 }
 
 func TestAddWrongLocation(t *testing.T) {
-	client := backupClient.Default.Locations
 	t.Parallel()
+	client := backupClient.Default.Locations
 
 	t.Run("missing config", func(t *testing.T) {
 		t.Parallel()
@@ -151,8 +151,8 @@ func TestAddWrongLocation(t *testing.T) {
 }
 
 func TestListLocations(t *testing.T) {
-	client := backupClient.Default.Locations
 	t.Parallel()
+	client := backupClient.Default.Locations
 
 	body := locations.AddLocationBody{
 		Name:        gofakeit.Name(),
