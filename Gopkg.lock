@@ -228,8 +228,8 @@
   revision = "1b32ca1828e1a3419423c9e36c153faf0eb4cc28"
 
 [[projects]]
-  branch = "release/2.15"
-  digest = "1:78c0d699e921829ab5864cd514bc060ec12e857e9e63416c73c3a3779aa76279"
+  branch = "PMM-6640-haproxy-api"
+  digest = "1:785cccfbd7c390a33e6cf3a6e245d49ea26496de5375b8d403fbd29f2012480f"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -256,6 +256,7 @@
     "api/managementpb/json/client/actions",
     "api/managementpb/json/client/annotation",
     "api/managementpb/json/client/external",
+    "api/managementpb/json/client/ha_proxy",
     "api/managementpb/json/client/mongo_db",
     "api/managementpb/json/client/my_sql",
     "api/managementpb/json/client/node",
@@ -269,7 +270,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "92a5626ee0bc8b349ff4049fcc013e24aa43f5bc"
+  revision = "84b683cc98909a82b37199b6f87fc6bb261d90a2"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
