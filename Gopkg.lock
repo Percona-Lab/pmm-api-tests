@@ -229,7 +229,7 @@
 
 [[projects]]
   branch = "PMM-6640-haproxy-api"
-  digest = "1:220e640deb087212facd2c5623c2c3d72ca234de26fee3b3329b9dfcc19f782c"
+  digest = "1:1340d2627bc559925224a820d576d14c4d12d28e515691b895da5996f71dfa87"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -270,7 +270,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "1eb976a9825d321b35adc98db975f07f26d01f9f"
+  revision = "973821c703bbacfc8503b7af6793224f4affa776"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
