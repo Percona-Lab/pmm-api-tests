@@ -218,18 +218,18 @@
 
 [[projects]]
   branch = "main"
-  digest = "1:4ce3cd60919b35a67fa20eeeb92c8495313fdaf39a0c67cdf83c64fef26f80ba"
+  digest = "1:7d65bb1d88047bae40ab7c40f18e16e510660941f9fbca99dfdf8288ea5530a2"
   name = "github.com/percona-platform/saas"
   packages = [
     "pkg/alert",
     "pkg/common",
   ]
   pruneopts = "NUT"
-  revision = "fa94aa1c69dda7db9834dbaa295ec9977a45b165"
+  revision = "1b32ca1828e1a3419423c9e36c153faf0eb4cc28"
 
 [[projects]]
-  branch = "PMM-6711-folter-external-group"
-  digest = "1:aaef3b3a728bf63a27c298140665d0d844dd3dabac2179751c5ce85a3c833f72"
+  branch = "release/2.15"
+  digest = "1:78c0d699e921829ab5864cd514bc060ec12e857e9e63416c73c3a3779aa76279"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -269,7 +269,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "81211a03e99069f87b1926f1123922d8232abf06"
+  revision = "92a5626ee0bc8b349ff4049fcc013e24aa43f5bc"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
