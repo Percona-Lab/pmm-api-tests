@@ -9,6 +9,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
+	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -20,9 +21,12 @@ import (
 func TestAddHAProxy(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "genericNode-for-basic-name")
-		genericNode := pmmapitests.AddGenericNode(t, nodeName)
-		nodeID := genericNode.NodeID
+		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer removePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
 
@@ -30,7 +34,7 @@ func TestAddHAProxy(t *testing.T) {
 			Context: pmmapitests.Context,
 			Body: ha_proxy.AddHAProxyBody{
 				ServiceName: serviceName,
-				ListenPort:  9104,
+				ListenPort:  8404,
 				NodeID:      nodeID,
 			},
 		}
@@ -69,12 +73,13 @@ func TestAddHAProxy(t *testing.T) {
 		assert.Equal(t, agents.ListAgentsOKBody{
 			ExternalExporter: []*agents.ExternalExporterItems0{
 				{
-					AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
-					ServiceID:    serviceID,
-					ListenPort:   9104,
-					RunsOnNodeID: nodeID,
-					Scheme:       "http",
-					MetricsPath:  "/metrics",
+					AgentID:            listAgents.Payload.ExternalExporter[0].AgentID,
+					ServiceID:          serviceID,
+					ListenPort:         8404,
+					RunsOnNodeID:       nodeID,
+					Scheme:             "http",
+					MetricsPath:        "/metrics",
+					PushMetricsEnabled: true,
 				},
 			},
 		}, *listAgents.Payload)
@@ -82,10 +87,13 @@ func TestAddHAProxy(t *testing.T) {
 	})
 
 	t.Run("With labels", func(t *testing.T) {
-		nodeName := pmmapitests.TestString(t, "node-for-all-fields-name")
-		genericNode := pmmapitests.AddGenericNode(t, nodeName)
-		nodeID := genericNode.NodeID
+		nodeName := pmmapitests.TestString(t, "genericNode-for-basic-name")
+		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer removePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-all-fields-name")
 
@@ -136,10 +144,13 @@ func TestAddHAProxy(t *testing.T) {
 	})
 
 	t.Run("With the same name", func(t *testing.T) {
-		nodeName := pmmapitests.TestString(t, "node-for-the-same-name")
-		genericNode := pmmapitests.AddGenericNode(t, nodeName)
-		nodeID := genericNode.NodeID
+		nodeName := pmmapitests.TestString(t, "genericNode-for-basic-name")
+		nodeID, pmmAgentID := registerGenericNode(t, node.RegisterNodeBody{
+			NodeName: nodeName,
+			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer removePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-the-same-name")
 
