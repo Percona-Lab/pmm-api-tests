@@ -186,5 +186,5 @@ func TestListLocations(t *testing.T) {
 
 func deleteLocation(t *testing.T, client locations.ClientService, id string) {
 	t.Helper()
-	// @TODO
+	// @TODO call Delete https://jira.percona.com/browse/PMM-7383
 }
