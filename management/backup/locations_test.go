@@ -73,7 +73,7 @@ func TestAddWrongLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing location type")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing location type.")
 		assert.Nil(t, resp)
 	})
 
@@ -103,7 +103,7 @@ func TestAddWrongLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing location type")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing location type.")
 		assert.Nil(t, resp)
 	})
 
@@ -143,7 +143,7 @@ func TestAddWrongLocation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Only one config is allowed")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Only one config is allowed.")
 
 		assert.Nil(t, resp)
 
