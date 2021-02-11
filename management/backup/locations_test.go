@@ -17,14 +17,33 @@ func TestAddLocation(t *testing.T) {
 	t.Parallel()
 	client := backupClient.Default.Locations
 
-	t.Run("normal fs config", func(t *testing.T) {
+	t.Run("normal pmm client config", func(t *testing.T) {
 		t.Parallel()
 
 		resp, err := client.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
 				Description: gofakeit.Question(),
-				FsConfig: &locations.AddLocationParamsBodyFsConfig{
+				PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
+					Path: "/tmp",
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		defer deleteLocation(t, client, resp.Payload.LocationID)
+
+		assert.NotEmpty(t, resp.Payload.LocationID)
+	})
+
+	t.Run("normal pmm server config", func(t *testing.T) {
+		t.Parallel()
+
+		resp, err := client.AddLocation(&locations.AddLocationParams{
+			Body: locations.AddLocationBody{
+				Name:        gofakeit.Name(),
+				Description: gofakeit.Question(),
+				PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
 					Path: "/tmp",
 				},
 			},
@@ -77,19 +96,19 @@ func TestAddWrongLocation(t *testing.T) {
 		assert.Nil(t, resp)
 	})
 
-	t.Run("missing fs path", func(t *testing.T) {
+	t.Run("missing client config path", func(t *testing.T) {
 		t.Parallel()
 
 		resp, err := client.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
-				Name:        gofakeit.Name(),
-				Description: gofakeit.Question(),
-				FsConfig:    &locations.AddLocationParamsBodyFsConfig{},
+				Name:            gofakeit.Name(),
+				Description:     gofakeit.Question(),
+				PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{},
 			},
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field FsConfig.Path: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmClientConfig.Path: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 	t.Run("missing name", func(t *testing.T) {
@@ -132,7 +151,7 @@ func TestAddWrongLocation(t *testing.T) {
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
 				Description: gofakeit.Question(),
-				FsConfig: &locations.AddLocationParamsBodyFsConfig{
+				PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
 					Path: "/tmp",
 				},
 				S3Config: &locations.AddLocationParamsBodyS3Config{
@@ -157,7 +176,7 @@ func TestListLocations(t *testing.T) {
 	body := locations.AddLocationBody{
 		Name:        gofakeit.Name(),
 		Description: gofakeit.Question(),
-		FsConfig: &locations.AddLocationParamsBodyFsConfig{
+		PMMClientConfig: &locations.AddLocationParamsBodyPMMClientConfig{
 			Path: "/tmp",
 		},
 	}
@@ -177,7 +196,7 @@ func TestListLocations(t *testing.T) {
 		if loc.LocationID == addResp.Payload.LocationID {
 			assert.Equal(t, body.Name, loc.Name)
 			assert.Equal(t, body.Description, loc.Description)
-			assert.Equal(t, body.FsConfig.Path, loc.FsConfig.Path)
+			assert.Equal(t, body.PMMClientConfig.Path, loc.PMMClientConfig.Path)
 			found = true
 		}
 	}
