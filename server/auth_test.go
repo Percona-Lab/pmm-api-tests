@@ -433,15 +433,16 @@ func setRole(t *testing.T, userID int, role string) {
 }
 
 func deleteAPIKey(t *testing.T, apiKeyID int) {
+	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
-	u.Path = "/api/auth/keys/" + strconv.Itoa(apiKeyID)
+	u.Path = "/graph/api/auth/keys/" + strconv.Itoa(apiKeyID)
 
 	req, err := http.NewRequest(http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete user, status code: %d, response: %s", resp.StatusCode, b)
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete API Key, status code: %d, response: %s", resp.StatusCode, b)
 }
 
 func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
