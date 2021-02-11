@@ -96,7 +96,7 @@ func TestSetup(t *testing.T) {
 			Path: "/setup",
 		})
 		t.Logf("URI: %s", uri)
-		req, err := http.NewRequest("GET", uri.String(), nil)
+		req, err := http.NewRequestWithContext(pmmapitests.Context, "GET", uri.String(), nil)
 		require.NoError(t, err)
 		req.Header.Set("X-Test-Must-Setup", "1")
 
@@ -129,7 +129,7 @@ func TestSetup(t *testing.T) {
 					Path: path,
 				})
 				t.Logf("URI: %s", uri)
-				req, err := http.NewRequest("GET", uri.String(), nil)
+				req, err := http.NewRequestWithContext(pmmapitests.Context, "GET", uri.String(), nil)
 				require.NoError(t, err)
 				req.Header.Set("X-Test-Must-Setup", "1")
 
@@ -153,7 +153,7 @@ func TestSetup(t *testing.T) {
 			InstanceID: "123",
 		})
 		require.NoError(t, err)
-		req, err := http.NewRequest("POST", uri.String(), bytes.NewReader(b))
+		req, err := http.NewRequestWithContext(pmmapitests.Context, "POST", uri.String(), bytes.NewReader(b))
 		require.NoError(t, err)
 		req.Header.Set("X-Test-Must-Setup", "1")
 
@@ -185,7 +185,7 @@ func TestSwagger(t *testing.T) {
 					Path: path,
 				})
 				t.Logf("URI: %s", uri)
-				req, err := http.NewRequest("GET", uri.String(), nil)
+				req, err := http.NewRequestWithContext(pmmapitests.Context, "GET", uri.String(), nil)
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
@@ -200,7 +200,7 @@ func TestSwagger(t *testing.T) {
 					Path: path,
 				})
 				t.Logf("URI: %s", uri)
-				req, err := http.NewRequest("GET", uri.String(), nil)
+				req, err := http.NewRequestWithContext(pmmapitests.Context, "GET", uri.String(), nil)
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
@@ -376,7 +376,7 @@ func deleteUser(t *testing.T, userID int) {
 	require.NoError(t, err)
 	u.Path = "/graph/api/admin/users/" + strconv.Itoa(userID)
 
-	req, err := http.NewRequest(http.MethodDelete, u.String(), nil)
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
@@ -397,7 +397,7 @@ func createUser(t *testing.T, login string) int {
 	})
 	require.NoError(t, err)
 
-	req, err := http.NewRequest(http.MethodPost, u.String(), bytes.NewReader(data))
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, u.String(), bytes.NewReader(data))
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
@@ -423,7 +423,7 @@ func setRole(t *testing.T, userID int, role string) {
 	})
 	require.NoError(t, err)
 
-	req, err := http.NewRequest(http.MethodPatch, u.String(), bytes.NewReader(data))
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPatch, u.String(), bytes.NewReader(data))
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
@@ -438,7 +438,7 @@ func deleteAPIKey(t *testing.T, apiKeyID int) {
 	require.NoError(t, err)
 	u.Path = "/graph/api/auth/keys/" + strconv.Itoa(apiKeyID)
 
-	req, err := http.NewRequest(http.MethodDelete, u.String(), nil)
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
@@ -457,7 +457,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	})
 	require.NoError(t, err)
 
-	req, err := http.NewRequest(http.MethodPost, u.String(), bytes.NewReader(data))
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, u.String(), bytes.NewReader(data))
 	require.NoError(t, err)
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
@@ -472,7 +472,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 
 	u.User = nil
 	u.Path = "/graph/api/auth/key"
-	req, err = http.NewRequest(http.MethodGet, u.String(), bytes.NewReader(data))
+	req, err = http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, u.String(), bytes.NewReader(data))
 	require.NoError(t, err)
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
@@ -481,6 +481,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 
 	var k map[string]interface{}
 	err = json.Unmarshal(b, &k)
+	require.NoError(t, err)
 
 	apiKeyID := int(k["id"].(float64))
 
