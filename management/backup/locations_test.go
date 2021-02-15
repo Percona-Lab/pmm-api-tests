@@ -209,6 +209,7 @@ func TestUpdateLocation(t *testing.T) {
 	client := backupClient.Default.Locations
 
 	checkChange := func(t *testing.T, req locations.ChangeLocationBody, locations []*locations.LocationsItems0) {
+		t.Helper()
 		found := false
 		for _, loc := range locations {
 			if loc.LocationID == req.LocationID {
@@ -235,6 +236,7 @@ func TestUpdateLocation(t *testing.T) {
 				}
 
 				found = true
+
 				break
 			}
 		}
