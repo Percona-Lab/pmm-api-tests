@@ -229,7 +229,7 @@
 
 [[projects]]
   branch = "PMM-7296-list-alert-rules-pagination"
-  digest = "1:1eac84c92d1bab5d961a461fd0568307e32c6a332538e05cafa4899670adcca7"
+  digest = "1:d34f2390bede3923edeea3a23583949a2c6ffd929a829fa81458c29e68602abe"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -243,6 +243,8 @@
     "api/inventorypb/json/client/agents",
     "api/inventorypb/json/client/nodes",
     "api/inventorypb/json/client/services",
+    "api/managementpb/backup/json/client",
+    "api/managementpb/backup/json/client/locations",
     "api/managementpb/dbaas/json/client",
     "api/managementpb/dbaas/json/client/kubernetes",
     "api/managementpb/dbaas/json/client/psmdb_cluster",
@@ -270,7 +272,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "652a6d8740e813d61be726e68a64f3a57a072373"
+  revision = "9c6a4970d6121dac9253386dabdad0d88fa55d42"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
@@ -436,6 +438,8 @@
     "github.com/percona/pmm/api/inventorypb/json/client/agents",
     "github.com/percona/pmm/api/inventorypb/json/client/nodes",
     "github.com/percona/pmm/api/inventorypb/json/client/services",
+    "github.com/percona/pmm/api/managementpb/backup/json/client",
+    "github.com/percona/pmm/api/managementpb/backup/json/client/locations",
     "github.com/percona/pmm/api/managementpb/dbaas/json/client",
     "github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes",
     "github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_cluster",
