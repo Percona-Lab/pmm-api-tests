@@ -229,7 +229,7 @@
 
 [[projects]]
   branch = "PMM-7119-template-request-name"
-  digest = "1:7731f629586ecbd09d63e502b4a7cd03a1224c2ff7be87964a6be2d63f44fcf2"
+  digest = "1:c3e7cece2b512c85dbdd47368f0fc52d5e7d9bd94c13de82d00d7b1ddf3d2225"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -243,6 +243,8 @@
     "api/inventorypb/json/client/agents",
     "api/inventorypb/json/client/nodes",
     "api/inventorypb/json/client/services",
+    "api/managementpb/backup/json/client",
+    "api/managementpb/backup/json/client/locations",
     "api/managementpb/dbaas/json/client",
     "api/managementpb/dbaas/json/client/kubernetes",
     "api/managementpb/dbaas/json/client/psmdb_cluster",
@@ -256,6 +258,7 @@
     "api/managementpb/json/client/actions",
     "api/managementpb/json/client/annotation",
     "api/managementpb/json/client/external",
+    "api/managementpb/json/client/ha_proxy",
     "api/managementpb/json/client/mongo_db",
     "api/managementpb/json/client/my_sql",
     "api/managementpb/json/client/node",
@@ -269,7 +272,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "8c589a9c74750378344f3f463bec4d4994f9a583"
+  revision = "1ed4a2474c26a149780af5865e670bb601afe46e"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
