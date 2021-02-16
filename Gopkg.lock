@@ -228,8 +228,8 @@
   revision = "1b32ca1828e1a3419423c9e36c153faf0eb4cc28"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:2020c8d6941bcc3532ef454dbdd50a93acdfb736bfdfe1a85cdef92590f0d239"
+  branch = "PMM-7383-backup-location-delete"
+  digest = "1:976d884e7b3cd9ec0698205950c937e5dde1999519577f7786723073c1482f4e"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -272,7 +272,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "4559713b8bc01ab2538bd183bca387cebe624966"
+  revision = "f4e3f1d1df0e3c224685b8e54bad8c740dc1b156"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
