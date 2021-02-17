@@ -230,14 +230,12 @@ func TestRemoveLocation(t *testing.T) {
 
 	assertNotFound := func(id string, locations []*locations.LocationsItems0) func() bool {
 		return func() bool {
-			found := false
 			for _, loc := range locations {
 				if loc.LocationID == id {
-					found = true
-					break
+					return false
 				}
 			}
-			return !found
+			return true
 		}
 	}
 
