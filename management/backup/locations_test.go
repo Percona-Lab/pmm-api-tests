@@ -1,7 +1,6 @@
 package backup
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/brianvoe/gofakeit"
@@ -210,7 +209,7 @@ func TestUpdateLocation(t *testing.T) {
 
 	checkChange := func(t *testing.T, req locations.ChangeLocationBody, locations []*locations.LocationsItems0) {
 		t.Helper()
-		found := false
+		var found bool
 		for _, loc := range locations {
 			if loc.LocationID == req.LocationID {
 				assert.Equal(t, req.Name, loc.Name)
@@ -359,7 +358,7 @@ func TestUpdateLocation(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 
-		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, fmt.Sprintf(`Location with name "%s" already exists.`, updateBody.Name))
+		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Location with name "%s" already exists.`, updateBody.Name)
 
 	})
 }
