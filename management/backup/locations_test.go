@@ -203,7 +203,7 @@ func TestListLocations(t *testing.T) {
 	assert.True(t, found, "Expected location not found")
 }
 
-func TestUpdateLocation(t *testing.T) {
+func TestChangeLocation(t *testing.T) {
 	t.Parallel()
 	client := backupClient.Default.Locations
 
@@ -220,11 +220,15 @@ func TestUpdateLocation(t *testing.T) {
 				if req.PMMServerConfig != nil {
 					require.NotNil(t, loc.PMMServerConfig)
 					assert.Equal(t, req.PMMServerConfig.Path, loc.PMMServerConfig.Path)
+				} else {
+					assert.Nil(t, loc.PMMServerConfig)
 				}
 
 				if req.PMMClientConfig != nil {
 					require.NotNil(t, loc.PMMClientConfig)
 					assert.Equal(t, req.PMMClientConfig.Path, loc.PMMClientConfig.Path)
+				} else {
+					assert.Nil(t, loc.PMMClientConfig)
 				}
 
 				if req.S3Config != nil {
@@ -232,6 +236,8 @@ func TestUpdateLocation(t *testing.T) {
 					assert.Equal(t, req.S3Config.Endpoint, loc.S3Config.Endpoint)
 					assert.Equal(t, req.S3Config.AccessKey, loc.S3Config.AccessKey)
 					assert.Equal(t, req.S3Config.SecretKey, loc.S3Config.SecretKey)
+				} else {
+					assert.Nil(t, loc.S3Config)
 				}
 
 				found = true
