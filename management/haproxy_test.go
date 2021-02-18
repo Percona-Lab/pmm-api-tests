@@ -365,11 +365,12 @@ func TestRemoveHAProxy(t *testing.T) {
 		params := &ha_proxy.AddHAProxyParams{
 			Context: pmmapitests.Context,
 			Body: ha_proxy.AddHAProxyBody{
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Username:    "username",
-				Password:    "password",
-				ListenPort:  12345,
+				NodeID:              nodeID,
+				ServiceName:         serviceName,
+				Username:            "username",
+				Password:            "password",
+				ListenPort:          12345,
+				SkipConnectionCheck: true,
 			},
 		}
 		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
