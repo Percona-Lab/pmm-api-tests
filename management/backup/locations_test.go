@@ -283,6 +283,50 @@ func TestChangeLocation(t *testing.T) {
 		checkChange(t, updateBody, listResp.Payload.Locations)
 	})
 
+	t.Run("update only name", func(t *testing.T) {
+		t.Parallel()
+
+		addReqBody := locations.AddLocationBody{
+			Name:        gofakeit.Name(),
+			Description: gofakeit.Question(),
+			PMMServerConfig: &locations.AddLocationParamsBodyPMMServerConfig{
+				Path: "/tmp",
+			},
+		}
+		resp, err := client.AddLocation(&locations.AddLocationParams{
+			Body:    addReqBody,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+		defer deleteLocation(t, client, resp.Payload.LocationID)
+
+		updateBody := locations.ChangeLocationBody{
+			LocationID: resp.Payload.LocationID,
+			Name:       gofakeit.Name(),
+		}
+		_, err = client.ChangeLocation(&locations.ChangeLocationParams{
+			Body:    updateBody,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		listResp, err := client.ListLocations(&locations.ListLocationsParams{Context: pmmapitests.Context})
+		require.NoError(t, err)
+
+		var location *locations.LocationsItems0
+		for _, loc := range listResp.Payload.Locations {
+			if loc.LocationID == resp.Payload.LocationID {
+				location = loc
+				break
+			}
+		}
+		require.NotNil(t, location)
+
+		assert.Equal(t, location.Name, updateBody.Name)
+		require.NotNil(t, location.PMMServerConfig)
+		assert.Equal(t, addReqBody.PMMServerConfig.Path, location.PMMServerConfig.Path)
+	})
+
 	t.Run("change config type", func(t *testing.T) {
 		t.Parallel()
 
