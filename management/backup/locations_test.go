@@ -152,9 +152,9 @@ func TestAddWrongLocation(t *testing.T) {
 				Name:        gofakeit.Name(),
 				Description: gofakeit.Question(),
 				S3Config: &locations.AddLocationParamsBodyS3Config{
-					Endpoint:   "http://example.com",
-					AccessKey:  "access_key",
-					SecretKey:  "secret_key",
+					Endpoint:  "http://example.com",
+					AccessKey: "access_key",
+					SecretKey: "secret_key",
 				},
 			},
 			Context: pmmapitests.Context,
