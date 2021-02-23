@@ -63,9 +63,10 @@ func TestAddLocation(t *testing.T) {
 				Name:        gofakeit.Name(),
 				Description: gofakeit.Question(),
 				S3Config: &locations.AddLocationParamsBodyS3Config{
-					Endpoint:  "http://example.com",
-					AccessKey: "access_key",
-					SecretKey: "secret_key",
+					Endpoint:   "http://example.com",
+					AccessKey:  "access_key",
+					SecretKey:  "secret_key",
+					BucketName: "example_bucket",
 				},
 			},
 			Context: pmmapitests.Context,
@@ -95,7 +96,6 @@ func TestAddWrongLocation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing location config.")
 		assert.Nil(t, resp)
 	})
-
 	t.Run("missing client config path", func(t *testing.T) {
 		t.Parallel()
 
@@ -125,7 +125,6 @@ func TestAddWrongLocation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing location config.")
 		assert.Nil(t, resp)
 	})
-
 	t.Run("missing s3 endpoint", func(t *testing.T) {
 		t.Parallel()
 
@@ -134,14 +133,34 @@ func TestAddWrongLocation(t *testing.T) {
 				Name:        gofakeit.Name(),
 				Description: gofakeit.Question(),
 				S3Config: &locations.AddLocationParamsBodyS3Config{
-					AccessKey: "access_key",
-					SecretKey: "secret_key",
+					AccessKey:  "access_key",
+					SecretKey:  "secret_key",
+					BucketName: "example_bucket",
 				},
 			},
 			Context: pmmapitests.Context,
 		})
 
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field S3Config.Endpoint: value '' must not be an empty string")
+		assert.Nil(t, resp)
+	})
+	t.Run("missing s3 bucket", func(t *testing.T) {
+		t.Parallel()
+
+		resp, err := client.AddLocation(&locations.AddLocationParams{
+			Body: locations.AddLocationBody{
+				Name:        gofakeit.Name(),
+				Description: gofakeit.Question(),
+				S3Config: &locations.AddLocationParamsBodyS3Config{
+					Endpoint:   "http://example.com",
+					AccessKey:  "access_key",
+					SecretKey:  "secret_key",
+				},
+			},
+			Context: pmmapitests.Context,
+		})
+
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field S3Config.BucketName: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
 	t.Run("double config", func(t *testing.T) {
@@ -155,9 +174,10 @@ func TestAddWrongLocation(t *testing.T) {
 					Path: "/tmp",
 				},
 				S3Config: &locations.AddLocationParamsBodyS3Config{
-					Endpoint:  "http://example.com",
-					AccessKey: "access_key",
-					SecretKey: "secret_key",
+					Endpoint:   "http://example.com",
+					AccessKey:  "access_key",
+					SecretKey:  "secret_key",
+					BucketName: "example_bucket",
 				},
 			},
 			Context: pmmapitests.Context,
@@ -236,6 +256,7 @@ func TestChangeLocation(t *testing.T) {
 					assert.Equal(t, req.S3Config.Endpoint, loc.S3Config.Endpoint)
 					assert.Equal(t, req.S3Config.AccessKey, loc.S3Config.AccessKey)
 					assert.Equal(t, req.S3Config.SecretKey, loc.S3Config.SecretKey)
+					assert.Equal(t, req.S3Config.BucketName, loc.S3Config.BucketName)
 				} else {
 					assert.Nil(t, loc.S3Config)
 				}
@@ -348,9 +369,10 @@ func TestChangeLocation(t *testing.T) {
 			LocationID: resp.Payload.LocationID,
 			Name:       gofakeit.Name(),
 			S3Config: &locations.ChangeLocationParamsBodyS3Config{
-				Endpoint:  "https://example.com",
-				AccessKey: "access_key",
-				SecretKey: "secret_key",
+				Endpoint:   "https://example.com",
+				AccessKey:  "access_key",
+				SecretKey:  "secret_key",
+				BucketName: "example_bucket",
 			},
 		}
 		_, err = client.ChangeLocation(&locations.ChangeLocationParams{
