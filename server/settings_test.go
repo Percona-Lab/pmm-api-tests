@@ -555,7 +555,7 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("HRFractional", func(t *testing.T) {
+			t.Run("STTCheckIntervalFractional", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
