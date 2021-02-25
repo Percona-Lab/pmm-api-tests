@@ -229,7 +229,7 @@
 
 [[projects]]
   branch = "PMM-7337-stt-check-intervals"
-  digest = "1:77d5fc7dd0d554fe838edac5e1cdf90d6c303ca06cb7a63abd387fe829ca020c"
+  digest = "1:5b6385c37bc2575a97a27170194e8334a00f6f7ca1c57ce7d50885a980e627ba"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -273,7 +273,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "1608b91fd75dbad0fd677c2285966e394ce23f64"
+  revision = "8a4d965db318cee3a286c6cfd3f11e5826b49af6"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
