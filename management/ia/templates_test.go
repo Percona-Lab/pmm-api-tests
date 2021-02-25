@@ -371,60 +371,145 @@ func TestListTemplate(t *testing.T) {
 	require.NoError(t, err)
 	defer deleteTemplate(t, client, name)
 
-	resp, err := client.ListTemplates(&templates.ListTemplatesParams{
-		Body: templates.ListTemplatesBody{
-			Reload: true,
-		},
-		Context: pmmapitests.Context,
-	})
-	require.NoError(t, err)
+	t.Run("without pagination", func(t *testing.T) {
+		resp, err := client.ListTemplates(&templates.ListTemplatesParams{
+			Body: templates.ListTemplatesBody{
+				Reload: true,
+			},
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
 
-	var found bool
-	for _, template := range resp.Payload.Templates {
-		if template.Name == name {
-			assert.Equal(t, expr, template.Expr)
-			assert.Equal(t, "Test summary", template.Summary)
-			assert.Equal(t, "USER_API", *template.Source)
-			assert.Equal(t, "SEVERITY_WARNING", *template.Severity)
-			assert.Equal(t, "300s", template.For)
-			assert.Len(t, template.Params, 2)
+		var found bool
+		for _, template := range resp.Payload.Templates {
+			if template.Name == name {
+				assert.Equal(t, expr, template.Expr)
+				assert.Equal(t, "Test summary", template.Summary)
+				assert.Equal(t, "USER_API", *template.Source)
+				assert.Equal(t, "SEVERITY_WARNING", *template.Severity)
+				assert.Equal(t, "300s", template.For)
+				assert.Len(t, template.Params, 2)
 
-			assert.Equal(t, "param1", template.Params[0].Name)
-			assert.Equal(t, "first parameter with default value and defined range", template.Params[0].Summary)
-			assert.Equal(t, "FLOAT", *template.Params[0].Type)
-			assert.Equal(t, "PERCENTAGE", *template.Params[0].Unit)
-			assert.Nil(t, template.Params[0].Bool)
-			assert.Nil(t, template.Params[0].String)
-			assert.NotNil(t, template.Params[0].Float)
-			assert.True(t, template.Params[0].Float.HasDefault)
-			assert.Equal(t, float32(80), template.Params[0].Float.Default)
-			assert.True(t, template.Params[0].Float.HasMax)
-			assert.Equal(t, float32(100), template.Params[0].Float.Max)
-			assert.True(t, template.Params[0].Float.HasMin)
-			assert.Equal(t, float32(0), template.Params[0].Float.Min)
+				assert.Equal(t, "param1", template.Params[0].Name)
+				assert.Equal(t, "first parameter with default value and defined range", template.Params[0].Summary)
+				assert.Equal(t, "FLOAT", *template.Params[0].Type)
+				assert.Equal(t, "PERCENTAGE", *template.Params[0].Unit)
+				assert.Nil(t, template.Params[0].Bool)
+				assert.Nil(t, template.Params[0].String)
+				assert.NotNil(t, template.Params[0].Float)
+				assert.True(t, template.Params[0].Float.HasDefault)
+				assert.Equal(t, float32(80), template.Params[0].Float.Default)
+				assert.True(t, template.Params[0].Float.HasMax)
+				assert.Equal(t, float32(100), template.Params[0].Float.Max)
+				assert.True(t, template.Params[0].Float.HasMin)
+				assert.Equal(t, float32(0), template.Params[0].Float.Min)
 
-			assert.Equal(t, "param2", template.Params[1].Name)
-			assert.Equal(t, "second parameter without default value and defined range", template.Params[1].Summary)
-			assert.Equal(t, "FLOAT", *template.Params[1].Type)
-			assert.Equal(t, "SECONDS", *template.Params[1].Unit)
-			assert.Nil(t, template.Params[1].Bool)
-			assert.Nil(t, template.Params[1].String)
-			assert.NotNil(t, template.Params[1].Float)
-			assert.False(t, template.Params[1].Float.HasDefault)
-			assert.Equal(t, float32(0), template.Params[1].Float.Default)
-			assert.False(t, template.Params[1].Float.HasMax)
-			assert.Equal(t, float32(0), template.Params[1].Float.Max)
-			assert.False(t, template.Params[1].Float.HasMin)
-			assert.Equal(t, float32(00), template.Params[1].Float.Min)
+				assert.Equal(t, "param2", template.Params[1].Name)
+				assert.Equal(t, "second parameter without default value and defined range", template.Params[1].Summary)
+				assert.Equal(t, "FLOAT", *template.Params[1].Type)
+				assert.Equal(t, "SECONDS", *template.Params[1].Unit)
+				assert.Nil(t, template.Params[1].Bool)
+				assert.Nil(t, template.Params[1].String)
+				assert.NotNil(t, template.Params[1].Float)
+				assert.False(t, template.Params[1].Float.HasDefault)
+				assert.Equal(t, float32(0), template.Params[1].Float.Default)
+				assert.False(t, template.Params[1].Float.HasMax)
+				assert.Equal(t, float32(0), template.Params[1].Float.Max)
+				assert.False(t, template.Params[1].Float.HasMin)
+				assert.Equal(t, float32(00), template.Params[1].Float.Min)
 
-			assert.Equal(t, map[string]string{"foo": "bar"}, template.Labels)
-			assert.Equal(t, map[string]string{"description": "test description", "summary": "test summary"}, template.Annotations)
-			assert.Equal(t, yml, template.Yaml)
-			assert.NotEmpty(t, template.CreatedAt)
-			found = true
+				assert.Equal(t, map[string]string{"foo": "bar"}, template.Labels)
+				assert.Equal(t, map[string]string{"description": "test description", "summary": "test summary"}, template.Annotations)
+				assert.Equal(t, yml, template.Yaml)
+				assert.NotEmpty(t, template.CreatedAt)
+				found = true
+			}
 		}
-	}
-	assert.Truef(t, found, "Template with id %s not found", name)
+		assert.Truef(t, found, "Template with id %s not found", name)
+	})
+
+	t.Run("with pagination", func(t *testing.T) {
+		const templatesCount = 5
+
+		templateNames := make(map[string]struct{})
+
+		for i := 0; i < templatesCount; i++ {
+			name := gofakeit.UUID()
+			expr := gofakeit.UUID()
+			yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, expr, "%", "s"))
+			_, err = client.CreateTemplate(&templates.CreateTemplateParams{
+				Body: templates.CreateTemplateBody{
+					Yaml: yml,
+				},
+				Context: pmmapitests.Context,
+			})
+
+			templateNames[name] = struct{}{}
+		}
+		defer func() {
+			for name := range templateNames {
+				deleteTemplate(t, client, name)
+			}
+		}()
+
+		// list rules, so they are all on the first page
+		body := templates.ListTemplatesBody{
+			PageParams: &templates.ListTemplatesParamsBodyPageParams{
+				PageSize: 20,
+				Index:    0,
+			},
+		}
+		list1, err := client.ListTemplates(&templates.ListTemplatesParams{
+			Body:    body,
+			Context: pmmapitests.Context,
+		})
+		require.NoError(t, err)
+
+		assert.GreaterOrEqual(t, len(list1.Payload.Templates), templatesCount)
+		assert.Equal(t, int32(len(list1.Payload.Templates)), list1.Payload.Totals.TotalItems)
+		assert.Equal(t, int32(1), list1.Payload.Totals.TotalPages)
+
+		assertFindTemplate := func(list []*templates.TemplatesItems0, name string) func() bool {
+			return func() bool {
+				for _, tmpl := range list {
+					if tmpl.Name == name {
+						return true
+					}
+				}
+				return false
+			}
+		}
+
+		for name := range templateNames {
+			assert.Conditionf(t, assertFindTemplate(list1.Payload.Templates, name), "template %s not found", name)
+		}
+
+		// paginate page over page with page size 1 and check the order - it should be the same as in list1.
+		// last iteration checks that there is no elements for not existing page.
+		for pageIndex := 0; pageIndex <= len(list1.Payload.Templates); pageIndex++ {
+			body := templates.ListTemplatesBody{
+				PageParams: &templates.ListTemplatesParamsBodyPageParams{
+					PageSize: 1,
+					Index:    int32(pageIndex),
+				},
+			}
+			list2, err := client.ListTemplates(&templates.ListTemplatesParams{
+				Body: body, Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+
+			assert.Equal(t, list2.Payload.Totals.TotalItems, list2.Payload.Totals.TotalItems)
+			assert.GreaterOrEqual(t, list2.Payload.Totals.TotalPages, int32(templatesCount))
+
+			if pageIndex != len(list1.Payload.Templates) {
+				require.Len(t, list2.Payload.Templates, 1)
+				assert.Equal(t, list1.Payload.Templates[pageIndex].Name, list2.Payload.Templates[0].Name)
+			} else {
+				assert.Len(t, list2.Payload.Templates, 0)
+			}
+		}
+
+	})
 }
 
 func deleteTemplate(t *testing.T, client templates.ClientService, name string) {
