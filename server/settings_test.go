@@ -37,7 +37,7 @@ func TestSettings(t *testing.T) {
 		assert.Equal(t, expected, res.Payload.Settings.MetricsResolutions)
 		expectedSTTCheckIntervals := &server.GetSettingsOKBodySettingsSttCheckIntervals{
 			FrequentInterval: "14400s",
-			DefaultInterval:  "86400s",
+			StandardInterval: "86400s",
 			RareInterval:     "280800s",
 		}
 		assert.Equal(t, expectedSTTCheckIntervals, res.Payload.Settings.SttCheckIntervals)
@@ -546,12 +546,12 @@ func TestSettings(t *testing.T) {
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
 						SttCheckIntervals: &server.ChangeSettingsParamsBodySttCheckIntervals{
-							DefaultInterval: "0.9s",
+							StandardInterval: "0.9s",
 						},
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `default_interval: minimal resolution is 1s`)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `standard_interval: minimal resolution is 1s`)
 				assert.Empty(t, res)
 			})
 
@@ -713,7 +713,7 @@ func TestSettings(t *testing.T) {
 					Body: server.ChangeSettingsBody{
 						SttCheckIntervals: &server.ChangeSettingsParamsBodySttCheckIntervals{
 							RareInterval:     "8h",
-							DefaultInterval:  "30m",
+							StandardInterval: "30m",
 							FrequentInterval: "20s",
 						},
 					},
@@ -722,7 +722,7 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				expected := &server.ChangeSettingsOKBodySettingsSttCheckIntervals{
 					RareInterval:     "28800s",
-					DefaultInterval:  "1800s",
+					StandardInterval: "1800s",
 					FrequentInterval: "20s",
 				}
 				assert.Equal(t, expected, res.Payload.Settings.SttCheckIntervals)
@@ -731,7 +731,7 @@ func TestSettings(t *testing.T) {
 				require.NoError(t, err)
 				getExpected := &server.GetSettingsOKBodySettingsSttCheckIntervals{
 					RareInterval:     "28800s",
-					DefaultInterval:  "1800s",
+					StandardInterval: "1800s",
 					FrequentInterval: "20s",
 				}
 				assert.Equal(t, getExpected, getRes.Payload.Settings.SttCheckIntervals)
@@ -746,7 +746,7 @@ func TestSettings(t *testing.T) {
 					require.NoError(t, err)
 					expected := &server.ChangeSettingsOKBodySettingsSttCheckIntervals{
 						RareInterval:     "28800s",
-						DefaultInterval:  "1800s",
+						StandardInterval: "1800s",
 						FrequentInterval: "20s",
 					}
 					assert.Equal(t, expected, res.Payload.Settings.SttCheckIntervals)
@@ -756,7 +756,7 @@ func TestSettings(t *testing.T) {
 					require.NoError(t, err)
 					getExpected := &server.GetSettingsOKBodySettingsSttCheckIntervals{
 						RareInterval:     "28800s",
-						DefaultInterval:  "1800s",
+						StandardInterval: "1800s",
 						FrequentInterval: "20s",
 					}
 					assert.Equal(t, getExpected, getRes.Payload.Settings.SttCheckIntervals)
