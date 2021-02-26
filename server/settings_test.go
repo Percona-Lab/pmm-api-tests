@@ -706,7 +706,7 @@ func TestSettings(t *testing.T) {
 				})
 			})
 
-			t.Run("STTCheckIntervalsOK", func(t *testing.T) {
+			t.Run("STTCheckIntervalsValid", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
