@@ -96,6 +96,7 @@ func TestAddWrongLocation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing location config.")
 		assert.Nil(t, resp)
 	})
+
 	t.Run("missing client config path", func(t *testing.T) {
 		t.Parallel()
 
@@ -111,6 +112,7 @@ func TestAddWrongLocation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmClientConfig.Path: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
+
 	t.Run("missing name", func(t *testing.T) {
 		t.Parallel()
 
@@ -125,6 +127,7 @@ func TestAddWrongLocation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Missing location config.")
 		assert.Nil(t, resp)
 	})
+
 	t.Run("missing s3 endpoint", func(t *testing.T) {
 		t.Parallel()
 
@@ -144,6 +147,7 @@ func TestAddWrongLocation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field S3Config.Endpoint: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
+
 	t.Run("missing s3 bucket", func(t *testing.T) {
 		t.Parallel()
 
@@ -163,6 +167,7 @@ func TestAddWrongLocation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field S3Config.BucketName: value '' must not be an empty string")
 		assert.Nil(t, resp)
 	})
+
 	t.Run("double config", func(t *testing.T) {
 		t.Parallel()
 
@@ -185,7 +190,6 @@ func TestAddWrongLocation(t *testing.T) {
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Only one config is allowed.")
 
 		assert.Nil(t, resp)
-
 	})
 }
 
