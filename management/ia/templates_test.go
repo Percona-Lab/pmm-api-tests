@@ -25,7 +25,7 @@ import (
 // Note: Even though the IA services check for alerting enabled or disabled before returning results
 // we don't enable or disable IA explicit in our tests since it is enabled by default through
 // ENABLE_ALERTING env var.
-func assertTemplate(t *testing.T, name, expr string, expectedTemplate alert.Template, listTemplates []*templates.TemplatesItems0) {
+func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates []*templates.TemplatesItems0) {
 	convertParamUnit := func(u string) alert.Unit {
 		switch u {
 		case templates.TemplatesItems0ParamsItems0UnitPERCENTAGE:
@@ -48,17 +48,17 @@ func assertTemplate(t *testing.T, name, expr string, expectedTemplate alert.Temp
 	}
 	var tmpl *templates.TemplatesItems0
 	for _, listTmpl := range listTemplates {
-		if listTmpl.Name == name {
+		if listTmpl.Name == expectedTemplate.Name {
 			tmpl = listTmpl
 			break
 		}
 	}
-	require.NotNilf(t, tmpl, "template %s not found", name)
+	require.NotNilf(t, tmpl, "template %s not found", expectedTemplate.Name)
 	// IDE doesn't recognize that require stops execution
 	if tmpl == nil {
 		return
 	}
-	assert.Equal(t, expr, tmpl.Expr)
+	assert.Equal(t, expectedTemplate.Expr, tmpl.Expr)
 	assert.Equal(t, expectedTemplate.Summary, tmpl.Summary)
 	assert.Equal(t, "USER_API", *tmpl.Source)
 	assert.Equal(t, "SEVERITY_WARNING", *tmpl.Severity)
@@ -131,7 +131,7 @@ func TestAddTemplate(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		assertTemplate(t, name, expr, alertTemplates[0], resp.Payload.Templates)
+		assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
 	})
 
 	t.Run("duplicate", func(t *testing.T) {
@@ -216,7 +216,7 @@ func TestChangeTemplate(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		assertTemplate(t, name, newExpr, alertTemplates[0], resp.Payload.Templates)
+		assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
 	})
 
 	t.Run("unknown template", func(t *testing.T) {
@@ -397,7 +397,7 @@ func TestListTemplate(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		assertTemplate(t, name, expr, alertTemplates[0], resp.Payload.Templates)
+		assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
 	})
 
 	t.Run("with pagination", func(t *testing.T) {
