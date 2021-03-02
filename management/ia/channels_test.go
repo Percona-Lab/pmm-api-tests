@@ -333,7 +333,6 @@ func TestListChannels(t *testing.T) {
 			}
 		}
 	})
-
 }
 
 func deleteChannel(t *testing.T, client channels.ClientService, id string) {
