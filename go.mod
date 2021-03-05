@@ -1,0 +1,22 @@
+module github.com/Percona-Lab/pmm-api-tests
+
+go 1.16
+
+require (
+	github.com/AlekSi/pointer v1.1.0
+	github.com/brianvoe/gofakeit/v6 v6.2.2
+	github.com/davecgh/go-spew v1.1.1
+	github.com/go-openapi/runtime v0.19.20
+	github.com/go-openapi/spec v0.19.9 // indirect
+	github.com/mitchellh/mapstructure v1.3.3 // indirect
+	github.com/percona-platform/saas v0.0.0-20210122115803-1b32ca1828e1
+	github.com/percona/pmm v2.14.1-0.20210305122137-f37762275e21+incompatible
+	github.com/prometheus/client_golang v1.9.0
+	github.com/sirupsen/logrus v1.6.0
+	github.com/stretchr/testify v1.6.1
+	go.mongodb.org/mongo-driver v1.3.5 // indirect
+	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
+	golang.org/x/sys v0.0.0-20201214210602-f9fddec55a1e
+	google.golang.org/grpc v1.35.0
+	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+)
