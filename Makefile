@@ -2,7 +2,7 @@ all: build
 
 init:           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
 	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
-	go install ./vendor/github.com/jstemmer/go-junit-report
+	go install github.com/jstemmer/go-junit-report
 
 build:
 	go install -v ./...
@@ -22,7 +22,7 @@ run-race:
 	go test -count=1 -p 1 -v -race ./... 2>&1 | tee pmm-api-tests-output.txt
 	cat pmm-api-tests-output.txt | go-junit-report > pmm-api-tests-junit-report.xml
 
-FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+FILES = $(shell find . -type f -name '*.go')
 
 format:                         ## Format source code.
 	gofmt -w -s $(FILES)
