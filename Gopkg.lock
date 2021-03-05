@@ -228,7 +228,7 @@
   revision = "1b32ca1828e1a3419423c9e36c153faf0eb4cc28"
 
 [[projects]]
-  branch = "PMM-7337-stt-check-intervals"
+  branch = "release/2.16"
   digest = "1:407a15216b9e575e2544b407df471e6fdd71396333a1f93574cf6e239c74a1a4"
   name = "github.com/percona/pmm"
   packages = [
@@ -273,7 +273,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "027529e7553ae2f8d0a0ef67222592d33475cfcd"
+  revision = "f37762275e2194cf0e0cf06cc588ee9727e1cad2"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
