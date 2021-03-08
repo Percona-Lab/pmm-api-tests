@@ -228,8 +228,8 @@
   revision = "1b32ca1828e1a3419423c9e36c153faf0eb4cc28"
 
 [[projects]]
-  branch = "PMM-7313_postgres_rds"
-  digest = "1:1d71ba8aaf4d7db33f78a34edff7443088065ae025e7b8dccc061926a67a2eca"
+  branch = "release/2.16"
+  digest = "1:4fc31e90330bd6deab749a4a58c464f07e33010792573d7e46f7353d0a858501"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -273,7 +273,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "84e71c55e4166d32234d4e8acc8b67918ce59b1e"
+  revision = "6176fdc415f748616d6f2f658818234758ba002b"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
