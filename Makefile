@@ -1,9 +1,9 @@
 all: build
 
 init:           ## Installs development tools
-	go install -modfile=tools/go.mod github.com/golangci/golangci-lint/cmd/golangci-lint
-	go install -modfile=tools/go.mod github.com/jstemmer/go-junit-report
-	go install -modfile=tools/go.mod github.com/reviewdog/reviewdog/cmd/reviewdog
+	go build -modfile=tools/go.mod -o bin/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint
+	go build -modfile=tools/go.mod -o bin/go-junit-report github.com/jstemmer/go-junit-report
+	go build -modfile=tools/go.mod -o bin/reviewdog github.com/reviewdog/reviewdog/cmd/reviewdog
 
 
 build:
@@ -18,11 +18,11 @@ dev-test:						## Run test on dev env. Use `PMM_KUBECONFIG=/path/to/kubeconfig.y
 
 run:
 	go test -count=1 -p 1 -v ./... 2>&1 | tee pmm-api-tests-output.txt
-	cat pmm-api-tests-output.txt | go-junit-report > pmm-api-tests-junit-report.xml
+	cat pmm-api-tests-output.txt | bin/go-junit-report > pmm-api-tests-junit-report.xml
 
 run-race:
 	go test -count=1 -p 1 -v -race ./... 2>&1 | tee pmm-api-tests-output.txt
-	cat pmm-api-tests-output.txt | go-junit-report > pmm-api-tests-junit-report.xml
+	cat pmm-api-tests-output.txt | bin/go-junit-report > pmm-api-tests-junit-report.xml
 
 FILES = $(shell find . -type f -name '*.go')
 
@@ -35,8 +35,8 @@ clean:
 	rm -f ./pmm-api-tests-junit-report.xml
 
 check-all:                      ## Run golang ci linter to check new changes from master.
-	golangci-lint run -c=.golangci.yml --new-from-rev=master
+	bin/golangci-lint run -c=.golangci.yml --new-from-rev=master
 
 ci-reviewdog:                   ## Runs reviewdog checks.
-	golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
-	golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
+	bin/golangci-lint run -c=.golangci-required.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-check
+	bin/golangci-lint run -c=.golangci.yml --out-format=line-number | bin/reviewdog -f=golangci-lint -level=error -reporter=github-pr-review
