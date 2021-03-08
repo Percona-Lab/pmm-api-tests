@@ -1,8 +1,10 @@
 all: build
 
-init:           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
-	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
-	go install github.com/jstemmer/go-junit-report
+init:           ## Installs development tools
+	go install -modfile=tools/go.mod github.com/golangci/golangci-lint/cmd/golangci-lint
+	go install -modfile=tools/go.mod github.com/jstemmer/go-junit-report
+	go install -modfile=tools/go.mod github.com/reviewdog/reviewdog/cmd/reviewdog
+
 
 build:
 	go install -v ./...
