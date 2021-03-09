@@ -228,8 +228,8 @@
   revision = "1b32ca1828e1a3419423c9e36c153faf0eb4cc28"
 
 [[projects]]
-  branch = "PMM-7503-dbaas-add-resources-api"
-  digest = "1:b1aeec3dcf64d3e2ba006f2051793082696740c3f00735eabe111a5b87d37917"
+  branch = "release/2.16"
+  digest = "1:7fb53d6bbda3566acbade4ad985d40bfcb41b1c1cd76b82208a8a71377da7837"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -273,7 +273,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "d45197fa2e9ab8d978f215ea322178377d3d4eac"
+  revision = "ad7804b14f5fb4a78279580f324d527b2c56da87"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
