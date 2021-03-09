@@ -202,6 +202,7 @@ func TestChangeTemplate(t *testing.T) {
 		alertTemplates, yml := formatTemplateYaml(t, fmt.Sprintf(string(b), name, newExpr, "s", "%"))
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
+				Name: name,
 				Yaml: yml,
 			},
 			Context: pmmapitests.Context,
@@ -223,6 +224,7 @@ func TestChangeTemplate(t *testing.T) {
 		name := gofakeit.UUID()
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
+				Name: name,
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID(), "s", "%"),
 			},
 			Context: pmmapitests.Context,
@@ -243,6 +245,7 @@ func TestChangeTemplate(t *testing.T) {
 
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
+				Name: name,
 				Yaml: "not a yaml",
 			},
 			Context: pmmapitests.Context,
@@ -264,6 +267,7 @@ func TestChangeTemplate(t *testing.T) {
 		b, err = ioutil.ReadFile("../../testdata/ia/invalid-template.yaml")
 		_, err = client.UpdateTemplate(&templates.UpdateTemplateParams{
 			Body: templates.UpdateTemplateBody{
+				Name: name,
 				Yaml: fmt.Sprintf(string(b), name, gofakeit.UUID()),
 			},
 			Context: pmmapitests.Context,

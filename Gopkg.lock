@@ -228,8 +228,8 @@
   revision = "1b32ca1828e1a3419423c9e36c153faf0eb4cc28"
 
 [[projects]]
-  branch = "PMM-7521-alert-templates-pagination"
-  digest = "1:0b6660f2e2db58db4828935208de8dfff26a71ea60f45ce3308d2fa0427c27fe"
+  branch = "release/2.16"
+  digest = "1:2f5cb3eb06a4d10aac8c81bf90d13d77b3c0c0e25250b361b9c457de4cfb11b6"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -273,7 +273,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "85680b616866b4097707c523746791fdcd8b3560"
+  revision = "e0e1b5f767413ffcc95288cc662ce52448ab602e"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
