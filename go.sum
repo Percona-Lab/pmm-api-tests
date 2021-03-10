@@ -348,10 +348,6 @@ github.com/pborman/uuid v1.2.0/go.mod h1:X/NO0urCmaxf9VXbdlT7C2Yzkj2IKimNn4k+gtP
 github.com/pelletier/go-toml v1.4.0/go.mod h1:PN7xzY2wHTK0K9p34ErDQMlFxa51Fk0OUruD3k1mMwo=
 github.com/percona-platform/saas v0.0.0-20210122115803-1b32ca1828e1 h1:VyKdL2wWYqwV79Sa4LHmLkQMjoSF+5uusQPBr4VoHWw=
 github.com/percona-platform/saas v0.0.0-20210122115803-1b32ca1828e1/go.mod h1:jJRyGMxxDJaSiU7AaHNS+8j1TFQQhX6lcYp8s0t8Knc=
-github.com/percona/pmm v2.14.1-0.20210226123836-37e341821d2b+incompatible h1:7CCnqNY1uLtDXUpBSJ+9mtNPM1l2n6qJufuhEsCM4+c=
-github.com/percona/pmm v2.14.1-0.20210226123836-37e341821d2b+incompatible/go.mod h1:nN14kK4Dfl2Ub1k05aOnAHv7SmLEQtCsYX+DEfLgrkU=
-github.com/percona/pmm v2.14.1-0.20210305122137-f37762275e21+incompatible h1:bHzO+mpl9hH5eo0PUhHSTC6AyStEB252a05nwL04KyA=
-github.com/percona/pmm v2.14.1-0.20210305122137-f37762275e21+incompatible/go.mod h1:nN14kK4Dfl2Ub1k05aOnAHv7SmLEQtCsYX+DEfLgrkU=
 github.com/percona/pmm v2.14.1-0.20210309165051-ebba3a7f5f8a+incompatible h1:TkkT7kzuixKQs06CT42vCGcUex1OmPqG5ymSLR5R9Tk=
 github.com/percona/pmm v2.14.1-0.20210309165051-ebba3a7f5f8a+incompatible/go.mod h1:nN14kK4Dfl2Ub1k05aOnAHv7SmLEQtCsYX+DEfLgrkU=
 github.com/percona/promconfig v0.2.1 h1:LBbCDSQRfy0aTHFJMgrVQIE2WvmPkMTkIoznTfBAvj8=
