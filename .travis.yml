@@ -30,9 +30,7 @@ cache:
     - /home/travis/.cache/go-build
     - /home/travis/gopath/pkg
 
-install:
-  # install reviewdog and golangci-lin
-  - curl https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh| sh -s
+install: skip
 
 before_script:
   - make init
