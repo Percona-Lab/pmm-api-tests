@@ -8,7 +8,6 @@ init:           ## Installs development tools
 
 build:
 	go install -v ./...
-	go test -v ./...
 	go test -c -v ./inventory
 	go test -c -v ./management
 	go test -c -v ./server
