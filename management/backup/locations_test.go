@@ -488,7 +488,7 @@ func TestLocationConfigValidation(t *testing.T) {
 		t.Parallel()
 
 		resp, err := client.TestLocationConfig(&locations.TestLocationConfigParams{
-			Body: locations.TestLocationConfigBody{},
+			Body:    locations.TestLocationConfigBody{},
 			Context: pmmapitests.Context,
 		})
 
@@ -555,9 +555,9 @@ func TestLocationConfigValidation(t *testing.T) {
 					Path: "/tmp",
 				},
 				S3Config: &locations.TestLocationConfigParamsBodyS3Config{
-					Endpoint:  "http://example.com",
-					AccessKey: "access_key",
-					SecretKey: "secret_key",
+					Endpoint:   "http://example.com",
+					AccessKey:  "access_key",
+					SecretKey:  "secret_key",
 					BucketName: "example_bucket",
 				},
 			},
