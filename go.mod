@@ -2,6 +2,12 @@ module github.com/Percona-Lab/pmm-api-tests
 
 go 1.16
 
+// Use for local development, but do not commit:
+// replace github.com/percona/pmm => ../../pmm
+
+// Update with:
+// go get -v github.com/percona/pmm@PMM-2.0
+
 require (
 	github.com/AlekSi/pointer v1.1.0
 	github.com/brianvoe/gofakeit/v6 v6.2.2
