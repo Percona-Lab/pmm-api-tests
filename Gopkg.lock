@@ -228,8 +228,8 @@
   revision = "1b32ca1828e1a3419423c9e36c153faf0eb4cc28"
 
 [[projects]]
-  branch = "release/2.16"
-  digest = "1:f19fdbdd82d07611ccb4c08743ed2b5d7a422d2aff621fb5bb97b65e23f5c685"
+  branch = "PMM-7448-location-and-credentials-test"
+  digest = "1:5b6bfb1cd41197a830e1aa0425658cdfb18b8be84332a4565ae4475378a8d001"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -273,7 +273,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "6ea4be17187daa357e6b5f33a40acbab8017f0ed"
+  revision = "063967f19db79287485908557ba9f53e1c5a0544"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
