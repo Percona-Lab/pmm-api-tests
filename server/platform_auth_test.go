@@ -1,22 +1,8 @@
 package server
 
-import (
-	"os"
-	"os/user"
-	"strings"
-	"testing"
-
-	"github.com/brianvoe/gofakeit"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
-	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc/codes"
-
-	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
-)
-
 // Tests in this file cover Percona Platform authentication.
-
+// Uncomment when SAAS-487 is ready for merge
+/*
 func TestPlatform(t *testing.T) {
 	client := serverClient.Default.Server
 
@@ -207,3 +193,4 @@ func genCredentials(t *testing.T) (string, string) {
 	password := gofakeit.Password(true, true, true, false, false, 14)
 	return email, password
 }
+*/
