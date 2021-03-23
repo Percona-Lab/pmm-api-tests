@@ -228,8 +228,8 @@
   revision = "1b32ca1828e1a3419423c9e36c153faf0eb4cc28"
 
 [[projects]]
-  branch = "release/2.16"
-  digest = "1:5b6bfb1cd41197a830e1aa0425658cdfb18b8be84332a4565ae4475378a8d001"
+  branch = "PMM-7676-azure-exporter-integration"
+  digest = "1:cc52f15e0beccaf2ca79d787c671d421adfed6ebf0ba9bc353241601fd0bf905"
   name = "github.com/percona/pmm"
   packages = [
     "api/alertmanager/amclient",
@@ -244,6 +244,7 @@
     "api/inventorypb/json/client/nodes",
     "api/inventorypb/json/client/services",
     "api/managementpb/backup/json/client",
+    "api/managementpb/backup/json/client/artifacts",
     "api/managementpb/backup/json/client/locations",
     "api/managementpb/dbaas/json/client",
     "api/managementpb/dbaas/json/client/kubernetes",
@@ -258,6 +259,7 @@
     "api/managementpb/json/client",
     "api/managementpb/json/client/actions",
     "api/managementpb/json/client/annotation",
+    "api/managementpb/json/client/azure_database",
     "api/managementpb/json/client/external",
     "api/managementpb/json/client/ha_proxy",
     "api/managementpb/json/client/mongo_db",
@@ -273,7 +275,7 @@
     "utils/tlsconfig",
   ]
   pruneopts = "NUT"
-  revision = "5df66e904f51b01960a089f2c009290ac38c9dca"
+  revision = "deb5491ea1ed78c2ec701c722502a71e79be35f8"
 
 [[projects]]
   digest = "1:ddc4b7507aa587f326a9874dc5d0ca7b3961ed050a7db734eb49b8682cc2b19f"
