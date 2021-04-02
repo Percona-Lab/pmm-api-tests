@@ -181,7 +181,6 @@ func TestChangeSecurityChecksInterval(t *testing.T) {
 	client := serverClient.Default.Server
 
 	t.Run("error", func(t *testing.T) {
-		t.Skip()
 		defer restoreSettingsDefaults(t)
 		// Enable STT
 		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
@@ -196,7 +195,7 @@ func TestChangeSecurityChecksInterval(t *testing.T) {
 		resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 		require.NoError(t, err)
 		require.NotEmpty(t, resp.Payload.Checks)
-		assert.Equal(t, "STANDARD", string(*resp.Payload.Checks[0].Interval))
+		assert.Equal(t, "STANDARD", *resp.Payload.Checks[0].Interval)
 
 		var check *security_checks.ChecksItems0
 		var params *security_checks.ChangeSecurityChecksIntervalParams
@@ -212,14 +211,7 @@ func TestChangeSecurityChecksInterval(t *testing.T) {
 		}
 
 		_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecksInterval(params)
-		assert.EqualError(t, err, "invalid security check interval")
-
-		resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
-		require.NoError(t, err)
-		require.NotEmpty(t, resp.Payload.Checks)
-
-		assert.Equal(t, check.Name, resp.Payload.Checks[0].Name)
-		assert.Equal(t, "STANDARD", string(*resp.Payload.Checks[0].Interval))
+		pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `Internal server error.`)
 	})
 
 	t.Run("normal", func(t *testing.T) {
@@ -260,7 +252,7 @@ func TestChangeSecurityChecksInterval(t *testing.T) {
 		require.NotEmpty(t, resp.Payload.Checks)
 
 		assert.Equal(t, check.Name, resp.Payload.Checks[0].Name)
-		assert.Equal(t, "RARE", string(*resp.Payload.Checks[0].Interval))
+		assert.Equal(t, "RARE", *resp.Payload.Checks[0].Interval)
 
 		t.Run("intervals should be preserved on restart", func(t *testing.T) {
 			// Enable STT
@@ -279,7 +271,7 @@ func TestChangeSecurityChecksInterval(t *testing.T) {
 			resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
-			assert.Equal(t, "RARE", string(*resp.Payload.Checks[0].Interval))
+			assert.Equal(t, "RARE", *resp.Payload.Checks[0].Interval)
 		})
 	})
 }
