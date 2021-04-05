@@ -130,57 +130,55 @@ func TestListSecurityChecks(t *testing.T) {
 func TestChangeSecurityChecks(t *testing.T) {
 	client := serverClient.Default.Server
 
-	defer restoreSettingsDefaults(t)
-	// Enable STT
-	res, err := client.ChangeSettings(&server.ChangeSettingsParams{
-		Body: server.ChangeSettingsBody{
-			EnableStt: true,
-		},
-		Context: pmmapitests.Context,
-	})
-	require.NoError(t, err)
-	assert.True(t, res.Payload.Settings.SttEnabled)
-
-	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
-	require.NoError(t, err)
-	require.NotEmpty(t, resp.Payload.Checks)
-
-	var check *security_checks.ChecksItems0
-	var params *security_checks.ChangeSecurityChecksParams
-
-	// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
-	// then in second iteration it returns state to its origin.
-	for i := 0; i < 2; i++ {
-		check = resp.Payload.Checks[0]
-		params = &security_checks.ChangeSecurityChecksParams{
-			Body: security_checks.ChangeSecurityChecksBody{
-				Params: []*security_checks.ParamsItems0{
-					{
-						Name:    check.Name,
-						Disable: !check.Disabled,
-						Enable:  check.Disabled,
-					},
-				},
+	t.Run("enable disable", func(t *testing.T) {
+		defer restoreSettingsDefaults(t)
+		// Enable STT
+		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
+			Body: server.ChangeSettingsBody{
+				EnableStt: true,
 			},
 			Context: pmmapitests.Context,
-		}
-
-		_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+		})
 		require.NoError(t, err)
+		assert.True(t, res.Payload.Settings.SttEnabled)
 
-		resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+		resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
 		require.NoError(t, err)
 		require.NotEmpty(t, resp.Payload.Checks)
 
-		assert.Equal(t, check.Name, resp.Payload.Checks[0].Name)
-		assert.Equal(t, !check.Disabled, resp.Payload.Checks[0].Disabled)
-	}
-}
+		var check *security_checks.ChecksItems0
+		var params *security_checks.ChangeSecurityChecksParams
 
-func TestChangeSecurityChecksInterval(t *testing.T) {
-	client := serverClient.Default.Server
+		// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
+		// then in second iteration it returns state to its origin.
+		for i := 0; i < 2; i++ {
+			check = resp.Payload.Checks[0]
+			params = &security_checks.ChangeSecurityChecksParams{
+				Body: security_checks.ChangeSecurityChecksBody{
+					Params: []*security_checks.ParamsItems0{
+						{
+							Name:    check.Name,
+							Disable: !check.Disabled,
+							Enable:  check.Disabled,
+						},
+					},
+				},
+				Context: pmmapitests.Context,
+			}
 
-	t.Run("error", func(t *testing.T) {
+			_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+			require.NoError(t, err)
+
+			resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+			require.NoError(t, err)
+			require.NotEmpty(t, resp.Payload.Checks)
+
+			assert.Equal(t, check.Name, resp.Payload.Checks[0].Name)
+			assert.Equal(t, !check.Disabled, resp.Payload.Checks[0].Disabled)
+		}
+	})
+
+	t.Run("change interval error", func(t *testing.T) {
 		defer restoreSettingsDefaults(t)
 		// Enable STT
 		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
@@ -198,24 +196,29 @@ func TestChangeSecurityChecksInterval(t *testing.T) {
 		assert.Equal(t, "STANDARD", *resp.Payload.Checks[0].Interval)
 
 		var check *security_checks.ChecksItems0
-		var params *security_checks.ChangeSecurityChecksIntervalParams
+		var params *security_checks.ChangeSecurityChecksParams
 
 		check = resp.Payload.Checks[0]
-		interval := "SECURITY_CHECK_INTERVAL_INVALID"
-		params = &security_checks.ChangeSecurityChecksIntervalParams{
-			Body: security_checks.ChangeSecurityChecksIntervalBody{
-				Name:     check.Name,
-				Interval: &interval,
+		interval := "unknown_interval"
+		params = &security_checks.ChangeSecurityChecksParams{
+			Body: security_checks.ChangeSecurityChecksBody{
+				Params: []*security_checks.ParamsItems0{
+					{
+						Name:     check.Name,
+						Interval: &interval,
+					},
+				},
 			},
 			Context: pmmapitests.Context,
 		}
 
-		_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecksInterval(params)
-		pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `Internal server error.`)
+		_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "unknown value \"\\\"unknown_interval\\\"\" for enum management.SecurityCheckInterval")
 	})
 
-	t.Run("normal", func(t *testing.T) {
+	t.Run("change interval normal", func(t *testing.T) {
 		defer restoreSettingsDefaults(t)
+		defer restoreCheckIntervalDefaults(t)
 		// Enable STT
 		res, err := client.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
@@ -231,28 +234,32 @@ func TestChangeSecurityChecksInterval(t *testing.T) {
 		require.NotEmpty(t, resp.Payload.Checks)
 		assert.Equal(t, "STANDARD", string(*resp.Payload.Checks[0].Interval))
 
-		var check *security_checks.ChecksItems0
-		var params *security_checks.ChangeSecurityChecksIntervalParams
-
-		check = resp.Payload.Checks[0]
+		var params *security_checks.ChangeSecurityChecksParams
 		interval := "RARE"
-		params = &security_checks.ChangeSecurityChecksIntervalParams{
-			Body: security_checks.ChangeSecurityChecksIntervalBody{
-				Name:     check.Name,
-				Interval: &interval,
-			},
-			Context: pmmapitests.Context,
+		for i, check := range resp.Payload.Checks {
+
+			params = &security_checks.ChangeSecurityChecksParams{
+				Body: security_checks.ChangeSecurityChecksBody{
+					Params: []*security_checks.ParamsItems0{
+						{
+							Name:     check.Name,
+							Interval: &interval,
+						},
+					},
+				},
+				Context: pmmapitests.Context,
+			}
+
+			_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+			require.NoError(t, err)
+
+			resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+			require.NoError(t, err)
+			require.NotEmpty(t, resp.Payload.Checks)
+
+			assert.Equal(t, check.Name, resp.Payload.Checks[i].Name)
+			assert.Equal(t, "RARE", *resp.Payload.Checks[i].Interval)
 		}
-
-		_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecksInterval(params)
-		require.NoError(t, err)
-
-		resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
-		require.NoError(t, err)
-		require.NotEmpty(t, resp.Payload.Checks)
-
-		assert.Equal(t, check.Name, resp.Payload.Checks[0].Name)
-		assert.Equal(t, "RARE", *resp.Payload.Checks[0].Interval)
 
 		t.Run("intervals should be preserved on restart", func(t *testing.T) {
 			// Enable STT

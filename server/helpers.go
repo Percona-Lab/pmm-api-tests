@@ -3,6 +3,8 @@ package server
 import (
 	"testing"
 
+	managementClient "github.com/percona/pmm/api/managementpb/json/client"
+	"github.com/percona/pmm/api/managementpb/json/client/security_checks"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/stretchr/testify/assert"
@@ -45,4 +47,32 @@ func restoreSettingsDefaults(t *testing.T) {
 	assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
 	assert.Equal(t, "", res.Payload.Settings.AlertManagerURL)
 	assert.Equal(t, "", res.Payload.Settings.AlertManagerRules)
+}
+
+func restoreCheckIntervalDefaults(t *testing.T) {
+	t.Helper()
+
+	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+	require.NoError(t, err)
+	require.NotEmpty(t, resp.Payload.Checks)
+
+	var params *security_checks.ChangeSecurityChecksParams
+
+	interval := "STANDARD"
+	for _, check := range resp.Payload.Checks {
+		params = &security_checks.ChangeSecurityChecksParams{
+			Body: security_checks.ChangeSecurityChecksBody{
+				Params: []*security_checks.ParamsItems0{
+					{
+						Name:     check.Name,
+						Interval: &interval,
+					},
+				},
+			},
+			Context: pmmapitests.Context,
+		}
+
+		_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+		require.NoError(t, err)
+	}
 }
