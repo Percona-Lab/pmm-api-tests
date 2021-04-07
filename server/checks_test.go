@@ -237,7 +237,6 @@ func TestChangeSecurityChecks(t *testing.T) {
 		var params *security_checks.ChangeSecurityChecksParams
 		interval := "RARE"
 		for i, check := range resp.Payload.Checks {
-
 			params = &security_checks.ChangeSecurityChecksParams{
 				Body: security_checks.ChangeSecurityChecksBody{
 					Params: []*security_checks.ParamsItems0{
