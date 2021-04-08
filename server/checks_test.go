@@ -199,9 +199,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 		require.NotEmpty(t, resp.Payload.Checks)
 		assert.Equal(t, "STANDARD", *resp.Payload.Checks[0].Interval)
 
-		var check *security_checks.ChecksItems0
-
-		check = resp.Payload.Checks[0]
+		check := resp.Payload.Checks[0]
 		interval := "unknown_interval"
 		params := &security_checks.ChangeSecurityChecksParams{
 			Body: security_checks.ChangeSecurityChecksBody{
