@@ -3,6 +3,7 @@ package server
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/security_checks"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
@@ -58,14 +59,13 @@ func restoreCheckIntervalDefaults(t *testing.T) {
 
 	var params *security_checks.ChangeSecurityChecksParams
 
-	interval := "STANDARD"
 	for _, check := range resp.Payload.Checks {
 		params = &security_checks.ChangeSecurityChecksParams{
 			Body: security_checks.ChangeSecurityChecksBody{
 				Params: []*security_checks.ParamsItems0{
 					{
 						Name:     check.Name,
-						Interval: &interval,
+						Interval: pointer.ToString(security_checks.ParamsItems0IntervalSTANDARD),
 					},
 				},
 			},

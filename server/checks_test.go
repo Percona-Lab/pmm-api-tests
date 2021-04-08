@@ -3,6 +3,7 @@ package server
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/security_checks"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
@@ -147,13 +148,12 @@ func TestChangeSecurityChecks(t *testing.T) {
 		require.NotEmpty(t, resp.Payload.Checks)
 
 		var check *security_checks.ChecksItems0
-		var params *security_checks.ChangeSecurityChecksParams
 
 		// enable ⥁ disable loop, it checks current state of first returned check and changes its state,
 		// then in second iteration it returns state to its origin.
 		for i := 0; i < 2; i++ {
 			check = resp.Payload.Checks[0]
-			params = &security_checks.ChangeSecurityChecksParams{
+			params := &security_checks.ChangeSecurityChecksParams{
 				Body: security_checks.ChangeSecurityChecksBody{
 					Params: []*security_checks.ParamsItems0{
 						{
@@ -200,11 +200,10 @@ func TestChangeSecurityChecks(t *testing.T) {
 		assert.Equal(t, "STANDARD", *resp.Payload.Checks[0].Interval)
 
 		var check *security_checks.ChecksItems0
-		var params *security_checks.ChangeSecurityChecksParams
 
 		check = resp.Payload.Checks[0]
 		interval := "unknown_interval"
-		params = &security_checks.ChangeSecurityChecksParams{
+		params := &security_checks.ChangeSecurityChecksParams{
 			Body: security_checks.ChangeSecurityChecksBody{
 				Params: []*security_checks.ParamsItems0{
 					{
@@ -238,16 +237,14 @@ func TestChangeSecurityChecks(t *testing.T) {
 		require.NotEmpty(t, resp.Payload.Checks)
 		assert.Equal(t, "STANDARD", string(*resp.Payload.Checks[0].Interval))
 
-		var params *security_checks.ChangeSecurityChecksParams
-		interval := "RARE"
 		// convert all checks to RARE interval
 		for _, check := range resp.Payload.Checks {
-			params = &security_checks.ChangeSecurityChecksParams{
+			params := &security_checks.ChangeSecurityChecksParams{
 				Body: security_checks.ChangeSecurityChecksBody{
 					Params: []*security_checks.ParamsItems0{
 						{
 							Name:     check.Name,
-							Interval: &interval,
+							Interval: pointer.ToString(security_checks.ParamsItems0IntervalRARE),
 						},
 					},
 				},
