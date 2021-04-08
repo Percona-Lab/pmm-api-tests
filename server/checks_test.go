@@ -173,8 +173,12 @@ func TestChangeSecurityChecks(t *testing.T) {
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
-			assert.Equal(t, check.Name, resp.Payload.Checks[0].Name)
-			assert.Equal(t, !check.Disabled, resp.Payload.Checks[0].Disabled)
+			for _, c := range resp.Payload.Checks {
+				if c.Name == check.Name {
+					assert.Equal(t, !check.Disabled, c.Disabled)
+					break
+				}
+			}
 		}
 	})
 
@@ -236,7 +240,8 @@ func TestChangeSecurityChecks(t *testing.T) {
 
 		var params *security_checks.ChangeSecurityChecksParams
 		interval := "RARE"
-		for i, check := range resp.Payload.Checks {
+		// convert all checks to RARE interval
+		for _, check := range resp.Payload.Checks {
 			params = &security_checks.ChangeSecurityChecksParams{
 				Body: security_checks.ChangeSecurityChecksBody{
 					Params: []*security_checks.ParamsItems0{
@@ -251,13 +256,14 @@ func TestChangeSecurityChecks(t *testing.T) {
 
 			_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
 			require.NoError(t, err)
+		}
 
-			resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
-			require.NoError(t, err)
-			require.NotEmpty(t, resp.Payload.Checks)
+		resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+		require.NoError(t, err)
+		require.NotEmpty(t, resp.Payload.Checks)
 
-			assert.Equal(t, check.Name, resp.Payload.Checks[i].Name)
-			assert.Equal(t, "RARE", *resp.Payload.Checks[i].Interval)
+		for _, check := range resp.Payload.Checks {
+			assert.Equal(t, "RARE", *check.Interval)
 		}
 
 		t.Run("intervals should be preserved on restart", func(t *testing.T) {
