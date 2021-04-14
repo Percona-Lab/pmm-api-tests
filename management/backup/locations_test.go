@@ -60,7 +60,7 @@ func TestAddLocation(t *testing.T) {
 		t.Parallel()
 		accessKey, secretKey, bucketName := os.Getenv("AWS_ACCESS_KEY"), os.Getenv("AWS_SECRET_KEY"), os.Getenv("AWS_BUCKET_NAME")
 		if accessKey == "" || secretKey == "" || bucketName == "" {
-			t.Skip()
+			t.Skip("Skipping add S3 backup location - missing credentials")
 		}
 		resp, err := client.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
