@@ -32,6 +32,7 @@ func TestDownloadLogs(t *testing.T) {
 		"alertmanager.ini",
 		"alertmanager.log",
 		"alertmanager.yml",
+		"clickhouse-server.err.log",
 		"clickhouse-server.log",
 		"client/list.txt",
 		"client/pmm-admin-version.txt",
