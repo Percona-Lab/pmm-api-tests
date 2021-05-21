@@ -14,9 +14,10 @@ import (
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
+var AgentStatusUnknown string = "UNKNOWN"
+
 func registerGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (string, string) {
 	t.Helper()
-
 	params := node.RegisterNodeParams{
 		Context: pmmapitests.Context,
 		Body:    body,
@@ -64,6 +65,7 @@ func assertNodeExporterCreated(t pmmapitests.TestingT, pmmAgentID string) (strin
 		PMMAgentID:         pmmAgentID,
 		AgentID:            nodeExporterAgentID,
 		PushMetricsEnabled: true,
+		Status:             &AgentStatusUnknown,
 	}, *listAgentsOK.Payload.NodeExporter[0])
 	return nodeExporterAgentID, asserted
 }
