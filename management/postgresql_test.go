@@ -636,6 +636,7 @@ func TestAddPostgreSQL(t *testing.T) {
 					PMMAgentID:         pmmAgentID,
 					Username:           "username",
 					PushMetricsEnabled: true,
+					Status:             &AgentStatusUnknown,
 				},
 			},
 		}, *listAgents.Payload)
