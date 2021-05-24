@@ -14,6 +14,7 @@ import (
 	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
 )
 
+// AgentStatusUnknown means agent is not connected and we don't know anything about its status.
 var AgentStatusUnknown string = "UNKNOWN"
 
 func registerGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (string, string) {
