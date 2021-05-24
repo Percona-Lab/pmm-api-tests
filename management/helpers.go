@@ -15,7 +15,7 @@ import (
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
-var AgentStatusUnknown string = "UNKNOWN"
+var AgentStatusUnknown = "UNKNOWN"
 
 func registerGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (string, string) {
 	t.Helper()
