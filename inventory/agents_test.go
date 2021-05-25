@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
@@ -16,7 +17,7 @@ import (
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
-var AgentStatusUnknown = "UNKNOWN"
+var AgentStatusUnknown = inventorypb.AgentStatus_name[inventorypb.AgentStatus_UNKNOWN]
 
 func TestAgents(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
