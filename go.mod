@@ -14,6 +14,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-openapi/runtime v0.19.20
 	github.com/go-openapi/spec v0.19.9 // indirect
+	github.com/grpc-ecosystem/grpc-gateway v1.15.0 // indirect
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/percona-platform/saas v0.0.0-20210122115803-1b32ca1828e1
 	github.com/percona/pmm v2.17.1-0.20210528141215-1b9ac6f1a3d4+incompatible
