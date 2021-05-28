@@ -17,7 +17,7 @@ import (
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
-var AgentStatusUnknown = inventorypb.AgentStatus_name[inventorypb.AgentStatus_UNKNOWN]
+var AgentStatusUnknown = inventorypb.AgentStatus_name[int32(inventorypb.AgentStatus_UNKNOWN)]
 
 func TestAgents(t *testing.T) {
 	t.Run("List", func(t *testing.T) {
