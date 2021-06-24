@@ -1,9 +1,9 @@
 package backup
 
 import (
+	"testing"
+
 	"github.com/AlekSi/pointer"
-	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
-	"github.com/Percona-Lab/pmm-api-tests/management"
 	"github.com/brianvoe/gofakeit/v6"
 	backupClient "github.com/percona/pmm/api/managementpb/backup/json/client"
 	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
@@ -13,7 +13,9 @@ import (
 	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
+
+	pmmapitests "github.com/Percona-Lab/pmm-api-tests"
+	"github.com/Percona-Lab/pmm-api-tests/management"
 )
 
 func TestScheduleBackup(t *testing.T) {
@@ -119,4 +121,21 @@ func TestScheduleBackup(t *testing.T) {
 		Context: pmmapitests.Context,
 	})
 	assert.NoError(t, err)
+
+	find := func(id string, backups []*backups.ScheduledBackupsItems0) *backups.ScheduledBackupsItems0 {
+		for _, b := range backups {
+			if b.ScheduledBackupID == id {
+				return b
+			}
+		}
+		return nil
+	}
+	listRes, err = client.ListScheduledBackups(&backups.ListScheduledBackupsParams{
+		Context: pmmapitests.Context,
+	})
+	assert.NoError(t, err)
+	require.NotNil(t, listRes)
+
+	deleted := find(backupRes.Payload.ScheduledBackupID, listRes.Payload.ScheduledBackups)
+	assert.Nil(t, deleted, "scheduled backup %s is not deleted", backupRes.Payload.ScheduledBackupID)
 }
