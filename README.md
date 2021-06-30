@@ -1,13 +1,12 @@
 # pmm-api-tests
 
 [![Build Status](https://travis-ci.com/Percona-Lab/pmm-api-tests.svg?branch=master)](https://travis-ci.com/Percona-Lab/pmm-api-tests)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FPercona-Lab%2Fpmm-api-tests.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FPercona-Lab%2Fpmm-api-tests?ref=badge_shield)
 
 API tests for PMM 2.x
 
 # Setup Instructions
 
-Make sure you have Go 1.13.x installed on your systems, execute the following steps
+Make sure you have Go 1.15.x installed on your systems, execute the following steps
 to setup API-tests in your local systems.
 
 1. Run PMM Server.
@@ -43,10 +42,11 @@ where `PMM_SERVER_URL` should be pointing to pmm-server.
 If pmm-server located locally:
 
 - Use --network=host while running docker container or add both containers to the same docker network.
-- Use non-secure url if you use self generated certificate.
+- Use the insecure url if you default to a self-generated certificate.
 
 # Contributing
 
 All tests should follow these rules:
-* Tests can work in parallel and in real system, so take into account that there might be records in database.
-* Always revert changes made by test.
+
+- Tests can work in parallel and in real system, so take into account that there might be records in database.
+- Always revert changes made by test.
