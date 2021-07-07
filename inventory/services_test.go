@@ -244,7 +244,7 @@ func TestRemoveService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.RemoveService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Service with ID %q has agents, artifacts, restore history items or scheduled tasks..`, serviceID)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Service with ID %q has agents.`, serviceID)
 		assert.Nil(t, res)
 
 		// Remove with force flag.
