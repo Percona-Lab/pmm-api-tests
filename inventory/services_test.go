@@ -1123,10 +1123,10 @@ func TestExternalService(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		containsExternal := func(items []*services.ExternalItems0, expected string) func() bool {
+		containsExternalWithGroup := func(items []*services.ExternalItems0, expectedGroup string) func() bool {
 			return func() bool {
 				for _, ext := range items {
-					if ext.Group == expected {
+					if ext.Group == expectedGroup {
 						return true
 					}
 				}
@@ -1195,7 +1195,7 @@ func TestExternalService(t *testing.T) {
 		assert.Len(t, servicesList.Payload.Postgresql, 0)
 		assert.Len(t, servicesList.Payload.Proxysql, 0)
 		assert.Len(t, servicesList.Payload.External, 1)
-		assert.Conditionf(t, containsExternal(servicesList.Payload.External, "redis"), "list does not contain external group %s", "redis")
+		assert.Conditionf(t, containsExternalWithGroup(servicesList.Payload.External, "redis"), "list does not contain external group %s", "redis")
 
 		// Filter services by a non-existing external group.
 		emptyServicesList, err := client.Default.Services.ListServices(&services.ListServicesParams{
@@ -1226,7 +1226,7 @@ func TestExternalService(t *testing.T) {
 		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Postgresql), 1)
 		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.Proxysql), 0)
 		assert.GreaterOrEqual(t, len(noFilterServicesList.Payload.External), 1)
-		assert.Conditionf(t, containsExternal(noFilterServicesList.Payload.External, "redis"), "list does not contain external group %s", "redis")
+		assert.Conditionf(t, containsExternalWithGroup(noFilterServicesList.Payload.External, "redis"), "list does not contain external group %s", "redis")
 
 		// Check duplicates.
 		params = &services.AddExternalServiceParams{
