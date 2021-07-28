@@ -71,19 +71,19 @@ func TestSettings(t *testing.T) {
 					assert.True(t, resg.Payload.Settings.SttEnabled)
 				})
 
-				// t.Run("InvalidBothEnableAndDisableUpdates", func(t *testing.T) {
-				// 	defer restoreSettingsDefaults(t)
+				t.Run("InvalidBothEnableAndDisableUpdates", func(t *testing.T) {
+					defer restoreSettingsDefaults(t)
 
-				// 	res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-				// 		Body: server.ChangeSettingsBody{
-				// 			EnableUpdates:  true,
-				// 			DisableUpdates: true,
-				// 		},
-				// 		Context: pmmapitests.Context,
-				// 	})
-				// 	pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_stt and disable_stt are present.`)
-				// 	assert.Empty(t, res)
-				// })
+					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							EnableUpdates:  true,
+							DisableUpdates: true,
+						},
+						Context: pmmapitests.Context,
+					})
+					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_stt and disable_stt are present.`)
+					assert.Empty(t, res)
+				})
 			})
 
 			t.Run("ValidAlertingSettingsUpdate", func(t *testing.T) {
