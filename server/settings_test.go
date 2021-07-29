@@ -53,22 +53,35 @@ func TestSettings(t *testing.T) {
 			defer restoreSettingsDefaults(t)
 
 			t.Run("Updates", func(t *testing.T) {
-				t.Run("ValidUpdatesSettingsUpdate", func(t *testing.T) {
+				t.Run("DisableAndEnableUpdatesSettingsUpdate", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							DisableUpdates: true,
+							EnableUpdates: true,
 						},
 						Context: pmmapitests.Context,
 					})
 					require.NoError(t, err)
-					assert.True(t, res.Payload.Settings.UpdatesDisabled)
+					assert.False(t, res.Payload.Settings.UpdatesDisabled)
 					assert.Empty(t, err)
 
 					resg, err := serverClient.Default.Server.GetSettings(nil)
 					require.NoError(t, err)
-					assert.True(t, resg.Payload.Settings.UpdatesDisabled)
-					assert.True(t, resg.Payload.Settings.SttEnabled)
+					assert.False(t, resg.Payload.Settings.UpdatesDisabled)
+
+					res, err = serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+						Body: server.ChangeSettingsBody{
+							DisableUpdates: false,
+						},
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+					assert.False(t, res.Payload.Settings.UpdatesDisabled)
+					assert.Empty(t, err)
+
+					resg, err = serverClient.Default.Server.GetSettings(nil)
+					require.NoError(t, err)
+					assert.False(t, resg.Payload.Settings.UpdatesDisabled)
 				})
 
 				t.Run("InvalidBothEnableAndDisableUpdates", func(t *testing.T) {
@@ -81,7 +94,7 @@ func TestSettings(t *testing.T) {
 						},
 						Context: pmmapitests.Context,
 					})
-					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_stt and disable_stt are present.`)
+					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Both enable_updates and disable_updates are present.`)
 					assert.Empty(t, res)
 				})
 			})
