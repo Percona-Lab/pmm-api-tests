@@ -57,7 +57,7 @@ func TestSettings(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							EnableUpdates: true,
+							DisableUpdates: true,
 						},
 						Context: pmmapitests.Context,
 					})
@@ -71,7 +71,7 @@ func TestSettings(t *testing.T) {
 
 					res, err = serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							DisableUpdates: false,
+							EnableUpdates: true,
 						},
 						Context: pmmapitests.Context,
 					})
